@@ -2,9 +2,6 @@
 {% load i18n %}<!DOCTYPE HTML>
 {% include 'header.html' %}
 <title>iVatar :: {% block title %}{% trans 'Freeing the Web, one face at a time!' %}{% endblock title %}</title>
-{% if not user.is_anonymous %}
-{% include 'navbar.html' %}
-{% endif %}
 
 {% spaceless %}
 <div id="page">
