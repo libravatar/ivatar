@@ -13,8 +13,30 @@
 <header>
 <h1>{% trans 'ivatar' %}</h1>
 <h2>{% trans 'freeing the web one face at a time' %}</h2>
+{% if user.is_anonymous %}
 <a href="/accounts/login/" class="btn btn-lg btn-primary">{% trans 'Login' %}</a>&nbsp;
 <a href="/accounts/new/" class="btn btn-lg btn-primary">{% trans 'Sign up' %}</a>&nbsp;
+{% else %}
+<div class="btn-group">
+        <a class="btn btn-lg btn-primary dropdown-toggle" href="#" id="account_dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fa fa-user" aria-hidden="true"></i> {{ request.user }}
+        </a>
+        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+            <li><a href="{% url 'profile'  %}"><i class="fa fa-fw fa-image" aria-hidden="true"></i> {% trans 'Profile' %}</a></li>
+            <li><a href="{% url 'user_preference' %}"><i class="fa fa-fw fa-cog" aria-hidden="true"></i> {% trans 'Preferences' %}</a></li>
+            <li><a href="{% url 'import_photo' %}"><i class="fa fa-fw fa-envelope-square" aria-hidden="true"></i> {% trans 'Import photo via mail address' %}</a></li>
+            <li><a href="{% url 'upload_export' %}"><i class="fa fa-fw fa-file-archive-o" aria-hidden="true"></i> {% trans 'Import libravatar XML export' %}</a></li>
+            <li><a href="{% url 'password_change' %}"><i class="fa fa-fw fa-key" aria-hidden="true"></i> {% trans 'Change password' %}</a></li>
+            <li><a href="{% url 'password_reset' %}"><i class="fa fa-fw fa-unlock-alt" aria-hidden="true"></i> {% trans 'Reset password' %}</a></li>
+            <li><a href="{% url 'logout' %}"><i class="fa fa-fw fa-sign-out" aria-hidden="true"></i> {% trans 'Logout' %}</a></li>
+    {% if user.is_staff %}
+      <li>
+        <a href="{% url 'admin:index' %}" target="_new"><i class="fa fa-fw fa-user-secret" aria-hidden="true"></i> {% trans 'Admin' %}</a>
+      </li>
+    {% endif %}
+            </ul>
+</div>
+{% endif %}
 <a href="/tools/check/" class="btn btn-lg btn-primary">{% trans 'Check email' %}</a>&nbsp;
 </header>
 </div>
