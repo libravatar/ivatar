@@ -57,8 +57,6 @@ BASE_URL = os.environ.get('BASE_URL', 'http://avatars.linux-kernel.at/avatar/')
 
 LOGIN_REDIRECT_URL = reverse_lazy('profile')
 MAX_LENGTH_EMAIL = 254  # http://stackoverflow.com/questions/386294
-SERVER_EMAIL = 'accounts@mg.linux-kernel.at'
-DEFAULT_FROM_EMAIL = SERVER_EMAIL
 
 MAX_NUM_PHOTOS = 5
 MAX_NUM_UNCONFIRMED_EMAILS = 5
@@ -108,6 +106,7 @@ else:
         }
         EMAIL_BACKEND = 'anymail.backends.mailgun.EmailBackend'  # pragma: no cover
 
+SERVER_EMAIL = os.environ.get('SERVER_EMAIL', 'ivatar@mg.linux-kernel.at')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'ivatar@mg.linux-kernel.at')
 
 try:
