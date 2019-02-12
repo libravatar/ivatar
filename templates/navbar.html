@@ -23,13 +23,11 @@
         {% block nav %}
           <div class="collapse navbar-collapse" id="navbar">
             <ul class="nav navbar-nav">
-              {% if not user.is_anonymous %}
                 <li>
                   <a href="/"><i class="fa fa-home" aria-hidden="true"></i>
                     {% trans 'Home' %}
                   </a>
                 </li>
-              {% endif %}
               <li>
                 <a class="nav-link" href="{% url 'contact' %}"><i class="fa fa-envelope" aria-hidden="true"></i>
                   {% trans 'Contact' %}
