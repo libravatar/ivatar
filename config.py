@@ -95,7 +95,7 @@ BOOTSTRAP4 = {
 }
 
 if 'EMAIL_BACKEND' in os.environ:
-    EMAIL_BACKEND = os.environ['EMAIL_BACKEND']
+    EMAIL_BACKEND = os.environ['EMAIL_BACKEND']  # pragma: no cover
 else:
     if 'test' in sys.argv or 'collectstatic' in sys.argv:
         EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
