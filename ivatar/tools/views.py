@@ -69,8 +69,8 @@ class CheckView(FormView):
             mail_hash256 = hash_obj.hexdigest()
             size = form.cleaned_data['size']
         if form.cleaned_data['openid']:
-            if form.cleaned_data['openid'][-1] != '/':
-                form.cleaned_data['openid'] += '/'
+            if not form.cleaned_data['openid'].startswith('http://') and not form.cleaned_data['openid'].startswith('https://'):
+                form.cleaned_data['openid'] = 'http://%s' % form.cleaned_data['openid']
             openidurl = libravatar_url(
               openid=form.cleaned_data['openid'],
               size=form.cleaned_data['size'],
