@@ -31,7 +31,7 @@ from libravatar import libravatar_url
 from ivatar.settings import MAX_LENGTH_EMAIL, logger
 from ivatar.settings import MAX_PIXELS, AVATAR_MAX_SIZE, JPEG_QUALITY
 from ivatar.settings import MAX_LENGTH_URL
-from ivatar.settings import SECURE_BASE_URL, SITE_NAME, SERVER_EMAIL
+from ivatar.settings import SECURE_BASE_URL, SITE_NAME, DEFAULT_FROM_EMAIL
 from .gravatar import get_photo as get_gravatar_photo
 
 
@@ -383,7 +383,7 @@ class UnconfirmedEmail(BaseAccountModel):
         # if settings.DEBUG:
         #    print('DEBUG: %s' % link)
         send_mail(
-            email_subject, email_body, SERVER_EMAIL,
+            email_subject, email_body, DEFAULT_FROM_EMAIL,
             [self.email])
         return True
 
