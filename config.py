@@ -49,8 +49,8 @@ TEMPLATES[0]['OPTIONS']['context_processors'].append(
 OPENID_CREATE_USERS = True
 OPENID_UPDATE_DETAILS_FROM_SREG = True
 
-SITE_NAME = os.environ.get('SITE_NAME', 'ivatar')
-IVATAR_VERSION = '0.1'
+SITE_NAME = os.environ.get('SITE_NAME', 'libravatar')
+IVATAR_VERSION = '1.0'
 
 SECURE_BASE_URL = os.environ.get('SECURE_BASE_URL', 'https://avatars.linux-kernel.at/avatar/')
 BASE_URL = os.environ.get('BASE_URL', 'http://avatars.linux-kernel.at/avatar/')
