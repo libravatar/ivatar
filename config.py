@@ -49,16 +49,14 @@ TEMPLATES[0]['OPTIONS']['context_processors'].append(
 OPENID_CREATE_USERS = True
 OPENID_UPDATE_DETAILS_FROM_SREG = True
 
-SITE_NAME = os.environ.get('SITE_NAME', 'ivatar')
-IVATAR_VERSION = '0.1'
+SITE_NAME = os.environ.get('SITE_NAME', 'libravatar')
+IVATAR_VERSION = '1.0'
 
 SECURE_BASE_URL = os.environ.get('SECURE_BASE_URL', 'https://avatars.linux-kernel.at/avatar/')
 BASE_URL = os.environ.get('BASE_URL', 'http://avatars.linux-kernel.at/avatar/')
 
 LOGIN_REDIRECT_URL = reverse_lazy('profile')
 MAX_LENGTH_EMAIL = 254  # http://stackoverflow.com/questions/386294
-SERVER_EMAIL = 'accounts@mg.linux-kernel.at'
-DEFAULT_FROM_EMAIL = SERVER_EMAIL
 
 MAX_NUM_PHOTOS = 5
 MAX_NUM_UNCONFIRMED_EMAILS = 5
@@ -97,7 +95,7 @@ BOOTSTRAP4 = {
 }
 
 if 'EMAIL_BACKEND' in os.environ:
-    EMAIL_BACKEND = os.environ['EMAIL_BACKEND']
+    EMAIL_BACKEND = os.environ['EMAIL_BACKEND']  # pragma: no cover
 else:
     if 'test' in sys.argv or 'collectstatic' in sys.argv:
         EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
@@ -108,6 +106,7 @@ else:
         }
         EMAIL_BACKEND = 'anymail.backends.mailgun.EmailBackend'  # pragma: no cover
 
+SERVER_EMAIL = os.environ.get('SERVER_EMAIL', 'ivatar@mg.linux-kernel.at')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'ivatar@mg.linux-kernel.at')
 
 try:
