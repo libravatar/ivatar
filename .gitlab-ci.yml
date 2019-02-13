@@ -16,7 +16,7 @@ before_script:
 test_and_coverage:
   stage: test
   script:
-    - echo 'from ivatar.settings import TEMPLATES  # noqa' > config_local.py
+    - echo 'from ivatar.settings import TEMPLATES' > config_local.py
     - echo 'TEMPLATES[0]["OPTIONS"]["debug"] = True' >> config_local.py
     - echo "DEBUG = True" >> config_local.py
     - python manage.py collectstatic --noinput
