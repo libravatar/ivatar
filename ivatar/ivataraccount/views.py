@@ -145,7 +145,6 @@ class RemoveUnconfirmedEmailView(SuccessMessageMixin, View):
         return HttpResponseRedirect(reverse_lazy('profile'))
 
 
-@method_decorator(login_required, name='dispatch')
 class ConfirmEmailView(SuccessMessageMixin, TemplateView):
     '''
     View class for confirming an unconfirmed email address

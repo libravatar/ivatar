@@ -11,3 +11,4 @@ htmlcov/
 .ropeproject/
 db.sqlite3.SAVE
 node_modules/
+config_local.py
