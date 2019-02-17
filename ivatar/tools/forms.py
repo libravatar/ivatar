@@ -14,14 +14,12 @@ class CheckDomainForm(forms.Form):
     '''
     Form handling domain check
     '''
-    can_distribute = forms.TextInput(
-        attrs={
-            'label': _('Domain'),
-            'required': True,
-            'error_messages': {
-                'required':
-                _('Cannot check without a domain name.')
-            }
+    domain = forms.CharField(
+        label=_('Domain'),
+        required=True,
+        error_messages={
+             'required':
+                 _('Cannot check without a domain name.')
         }
     )
 
