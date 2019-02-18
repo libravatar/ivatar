@@ -576,8 +576,11 @@ class RedirectOpenIDView(View):
             messages.error(request, _('OpenID discovery failed: %s' % exc))
             return HttpResponseRedirect(reverse_lazy('profile'))
         except UnicodeDecodeError as exc:  # pragma: no cover
-            msg = _('OpenID discovery failed (userid=%s) for %s: %s' %
-                    (request.user.id, user_url.encode('utf-8'), exc))
+            msg = _('OpenID discovery failed (userid=%(userid)s) for %(userurl)s: %(message)s' % {
+                  userid: request.user.id,
+                  userurl: user_url.encode('utf-8'),
+                  message: exc,
+                })
             print("message: %s" % msg)
             messages.error(request, msg)
 

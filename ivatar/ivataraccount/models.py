@@ -221,8 +221,9 @@ class Photo(BaseAccountModel):
         if dimensions['a'] > MAX_PIXELS or dimensions['b'] > MAX_PIXELS:
             messages.error(
                 request,
-                _('Image dimensions are too big(max: %s x %s' %
-                  (MAX_PIXELS, MAX_PIXELS)))
+                _('Image dimensions are too big (max: %(max_pixels)s x %(max_pixels)s' % {
+                    max_pixels: MAX_PIXELS,
+                    }))
             return HttpResponseRedirect(reverse_lazy('profile'))
 
         if dimensions['w'] == 0 and dimensions['h'] == 0:
