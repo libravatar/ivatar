@@ -2,27 +2,80 @@
 {% load i18n %}
 {% load static %}
 
-{% block title %}{% trans 'Check e-mail or openid' %}{% endblock title %}
+{% block title %}{% trans 'Check domain' %}{% endblock title %}
 
 {% block content %}
 
-<h1>{% trans 'Check domain' %}</h1>
+<div class="container">
 
-<div style="max-width:640px">
-<form method="post" name="check">
-{% csrf_token %}
-<div class="form-group"><label for="id_mail">{% trans 'Domain' %}</label>
-<input type="domain" name="domain" maxlength="254" minlength="6" class="form-control" placeholder="{% trans 'Domain' %}" {% if form.domain.value %} value="{{ form.domain.value }}" {% endif %} id="id_domain"></div>
-  <div class="form-group">
-      <button type="submit" class="btn btn-default">{% trans 'Check' %}</button>
-</div>
-</form>
-</div>
+  <h1>{% trans 'Check domain' %}</h1>
 
-{% if result %}
-  <hr/>
-  <h2>Domain check - TODO TODO</h2>
-  <p/>
-{% endif %}
+  {% if form.errors %}                                                                                
+    <p class="error">{% trans "Please correct errors below:" %}<br>
+      {% if form.openid_identifier.errors %}
+        {{ form.openid_identifier.errors|join:', ' }}
+      {% endif %}
+      {% if form.next.errors %}
+        {{ form.next.errors|join:', ' }}
+      {% endif %}
+    </p>
+  {% endif %}
+
+  <div style="max-width:640px">
+    <form method="post" name="lookup">
+      {% csrf_token %}
+
+      <div class="form-group"><label for="id_domain">{% trans 'Domain' %}</label>
+        <input type="text" name="domain" maxlength="254" minlength="6" class="form-control" placeholder="{% trans 'Domain' %}" {% if form.domain.value %} value="{{ form.domain.value }}" {% endif %} id="id_domain">
+      </div>
+      <div class="form-group">
+        <button type="submit" class="btn btn-default">{% trans 'Check' %}</button>
+      </div>
+    </form>
+  </div>
+
+<!-- TODO TODO TODO: I need better styling -->
+  {% if result %}
+    <hr/>
+	<table>
+	<tr>
+	  <td valign="top" style="padding: 0px 10px 0px 10px;">{% trans 'HTTP avatar server:' %}</td>
+	  <td>
+	  {% if result.avatar_server_http %}
+		<tt>{{result.avatar_server_http}}</tt>
+		{% if result.avatar_server_http_ipv4 %}
+	  <br>{{ result.avatar_server_http_ipv4 }}
+		{% else %}
+	  <br><strong>{% trans 'Warning: no A record for this hostname' %}</strong>
+		{% endif %}
+		{% if result.avatar_server_http_ipv6 %}
+	  <br>{{ result.avatar_server_http_ipv6 }}
+		{% endif %}
+	  {% else %}
+	  <i>{% trans 'use <tt>http://cdn.libravatar.org</tt>' %}</i>
+	  {% endif %}
+	  </td>
+	</tr>
+	<tr>
+	  <td valign="top" style="padding: 0px 10px 0px 10px;">{% trans 'HTTPS avatar server:' %}</td>
+	  <td>
+	  {% if result.avatar_server_https %}
+		<tt>{{result.avatar_server_https}}</tt>
+		{% if result.avatar_server_https_ipv4 %}
+	  <br>{{ result.avatar_server_https_ipv4 }}
+		{% else %}
+	  <br><strong>{% trans 'Warning: no A record for this hostname' %}</strong>
+		{% endif %}
+		{% if result.avatar_server_https_ipv6 %}
+	  <br>{{ result.avatar_server_https_ipv6 }}
+		{% endif %}
+	  {% else %}
+	  <i>{% trans 'use <tt>https://seccdn.libravatar.org</tt>' %}</i>
+	  {% endif %}
+	  </td>
+	</tr>
+	</table>
+  {% endif %}
+</div>
 <div style="height:40px"></div>
 {% endblock content %}

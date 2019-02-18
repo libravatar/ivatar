@@ -12,3 +12,4 @@ htmlcov/
 db.sqlite3.SAVE
 node_modules/
 config_local.py
+locale/*/LC_MESSAGES/django.mo
