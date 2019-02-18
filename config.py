@@ -5,6 +5,8 @@ Configuration overrides for settings.py
 import os
 import sys
 from django.urls import reverse_lazy
+from django.utils.translation import ugettext_lazy as _
+from django.contrib.messages import constants as message_constants
 from ivatar.settings import BASE_DIR
 
 from ivatar.settings import MIDDLEWARE
@@ -147,3 +149,29 @@ USE_X_FORWARDED_HOST = True
 ALLOWED_EXTERNAL_OPENID_REDIRECT_DOMAINS = ['avatars.linux-kernel.at', 'localhost',]
 
 DEFAULT_AVATAR_SIZE = 80
+
+LANGUAGES = (                                                                                                                                                 
+  ('de', _('Deutsch')),
+  ('en', _('English')),
+  ('ca', _('Català')),
+  ('cs', _('Česky')),
+  ('es', _('Español')),
+  ('eu', _('Basque')),
+  ('fr', _('Français')),
+  ('it', _('Italiano')),
+  ('ja', _('日本語')),
+  ('nl', _('Nederlands')),
+  ('pt', _('Português')),
+  ('ru', _('Русский')),
+  ('sq', _('Shqip')),
+  ('tr', _('Türkçe')),
+  ('uk', _('Українська')),
+)
+
+MESSAGE_TAGS = {
+  message_constants.DEBUG: 'debug',
+  message_constants.INFO: 'info',
+  message_constants.SUCCESS: 'success',
+  message_constants.WARNING: 'warning',
+  message_constants.ERROR: 'danger',
+}
