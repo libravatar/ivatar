@@ -11,6 +11,7 @@ from . views import AvatarImageView, GravatarProxyView
 
 urlpatterns = [  # pylint: disable=invalid-name
     path('admin/', admin.site.urls),
+    path('i18n/', include('django.conf.urls.i18n')),
     url('openid/', include('django_openid_auth.urls')),
     url('accounts/', include('ivatar.ivataraccount.urls')),
     url('tools/', include('ivatar.tools.urls')),
