@@ -28,9 +28,13 @@ INSTALLED_APPS.extend([
 
 MIDDLEWARE.extend([
     'django.middleware.locale.LocaleMiddleware',
+    'django.middleware.cache.FetchFromCacheMiddleware',
 ])
 MIDDLEWARE.insert(
     0, 'ivatar.middleware.MultipleProxyMiddleware',
+)
+MIDDLEWARE.insert(
+    1, 'django.middleware.cache.UpdateCacheMiddleware',
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -174,4 +178,13 @@ MESSAGE_TAGS = {
   message_constants.SUCCESS: 'success',
   message_constants.WARNING: 'warning',
   message_constants.ERROR: 'danger',
+}
+
+CACHES = {
+  'default': {
+    'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+    'LOCATION': [
+        '127.0.0.1:11211',
+    ],
+  }
 }
