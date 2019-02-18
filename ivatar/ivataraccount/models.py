@@ -351,8 +351,8 @@ class UnconfirmedEmail(BaseAccountModel):
         '''
         Class attributes
         '''
-        verbose_name = _('unconfirmed_email')
-        verbose_name_plural = _('unconfirmed_emails')
+        verbose_name = _('unconfirmed email')
+        verbose_name_plural = _('unconfirmed emails')
 
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):
