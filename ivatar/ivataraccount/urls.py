@@ -23,6 +23,7 @@ from . views import CropPhotoView
 from . views import UserPreferenceView, UploadLibravatarExportView
 from . views import ResendConfirmationMailView
 from . views import IvatarLoginView
+from . views import DeleteAccountView
 
 # Define URL patterns, self documenting
 # To see the fancy, colorful evaluation of these use:
@@ -60,9 +61,7 @@ urlpatterns = [  # pylint: disable=invalid-name
     path('export/', login_required(
         TemplateView.as_view(template_name='export.html')
     ), name='export'),
-    path('delete/', login_required(
-        TemplateView.as_view(template_name='delete.html')
-    ), name='delete'),
+    path('delete/', DeleteAccountView.as_view(), name='delete'),
     path('profile/', ProfileView.as_view(), name='profile'),
     path('add_email/', AddEmailView.as_view(), name='add_email'),
     path('add_openid/', AddOpenIDView.as_view(), name='add_openid'),
