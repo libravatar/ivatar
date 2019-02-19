@@ -39,6 +39,7 @@ from .gravatar import get_photo as get_gravatar_photo
 
 from .forms import AddEmailForm, UploadPhotoForm, AddOpenIDForm
 from .forms import UpdatePreferenceForm, UploadLibravatarExportForm
+from .forms import DeleteAccountForm
 from .models import UnconfirmedEmail, ConfirmedEmail, Photo
 from .models import UnconfirmedOpenId, ConfirmedOpenId, DjangoOpenIDStore
 from .models import UserPreference
@@ -916,4 +917,35 @@ class PasswordResetView(PasswordResetViewOriginal):
                 confirmed_email.user.save()
             except Exception as exc:
                 pass
+        return super().post(self, request, args, kwargs)
+
+
+@method_decorator(login_required, name='dispatch')
+class DeleteAccountView(SuccessMessageMixin, FormView):
+    '''
+    View class for account deletion
+    '''
+
+    template_name = 'delete.html'
+    form_class = DeleteAccountForm
+    success_url = reverse_lazy('home')
+
+    def get(self, request, *args, **kwargs):
+        return super().get(self, request, args, kwargs)
+
+    def post(self, request, *args, **kwargs):
+        '''
+        Handle account deletion
+        '''
+        if request.user.password:
+            if 'password' in request.POST:
+                if not request.user.check_password(request.POST['password']):
+                    messages.error(request, _('Incorrect password'))
+                    return HttpResponseRedirect(reverse_lazy('delete'))
+            else:
+                messages.error(request, _('No password given'))
+                return HttpResponseRedirect(reverse_lazy('delete'))
+
+                raise(_('No password given'))
+        request.user.delete() # should delete all confirmed/unconfirmed/photo objects
         return super().post(self, request, args, kwargs)
