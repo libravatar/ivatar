@@ -40,6 +40,8 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
     email = '%s@%s.%s' % (username, random_string(), random_string(2))
     # Dunno why random tld doesn't work, but I'm too lazy now to investigate
     openid = 'http://%s.%s.%s/' % (username, random_string(), 'org')
+    first_name = random_string()
+    last_name = random_string()
 
     def login(self):
         '''
@@ -55,6 +57,8 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         self.user = User.objects.create_user(
             username=self.username,
             password=self.password,
+            first_name=self.first_name,
+            last_name=self.last_name,
         )
 
     def test_new_user(self):
@@ -703,6 +707,22 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         self.assertEqual(
             self.user.confirmedemail_set.first().photo,
             self.user.photo_set.first())
+
+    def test_no_photo_to_email(self):
+        '''
+        Test assigning photo to mail address
+        '''
+        self.test_confirm_email()
+        url = reverse(
+            'assign_photo_email',
+            args=[self.user.confirmedemail_set.first().id])
+        response = self.client.post(url, {
+            'photoNone': True,
+        }, follow=True)
+        self.assertEqual(response.status_code, 200, 'cannot un-assign photo?')
+        self.assertEqual(
+            self.user.confirmedemail_set.first().photo,
+            None)
 
     def test_assign_photo_to_email_wo_photo_for_testing_template(self):  # pylint: disable=invalid-name
         '''
@@ -1440,4 +1460,32 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
             1,
             200,
             'Old password as entered incorrectly, site should raise an error'
+        )
+
+    def test_profile_must_list_first_and_lastname(self):
+        '''
+        Test if profile view correctly lists first -/last name
+        '''
+        self.login()
+        response = self.client.get(reverse('profile'))
+        self.assertContains(
+            response,
+            self.first_name,
+            1,
+            200,
+            'First name not listed in profile page',
+        )
+        self.assertContains(
+            response,
+            self.last_name,
+            1,
+            200,
+            'Last name not listed in profile page',
+        )
+        self.assertContains(
+            response,
+            self.first_name + ' ' + self.last_name,
+            1,
+            200,
+            'First and last name not correctly listed in profile page',
         )
