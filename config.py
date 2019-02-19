@@ -28,13 +28,9 @@ INSTALLED_APPS.extend([
 
 MIDDLEWARE.extend([
     'django.middleware.locale.LocaleMiddleware',
-    'django.middleware.cache.FetchFromCacheMiddleware',
 ])
 MIDDLEWARE.insert(
     0, 'ivatar.middleware.MultipleProxyMiddleware',
-)
-MIDDLEWARE.insert(
-    1, 'django.middleware.cache.UpdateCacheMiddleware',
 )
 
 AUTHENTICATION_BACKENDS = (
