@@ -582,11 +582,12 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
 
     def test_upload_gif_image(self):
         '''
-        Test if gif is correctly detected
+        Test if gif is correctly detected and can be viewed
         '''
         self.login()
         url = reverse('upload_photo')
         # rb => Read binary
+        # Broken is _not_ broken - it's just an 'x' :-)
         with open(os.path.join(settings.STATIC_ROOT, 'img', 'broken.gif'),
                   'rb') as photo:
             response = self.client.post(url, {
@@ -597,10 +598,59 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         self.assertEqual(
             str(list(response.context[0]['messages'])[0]),
             'Successfully uploaded',
-            'Invalid image data should return error message!')
+            'GIF upload failed?!')
         self.assertEqual(
             self.user.photo_set.first().format, 'gif',
             'Format must be gif, since we uploaded a GIF!')
+        self.test_confirm_email()
+        self.user.confirmedemail_set.first().photo = self.user.photo_set.first()
+        urlobj = urlsplit(
+            libravatar_url(
+                email=self.user.confirmedemail_set.first().email,
+            )
+        )
+        url = '%s?%s' % (urlobj.path, urlobj.query)
+        response = self.client.get(url, follow=True)
+        self.assertEqual(
+            response.status_code,
+            200,
+            'unable to fetch avatar?')
+
+    def test_upload_jpg_image(self):
+        '''
+        Test if jpg is correctly detected and can be viewed
+        '''
+        self.login()
+        url = reverse('upload_photo')
+        # rb => Read binary
+        # Broken is _not_ broken - it's just an 'x' :-)
+        with open(os.path.join(settings.STATIC_ROOT, 'img', 'broken.jpg'),
+                  'rb') as photo:
+            response = self.client.post(url, {
+                'photo': photo,
+                'not_porn': True,
+                'can_distribute': True,
+            }, follow=True)
+        self.assertEqual(
+            str(list(response.context[0]['messages'])[0]),
+            'Successfully uploaded',
+            'JPG upload failed?!')
+        self.assertEqual(
+            self.user.photo_set.first().format, 'jpg',
+            'Format must be jpg, since we uploaded a jpg!')
+        self.test_confirm_email()
+        self.user.confirmedemail_set.first().photo = self.user.photo_set.first()
+        urlobj = urlsplit(
+            libravatar_url(
+                email=self.user.confirmedemail_set.first().email,
+            )
+        )
+        url = '%s?%s' % (urlobj.path, urlobj.query)
+        response = self.client.get(url, follow=True)
+        self.assertEqual(
+            response.status_code,
+            200,
+            'unable to fetch avatar?')
 
     def test_upload_unsupported_tif_image(self):  # pylint: disable=invalid-name
         '''
@@ -1313,3 +1363,81 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         self.test_avatar_url_mail(do_upload_and_confirm=False, size=(20, 20))
         img = Image.open(BytesIO(self.user.photo_set.first().data))
         self.assertEqual(img.size, (20, 20), 'cropped to 20x20, but resulting image isn\'t 20x20!?')
+
+    def test_password_change_view(self):
+        '''
+        Test password change view
+        '''
+        self.login()
+        url = reverse('password_change')
+        response = self.client.get(url)
+        self.assertEqual(
+            response.status_code,
+            200,
+            'unable to view password change view?')
+
+    def test_password_change_view_post_wrong_old_pw(self):
+        '''
+        Test password change view post
+        '''
+        self.login()
+        response = self.client.post(
+            reverse('password_change'), {
+                'old_password': 'xxx',
+                'new_password1': self.password,
+                'new_password2': self.password,
+            },
+            follow=True,
+        )
+
+        self.assertContains(
+            response,
+            'Your old password was entered incorrectly. Please enter it again.',
+            1,
+            200,
+            'Old password as entered incorrectly, site should raise an error'
+        )
+
+    def test_password_change_view_post_wrong_new_password1(self):
+        '''
+        Test password change view post
+        '''
+        self.login()
+        response = self.client.post(
+            reverse('password_change'), {
+                'old_password': self.password,
+                'new_password1': self.password + '.',
+                'new_password2': self.password,
+            },
+            follow=True,
+        )
+
+        self.assertContains(
+            response,
+            'The two password fields didn&#39;t match.',
+            1,
+            200,
+            'Old password as entered incorrectly, site should raise an error'
+        )
+
+    def test_password_change_view_post_wrong_new_password2(self):
+        '''
+        Test password change view post
+        '''
+        self.login()
+        response = self.client.post(
+            reverse('password_change'), {
+                'old_password': self.password,
+                'new_password1': self.password,
+                'new_password2': self.password + '.',
+            },
+            follow=True,
+        )
+
+        self.assertContains(
+            response,
+            'The two password fields didn&#39;t match.',
+            1,
+            200,
+            'Old password as entered incorrectly, site should raise an error'
+        )
