@@ -115,7 +115,7 @@ class AvatarImageView(TemplateView):
             # Request to proxy Gravatar image - only if not forcedefault
             if gravatarproxy and not forcedefault:
                 url = reverse_lazy('gravatarproxy', args=[kwargs['digest']]) \
-                    + '?s=%i' % size
+                    + '?s=%i' % size + '&default=%s' % default
                 return HttpResponseRedirect(url)
 
             # Return the default URL, as specified, or 404 Not Found, if default=404
@@ -213,14 +213,22 @@ class GravatarProxyView(View):
         '''
         Override get from parent class
         '''
-        def redir_default():
+        def redir_default(default=None):
             url = reverse_lazy(
                 'avatar_view',
                 args=[kwargs['digest']]) + '?s=%i' % size + '&forcedefault=y'
+            if default:
+                url += '&default=%s' % default
             return HttpResponseRedirect(url)
 
         size = get_size(request)
         gravatarimagedata = None
+        default = None
+
+        try:
+            default = request.GET['default']
+        except:
+            pass
 
         # This part is special/hackish
         # Check if the image returned by Gravatar is their default image, if so,
@@ -231,7 +239,7 @@ class GravatarProxyView(View):
             testdata = urlopen(gravatar_test_url, timeout=URL_TIMEOUT)
             data = BytesIO(testdata.read())
             if hashlib.md5(data.read()).hexdigest() == '71bc262d627971d13fe6f3180b93062a':
-                return redir_default()
+                return redir_default(default)
         except Exception as exc:
             print('Gravatar test url fetch failed: %s' % exc)
 
@@ -245,17 +253,17 @@ class GravatarProxyView(View):
                 print(
                     'Gravatar fetch failed with an unexpected %s HTTP error' %
                     exc.code)
-            return redir_default()
+            return redir_default(default)
         except URLError as exc:
             print(
                 'Gravatar fetch failed with URL error: %s' %
                 exc.reason)
-            return redir_default()
+            return redir_default(default)
         except SSLError as exc:
             print(
                 'Gravatar fetch failed with SSL error: %s' %
                 exc.reason)
-            return redir_default()
+            return redir_default(default)
         try:
             data = BytesIO(gravatarimagedata.read())
             img = Image.open(data)
@@ -266,7 +274,7 @@ class GravatarProxyView(View):
 
         except ValueError as exc:
             print('Value error: %s' % exc)
-            return redir_default()
+            return redir_default(default)
 
         # We shouldn't reach this point... But make sure we do something
-        return redir_default()
+        return redir_default(default)
