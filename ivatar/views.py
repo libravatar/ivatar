@@ -221,7 +221,7 @@ class GravatarProxyView(View):
             url = reverse_lazy(
                 'avatar_view',
                 args=[kwargs['digest']]) + '?s=%i' % size + '&forcedefault=y'
-            if default:
+            if default != None:
                 url += '&default=%s' % default
             return HttpResponseRedirect(url)
 
@@ -230,7 +230,8 @@ class GravatarProxyView(View):
         default = None
 
         try:
-            default = request.GET['default']
+            if str(request.GET['default']) != 'None':
+                default = request.GET['default']
         except:
             pass
 
