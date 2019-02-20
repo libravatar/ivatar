@@ -157,6 +157,10 @@ class AvatarImageView(TemplateView):
                         'rgb(141,69,170)']
                     background = 'rgb(224,224,224)'
                     padwidth = int(size/10)
+                    if padwidth < 10:
+                        padwidth = 10
+                    if size < 60:
+                        padwidth = 0
                     padding = (padwidth, padwidth, padwidth, padwidth)
                     # Since padding is _added_ around the generated image, we
                     # need to reduce the image size by padding*2 (left/right, top/bottom)
