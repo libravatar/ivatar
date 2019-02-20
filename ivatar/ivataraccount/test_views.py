@@ -1228,7 +1228,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         response = self.client.get(url, follow=True)
         self.assertRedirects(
             response=response,
-            expected_url='/static/img/nobody/80.png',
+            expected_url='/static/img/mm/80.png',
             msg_prefix='Why does this not redirect to the default img?')
         # Eventually one should check if the data is the same
 
@@ -1302,8 +1302,8 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         response = self.client.get(url, follow=True)
         self.assertRedirects(
             response=response,
-            expected_url='/static/img/nobody/80.png',
-            msg_prefix='Why does this not redirect to the default img?')
+            expected_url='/static/img/nobody.png',
+            msg_prefix='Why does this not redirect to nobody img?')
 
     def test_avatar_url_default_gravatarproxy_disabled(self):  # pylint: disable=invalid-name
         '''
@@ -1339,7 +1339,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         response = self.client.get(url, follow=False)
         self.assertRedirects(
             response=response,
-            expected_url='/gravatarproxy/fb7a6d7f11365642d44ba66dc57df56f?s=80',
+            expected_url='/gravatarproxy/fb7a6d7f11365642d44ba66dc57df56f?s=80&default=http://host.tld/img.png',
             fetch_redirect_response=False,
             msg_prefix='Why does this not redirect to the default img?')
 
