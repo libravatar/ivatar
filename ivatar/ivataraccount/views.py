@@ -914,6 +914,9 @@ class PasswordResetView(PasswordResetViewOriginal):
             try:
                 confirmed_email = ConfirmedEmail.objects.get(email=request.POST['email'])
                 confirmed_email.user.email = confirmed_email.email
+                if not confirmed_email.user.password:
+                    random_pass = User.objects.make_random_password()
+                    confirmed_email.user.set_pasword(random_pass)
                 confirmed_email.user.save()
             except Exception as exc:
                 pass
