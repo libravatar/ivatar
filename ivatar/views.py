@@ -145,7 +145,9 @@ class AvatarImageView(TemplateView):
                         data,
                         content_type='image/png')
 
-                if str(default) == 'identicon' or str(default) == 'retro':
+                # TODO: Wavatar needs to be different
+                # TODO: identicon should be different from retro
+                if str(default) == 'identicon' or str(default) == 'retro' or str(default) == 'wavatar':
                     # Taken from example code
                     foreground = [
                         'rgb(45,79,255)',
