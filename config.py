@@ -4,14 +4,18 @@ Configuration overrides for settings.py
 
 import os
 import sys
-from socket import gethostname, gethostbyname
 from django.urls import reverse_lazy
+from django.utils.translation import ugettext_lazy as _
+from django.contrib.messages import constants as message_constants
 from ivatar.settings import BASE_DIR
 
-ADMIN_USERS = []
-ALLOWED_HOSTS = [ '*' ]
+from ivatar.settings import MIDDLEWARE
+from ivatar.settings import INSTALLED_APPS
+from ivatar.settings import TEMPLATES
 
-from ivatar.settings import INSTALLED_APPS  # noqa
+ADMIN_USERS = []
+ALLOWED_HOSTS = ['*']
+
 INSTALLED_APPS.extend([
     'django_extensions',
     'django_openid_auth',
@@ -22,10 +26,12 @@ INSTALLED_APPS.extend([
     'ivatar.tools',
 ])
 
-from ivatar.settings import MIDDLEWARE  # noqa
 MIDDLEWARE.extend([
     'django.middleware.locale.LocaleMiddleware',
 ])
+MIDDLEWARE.insert(
+    0, 'ivatar.middleware.MultipleProxyMiddleware',
+)
 
 AUTHENTICATION_BACKENDS = (
     # Enable this to allow LDAP authentication.
@@ -35,7 +41,6 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
-from ivatar.settings import TEMPLATES  # noqa
 TEMPLATES[0]['DIRS'].extend([
     os.path.join(BASE_DIR, 'templates'),
 ])
@@ -46,16 +51,14 @@ TEMPLATES[0]['OPTIONS']['context_processors'].append(
 OPENID_CREATE_USERS = True
 OPENID_UPDATE_DETAILS_FROM_SREG = True
 
-SITE_NAME = 'ivatar'
-IVATAR_VERSION = '0.1'
+SITE_NAME = os.environ.get('SITE_NAME', 'libravatar')
+IVATAR_VERSION = '1.0'
 
-SECURE_BASE_URL = 'https://avatars.linux-kernel.at/avatar/'
-BASE_URL = 'http://avatars.linux-kernel.at/avatar/'
+SECURE_BASE_URL = os.environ.get('SECURE_BASE_URL', 'https://avatars.linux-kernel.at/avatar/')
+BASE_URL = os.environ.get('BASE_URL', 'http://avatars.linux-kernel.at/avatar/')
 
 LOGIN_REDIRECT_URL = reverse_lazy('profile')
 MAX_LENGTH_EMAIL = 254  # http://stackoverflow.com/questions/386294
-SERVER_EMAIL = 'accounts@mg.linux-kernel.at'
-DEFAULT_FROM_EMAIL = SERVER_EMAIL
 
 MAX_NUM_PHOTOS = 5
 MAX_NUM_UNCONFIRMED_EMAILS = 5
@@ -76,7 +79,8 @@ BOOTSTRAP4 = {
     'javascript_in_head': False,
     'css_url': {
         'href': '/static/css/bootstrap.min.css',
-        'integrity': 'sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB',  # noqa
+        'integrity':
+            'sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB',
         'crossorigin': 'anonymous',
     },
     'javascript_url': {
@@ -86,18 +90,26 @@ BOOTSTRAP4 = {
     },
     'popper_url': {
         'url': '/static/js/popper.min.js',
-        'integrity': 'sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49',  # noqa
+        'integrity':
+            'sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49',
         'crossorigin': 'anonymous',
     },
 }
 
-if 'test' not in sys.argv and 'collectstatic' not in sys.argv:
-    ANYMAIL = {  # pragma: no cover
-        'MAILGUN_API_KEY': os.environ['IVATAR_MAILGUN_API_KEY'],
-        'MAILGUN_SENDER_DOMAIN': os.environ['IVATAR_MAILGUN_SENDER_DOMAIN'],
-    }
-    EMAIL_BACKEND = 'anymail.backends.mailgun.EmailBackend'  # pragma: no cover
-DEFAULT_FROM_EMAIL = 'ivatar@mg.linux-kernel.at'
+if 'EMAIL_BACKEND' in os.environ:
+    EMAIL_BACKEND = os.environ['EMAIL_BACKEND']  # pragma: no cover
+else:
+    if 'test' in sys.argv or 'collectstatic' in sys.argv:
+        EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+    else:
+        ANYMAIL = {  # pragma: no cover
+            'MAILGUN_API_KEY': os.environ['IVATAR_MAILGUN_API_KEY'],
+            'MAILGUN_SENDER_DOMAIN': os.environ['IVATAR_MAILGUN_SENDER_DOMAIN'],
+        }
+        EMAIL_BACKEND = 'anymail.backends.mailgun.EmailBackend'  # pragma: no cover
+
+SERVER_EMAIL = os.environ.get('SERVER_EMAIL', 'ivatar@mg.linux-kernel.at')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'ivatar@mg.linux-kernel.at')
 
 try:
     from ivatar.settings import DATABASES
@@ -132,3 +144,43 @@ if os.path.isfile(os.path.join(BASE_DIR, 'config_local.py')):
     from config_local import *  # noqa # flake8: noqa # NOQA # pragma: no cover
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
+
+USE_X_FORWARDED_HOST = True
+ALLOWED_EXTERNAL_OPENID_REDIRECT_DOMAINS = ['avatars.linux-kernel.at', 'localhost',]
+
+DEFAULT_AVATAR_SIZE = 80
+
+LANGUAGES = (                                                                                                                                                 
+  ('de', _('Deutsch')),
+  ('en', _('English')),
+  ('ca', _('Català')),
+  ('cs', _('Česky')),
+  ('es', _('Español')),
+  ('eu', _('Basque')),
+  ('fr', _('Français')),
+  ('it', _('Italiano')),
+  ('ja', _('日本語')),
+  ('nl', _('Nederlands')),
+  ('pt', _('Português')),
+  ('ru', _('Русский')),
+  ('sq', _('Shqip')),
+  ('tr', _('Türkçe')),
+  ('uk', _('Українська')),
+)
+
+MESSAGE_TAGS = {
+  message_constants.DEBUG: 'debug',
+  message_constants.INFO: 'info',
+  message_constants.SUCCESS: 'success',
+  message_constants.WARNING: 'warning',
+  message_constants.ERROR: 'danger',
+}
+
+CACHES = {
+  'default': {
+    'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+    'LOCATION': [
+        '127.0.0.1:11211',
+    ],
+  }
+}

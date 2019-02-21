@@ -1,6 +1,10 @@
 [run]
 plugins =
     django_coverage_plugin
+omit =
+    node_modules/*
+    .virtualenv/*
+    import_libravatar.py
 
 [html]
 extra_css = coverage_extra_style.css

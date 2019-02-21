@@ -90,16 +90,14 @@ class UploadPhotoForm(forms.Form):
         required=True,
         error_messages={
             'required':
-            _('We only host "G-rated" images and so this field must\
-              be checked.')
+            _('We only host "G-rated" images and so this field must be checked.')
         })
     can_distribute = forms.BooleanField(
         label=_('can be freely copied'),
         required=True,
         error_messages={
             'required':
-            _('This field must be checked since we need to be able to\
-              distribute photos to third parties.')
+            _('This field must be checked since we need to be able to distribute photos to third parties.')
         })
 
     @staticmethod
@@ -191,8 +189,7 @@ class UploadLibravatarExportForm(forms.Form):
         required=True,
         error_messages={
             'required':
-            _('We only host "G-rated" images and so this field must\
-              be checked.')
+            _('We only host "G-rated" images and so this field must be checked.')
         })
     can_distribute = forms.BooleanField(
         label=_('can be freely copied'),
@@ -202,3 +199,6 @@ class UploadLibravatarExportForm(forms.Form):
             _('This field must be checked since we need to be able to\
               distribute photos to third parties.')
         })
+
+class DeleteAccountForm(forms.Form):
+    password = forms.CharField(label=_('Password'), required=False, widget=forms.PasswordInput())

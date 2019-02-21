@@ -6,11 +6,12 @@ from django.conf.urls import url
 
 from django.views.generic import TemplateView
 from django.contrib.auth.views import LogoutView
-from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView,\
+from django.contrib.auth.views import PasswordResetDoneView,\
     PasswordResetConfirmView, PasswordResetCompleteView
 from django.contrib.auth.views import PasswordChangeView, PasswordChangeDoneView
 from django.contrib.auth.decorators import login_required
 
+from . views import ProfileView, PasswordResetView
 from . views import CreateView, PasswordSetView, AddEmailView
 from . views import RemoveUnconfirmedEmailView, ConfirmEmailView
 from . views import RemoveConfirmedEmailView, AssignPhotoEmailView
@@ -22,6 +23,7 @@ from . views import CropPhotoView
 from . views import UserPreferenceView, UploadLibravatarExportView
 from . views import ResendConfirmationMailView
 from . views import IvatarLoginView
+from . views import DeleteAccountView
 
 # Define URL patterns, self documenting
 # To see the fancy, colorful evaluation of these use:
@@ -59,12 +61,8 @@ urlpatterns = [  # pylint: disable=invalid-name
     path('export/', login_required(
         TemplateView.as_view(template_name='export.html')
     ), name='export'),
-    path('delete/', login_required(
-        TemplateView.as_view(template_name='delete.html')
-    ), name='delete'),
-    path('profile/', login_required(
-        TemplateView.as_view(template_name='profile.html')
-    ), name='profile'),
+    path('delete/', DeleteAccountView.as_view(), name='delete'),
+    path('profile/', ProfileView.as_view(), name='profile'),
     path('add_email/', AddEmailView.as_view(), name='add_email'),
     path('add_openid/', AddOpenIDView.as_view(), name='add_openid'),
     path('upload_photo/', UploadPhotoView.as_view(), name='upload_photo'),

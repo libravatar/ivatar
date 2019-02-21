@@ -31,7 +31,7 @@ from libravatar import libravatar_url
 from ivatar.settings import MAX_LENGTH_EMAIL, logger
 from ivatar.settings import MAX_PIXELS, AVATAR_MAX_SIZE, JPEG_QUALITY
 from ivatar.settings import MAX_LENGTH_URL
-from ivatar.settings import SECURE_BASE_URL, SITE_NAME, SERVER_EMAIL
+from ivatar.settings import SECURE_BASE_URL, SITE_NAME, DEFAULT_FROM_EMAIL
 from .gravatar import get_photo as get_gravatar_photo
 
 
@@ -70,7 +70,8 @@ class UserPreference(models.Model):
     THEMES = (
         ('default', 'Default theme'),
         ('clime', 'climes theme'),
-        ('falko', 'falkos theme'),
+        ('green', 'green theme'),
+        ('red', 'red theme'),
     )
 
     theme = models.CharField(
@@ -135,7 +136,7 @@ class Photo(BaseAccountModel):
                 image_url = gravatar['image_url']
 
         if service_name == 'Libravatar':
-            image_url = libravatar_url(email_address)
+            image_url = libravatar_url(email_address, size=AVATAR_MAX_SIZE)
 
         if not image_url:
             return False  # pragma: no cover
@@ -220,8 +221,9 @@ class Photo(BaseAccountModel):
         if dimensions['a'] > MAX_PIXELS or dimensions['b'] > MAX_PIXELS:
             messages.error(
                 request,
-                _('Image dimensions are too big(max: %s x %s' %
-                  (MAX_PIXELS, MAX_PIXELS)))
+                _('Image dimensions are too big (max: %(max_pixels)s x %(max_pixels)s' % {
+                    max_pixels: MAX_PIXELS,
+                    }))
             return HttpResponseRedirect(reverse_lazy('profile'))
 
         if dimensions['w'] == 0 and dimensions['h'] == 0:
@@ -349,8 +351,8 @@ class UnconfirmedEmail(BaseAccountModel):
         '''
         Class attributes
         '''
-        verbose_name = _('unconfirmed_email')
-        verbose_name_plural = _('unconfirmed_emails')
+        verbose_name = _('unconfirmed email')
+        verbose_name_plural = _('unconfirmed emails')
 
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):
@@ -382,7 +384,7 @@ class UnconfirmedEmail(BaseAccountModel):
         # if settings.DEBUG:
         #    print('DEBUG: %s' % link)
         send_mail(
-            email_subject, email_body, SERVER_EMAIL,
+            email_subject, email_body, DEFAULT_FROM_EMAIL,
             [self.email])
         return True
 
@@ -448,8 +450,8 @@ class ConfirmedOpenId(BaseAccountModel):
         lowercase_url = urlunsplit(
             (url.scheme.lower(), netloc, url.path, url.query, url.fragment)
         )
-        if lowercase_url[-1] != '/':
-            lowercase_url += '/'
+        #if lowercase_url[-1] != '/':
+        #    lowercase_url += '/'
         self.openid = lowercase_url
         self.digest = hashlib.sha256(lowercase_url.encode('utf-8')).hexdigest()
         return super().save(force_insert, force_update, using, update_fields)

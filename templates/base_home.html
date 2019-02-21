@@ -1,19 +1,14 @@
 {% load static %}
 {% load i18n %}<!DOCTYPE HTML>
 {% include 'header.html' %}
-<title>iVatar :: {% block title %}{% trans 'Freeing the Web, one face at a time!' %}{% endblock title %}</title>
+<title>{{ site_name }} :: {% block title %}{% trans 'Freeing the Web, one face at a time!' %}{% endblock title %}</title>
 
 {% spaceless %}
 <div id="page">
-
-  {% autoescape off %}{% endautoescape %}
-
-      {% block content %}{% endblock content %}
-
+  {% block content %}{% endblock content %}
   {% block footer %}{% include 'footer.html' %}{% endblock footer %}
 </div>
 {% endspaceless %}
 
 <script src="{% static '/js/bootstrap.min.js' %}"></script>
 <script src="{% static '/js/ivatar.js' %}"></script>
-{{ settings }}
