@@ -120,6 +120,14 @@ class AvatarImageView(TemplateView):
 
             # Return the default URL, as specified, or 404 Not Found, if default=404
             if default:
+                # Proxy to gravatar to generate wavatar/identicon- lazy me
+                if str(default) == 'wavatar' or str(default) == 'identicon':
+                    url = reverse_lazy('gravatarproxy', args=[kwargs['digest']]) \
+                        + '?s=%i' % size + '&default=%s&f=y' % default
+                    return HttpResponseRedirect(url)
+
+
+
                 if str(default) == str(404):
                     return HttpResponseNotFound(_('<h1>Image not found</h1>'))
 
@@ -145,9 +153,7 @@ class AvatarImageView(TemplateView):
                         data,
                         content_type='image/png')
 
-                # TODO: Wavatar needs to be different
-                # TODO: identicon should be different from retro
-                if str(default) == 'identicon' or str(default) == 'retro' or str(default) == 'wavatar':
+                if str(default) == 'retro':
                     # Taken from example code
                     foreground = [
                         'rgb(45,79,255)',
@@ -237,21 +243,22 @@ class GravatarProxyView(View):
         except:
             pass
 
-        # This part is special/hackish
-        # Check if the image returned by Gravatar is their default image, if so,
-        # redirect to our default instead.
-        gravatar_test_url = 'https://secure.gravatar.com/avatar/' + kwargs['digest'] \
-            + '?s=%i' % 50
-        try:
-            testdata = urlopen(gravatar_test_url, timeout=URL_TIMEOUT)
-            data = BytesIO(testdata.read())
-            if hashlib.md5(data.read()).hexdigest() == '71bc262d627971d13fe6f3180b93062a':
-                return redir_default(default)
-        except Exception as exc:
-            print('Gravatar test url fetch failed: %s' % exc)
+        if str(default) != 'wavatar' and str(default) != 'identicon':
+            # This part is special/hackish
+            # Check if the image returned by Gravatar is their default image, if so,
+            # redirect to our default instead.
+            gravatar_test_url = 'https://secure.gravatar.com/avatar/' + kwargs['digest'] \
+                + '?s=%i' % 50
+            try:
+                testdata = urlopen(gravatar_test_url, timeout=URL_TIMEOUT)
+                data = BytesIO(testdata.read())
+                if hashlib.md5(data.read()).hexdigest() == '71bc262d627971d13fe6f3180b93062a':
+                    return redir_default(default)
+            except Exception as exc:
+                print('Gravatar test url fetch failed: %s' % exc)
 
         gravatar_url = 'https://secure.gravatar.com/avatar/' + kwargs['digest'] \
-            + '?s=%i' % size
+            + '?s=%i' % size + '&d=%s' % default
 
         try:
             gravatarimagedata = urlopen(gravatar_url, timeout=URL_TIMEOUT)
