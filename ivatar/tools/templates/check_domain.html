@@ -37,44 +37,51 @@
 <!-- TODO TODO TODO: I need better styling -->
   {% if result %}
     <hr/>
-	<table>
-	<tr>
-	  <td valign="top" style="padding: 0px 10px 0px 10px;">{% trans 'HTTP avatar server:' %}</td>
-	  <td>
-	  {% if result.avatar_server_http %}
-		<tt>{{result.avatar_server_http}}</tt>
-		{% if result.avatar_server_http_ipv4 %}
-	  <br>{{ result.avatar_server_http_ipv4 }}
-		{% else %}
-	  <br><strong>{% trans 'Warning: no A record for this hostname' %}</strong>
-		{% endif %}
-		{% if result.avatar_server_http_ipv6 %}
-	  <br>{{ result.avatar_server_http_ipv6 }}
-		{% endif %}
-	  {% else %}
-	  <i>{% trans 'use <tt>http://cdn.libravatar.org</tt>' %}</i>
-	  {% endif %}
-	  </td>
-	</tr>
-	<tr>
-	  <td valign="top" style="padding: 0px 10px 0px 10px;">{% trans 'HTTPS avatar server:' %}</td>
-	  <td>
-	  {% if result.avatar_server_https %}
-		<tt>{{result.avatar_server_https}}</tt>
-		{% if result.avatar_server_https_ipv4 %}
-	  <br>{{ result.avatar_server_https_ipv4 }}
-		{% else %}
-	  <br><strong>{% trans 'Warning: no A record for this hostname' %}</strong>
-		{% endif %}
-		{% if result.avatar_server_https_ipv6 %}
-	  <br>{{ result.avatar_server_https_ipv6 }}
-		{% endif %}
-	  {% else %}
-	  <i>{% trans 'use <tt>https://seccdn.libravatar.org</tt>' %}</i>
-	  {% endif %}
-	  </td>
-	</tr>
-	</table>
+    <h2>The following servers will be used for your domain</h2>
+<div class="panel panel-tortin" style="width:intrinsic;margin-left:30px;float:left">
+<div class="panel-heading">
+<h3 class="panel-title"><i class="fa fa-unlock-alt"></i>&nbsp;HTTP Server</h3>
+</div>
+<div class="panel-body">
+{% if result.avatar_server_http %}
+<a href="{{result.avatar_server_http}}">
+<h4>{{result.avatar_server_http}}</h4>
+</a>
+{% if result.avatar_server_http_ipv4 %}
+<br><center>{{ result.avatar_server_http_ipv4 }}</center>
+{% endif %}
+{% if result.avatar_server_http_ipv6 %}
+<br><center>{{ result.avatar_server_http_ipv6 }}</center>
+{% endif %}
+{% else %}
+<a href="http://cdn.libravatar.org">
+<h4>http://cdn.libravatar.org</h4>
+</a>
+{% endif %}
+</div>
+</div>
+<div class="panel panel-tortin" style="width:intrinsic;margin-left:30px;float:left">
+<div class="panel-heading">
+<h3 class="panel-title"><i class="fa fa-lock"></i>&nbsp;HTTPS Server</h3>
+</div>
+<div class="panel-body">
+{% if result.avatar_server_https %}
+<a href="{{result.avatar_server_https}}">
+<h4>{{result.avatar_server_https}}</h4>
+</a>
+{% if result.avatar_server_https_ipv4 %}
+<br><center>{{ result.avatar_server_https_ipv4 }}</center>
+{% endif %}
+{% if result.avatar_server_https_ipv6 %}
+<br><center>{{ result.avatar_server_https_ipv6 }}</center>
+{% endif %}
+{% else %}
+<a href="https://seccdn.libravatar.org">
+<h4>https://seccdn.libravatar.org</h4>
+</a>
+{% endif %}
+</div>
+</div>
   {% endif %}
 </div>
 <div style="height:40px"></div>
