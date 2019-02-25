@@ -56,8 +56,8 @@
     <h3 class="panel-title">SHA256 <i class="fa fa-lock" title="Secure connection (https)"></i>&nbsp;<i class="fa fa-at" title="mail: {{ form.mail.value }}"></i></h3>
   </div>
   <div class="panel-body">
-            <a href="{{ SECURE_BASE_URL }}{{ mail_hash256 }}?s={{ size }}">
-              <center><img src="{{ SECURE_BASE_URL }}{{ mail_hash256 }}?s={{ size }}" style="max-width: {{ size }}px; max-height: {{ size }}px;"></center>
+            <a href="{{ mailurl_secure_256 }}">
+              <center><img src="{{ mailurl_secure_256 }}" style="max-width: {{ size }}px; max-height: {{ size }}px;"></center>
             </a>
 </div>
 </div>

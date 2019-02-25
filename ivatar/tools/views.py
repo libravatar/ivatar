@@ -66,15 +66,17 @@ class CheckView(FormView):
         else:
             default_url = None
 
+        if 'size' in form.cleaned_data:
+            size = form.cleaned_data['size']
         if form.cleaned_data['mail']:
             mailurl = libravatar_url(
               email=form.cleaned_data['mail'],
-              size=form.cleaned_data['size'],
+              size=size,
               default=default_url)
             mailurl = mailurl.replace(LIBRAVATAR_BASE_URL, BASE_URL)
             mailurl_secure = libravatar_url(
               email=form.cleaned_data['mail'],
-              size=form.cleaned_data['size'],
+              size=size,
               https=True,
               default=default_url)
             mailurl_secure = mailurl_secure.replace(
@@ -86,18 +88,20 @@ class CheckView(FormView):
             hash_obj = hashlib.new('sha256')
             hash_obj.update(form.cleaned_data['mail'].encode('utf-8'))
             mail_hash256 = hash_obj.hexdigest()
-            size = form.cleaned_data['size']
+            mailurl_secure_256 = mailurl_secure.replace(
+                mail_hash,
+                mail_hash256)
         if form.cleaned_data['openid']:
             if not form.cleaned_data['openid'].startswith('http://') and not form.cleaned_data['openid'].startswith('https://'):
                 form.cleaned_data['openid'] = 'http://%s' % form.cleaned_data['openid']
             openidurl = libravatar_url(
               openid=form.cleaned_data['openid'],
-              size=form.cleaned_data['size'],
+              size=size,
               default=default_url)
             openidurl = openidurl.replace(LIBRAVATAR_BASE_URL, BASE_URL)
             openidurl_secure = libravatar_url(
               openid=form.cleaned_data['openid'],
-              size=form.cleaned_data['size'],
+              size=size,
               https=True,
               default=default_url)
             openidurl_secure = openidurl_secure.replace(
@@ -106,13 +110,13 @@ class CheckView(FormView):
             openid_hash = parse_user_identity(
               openid=form.cleaned_data['openid'],
               email=None)[0]
-            size = form.cleaned_data['size']
 
         return render(self.request, self.template_name, {
             'form': form,
             'mailurl': mailurl,
             'openidurl': openidurl,
             'mailurl_secure': mailurl_secure,
+            'mailurl_secure_256': mailurl_secure_256,
             'openidurl_secure': openidurl_secure,
             'mail_hash': mail_hash,
             'mail_hash256': mail_hash256,
