@@ -202,8 +202,12 @@ class AvatarImageView(TemplateView):
 
         imgformat = obj.photo.format
         photodata = Image.open(BytesIO(obj.photo.data))
-
-        photodata.thumbnail((size, size), Image.ANTIALIAS)
+        # If the image is smaller than what was requested, we need
+        # to use the function resize
+        if photodata.size[0] < size or photodata.size[1] < size:
+            photodata = photodata.resize((size, size), Image.ANTIALIAS)
+        else:
+            photodata.thumbnail((size, size), Image.ANTIALIAS)
         data = BytesIO()
         photodata.save(data, pil_format(imgformat), quality=JPEG_QUALITY)
         data.seek(0)
