@@ -16,7 +16,9 @@ from django.urls import reverse_lazy
 from PIL import Image
 
 from monsterid.id import build_monster as BuildMonster
-from pydenticon import Generator as IdenticonGenerator
+import Identicon
+from pydenticon5 import Pydenticon5
+
 from robohash import Robohash
 
 from ivatar.settings import AVATAR_MAX_SIZE, JPEG_QUALITY, DEFAULT_AVATAR_SIZE
@@ -120,8 +122,8 @@ class AvatarImageView(TemplateView):
 
             # Return the default URL, as specified, or 404 Not Found, if default=404
             if default:
-                # Proxy to gravatar to generate wavatar/identicon- lazy me
-                if str(default) == 'wavatar' or str(default) == 'identicon':
+                # Proxy to gravatar to generate wavatar - lazy me
+                if str(default) == 'wavatar':
                     url = reverse_lazy('gravatarproxy', args=[kwargs['digest']]) \
                         + '?s=%i' % size + '&default=%s&f=y' % default
                     return HttpResponseRedirect(url)
@@ -154,31 +156,24 @@ class AvatarImageView(TemplateView):
                         content_type='image/png')
 
                 if str(default) == 'retro':
-                    # Taken from example code
-                    foreground = [
-                        'rgb(45,79,255)',
-                        'rgb(254,180,44)',
-                        'rgb(226,121,234)',
-                        'rgb(30,179,253)',
-                        'rgb(232,77,65)',
-                        'rgb(49,203,115)',
-                        'rgb(141,69,170)']
-                    background = 'rgb(224,224,224)'
-                    padwidth = int(size/10)
-                    if padwidth < 10:
-                        padwidth = 10
-                    if size < 60:
-                        padwidth = 0
-                    padding = (padwidth, padwidth, padwidth, padwidth)
-                    # Since padding is _added_ around the generated image, we
-                    # need to reduce the image size by padding*2 (left/right, top/bottom)
-                    size = size - 2*padwidth
-                    generator = IdenticonGenerator(
-                        10, 10, digest=hashlib.sha1,
-                        foreground=foreground, background=background)
-                    data = generator.generate(
-                        kwargs['digest'], size, size,
-                        output_format='png', padding=padding, inverted=False)
+                    identicon = Identicon.render(kwargs['digest'])
+                    data = BytesIO()
+                    img = Image.open(BytesIO(identicon))
+                    img = img.resize((size, size), Image.ANTIALIAS)
+                    img.save(data, 'PNG', quality=JPEG_QUALITY)
+                    data.seek(0)
+                    return HttpResponse(
+                        data,
+                        content_type='image/png')
+
+                if str(default) == 'identicon':
+                    p = Pydenticon5()
+                    # In order to make use of the whole 32 bytes digest, we need to redigest them.
+                    newdigest = hashlib.md5(bytes(kwargs['digest'], 'utf-8')).hexdigest()
+                    img = p.draw(newdigest, size, 0)
+                    data = BytesIO()
+                    img.save(data, 'PNG', quality=JPEG_QUALITY)
+                    data.seek(0)
                     return HttpResponse(
                         data,
                         content_type='image/png')
@@ -247,7 +242,7 @@ class GravatarProxyView(View):
         except:
             pass
 
-        if str(default) != 'wavatar' and str(default) != 'identicon':
+        if str(default) != 'wavatar':
             # This part is special/hackish
             # Check if the image returned by Gravatar is their default image, if so,
             # redirect to our default instead.

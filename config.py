@@ -52,7 +52,7 @@ OPENID_CREATE_USERS = True
 OPENID_UPDATE_DETAILS_FROM_SREG = True
 
 SITE_NAME = os.environ.get('SITE_NAME', 'libravatar')
-IVATAR_VERSION = '1.0'
+IVATAR_VERSION = '1.1'
 
 SECURE_BASE_URL = os.environ.get('SECURE_BASE_URL', 'https://avatars.linux-kernel.at/avatar/')
 BASE_URL = os.environ.get('BASE_URL', 'http://avatars.linux-kernel.at/avatar/')
@@ -102,11 +102,14 @@ else:
     if 'test' in sys.argv or 'collectstatic' in sys.argv:
         EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
     else:
-        ANYMAIL = {  # pragma: no cover
-            'MAILGUN_API_KEY': os.environ['IVATAR_MAILGUN_API_KEY'],
-            'MAILGUN_SENDER_DOMAIN': os.environ['IVATAR_MAILGUN_SENDER_DOMAIN'],
-        }
-        EMAIL_BACKEND = 'anymail.backends.mailgun.EmailBackend'  # pragma: no cover
+        try:
+            ANYMAIL = {  # pragma: no cover
+                'MAILGUN_API_KEY': os.environ['IVATAR_MAILGUN_API_KEY'],
+                'MAILGUN_SENDER_DOMAIN': os.environ['IVATAR_MAILGUN_SENDER_DOMAIN'],
+            }
+            EMAIL_BACKEND = 'anymail.backends.mailgun.EmailBackend'  # pragma: no cover
+        except Exception as exc:
+            EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 SERVER_EMAIL = os.environ.get('SERVER_EMAIL', 'ivatar@mg.linux-kernel.at')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'ivatar@mg.linux-kernel.at')
