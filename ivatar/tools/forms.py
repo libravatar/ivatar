@@ -56,8 +56,10 @@ class CheckForm(forms.Form):
         required=True,
     )
 
-    default_url = forms.URLField(
+    default_url = forms.CharField(
         label=_('Default URL'),
+        min_length=1,
+        max_length=MAX_LENGTH_URL,
         required=False,
     )
 
