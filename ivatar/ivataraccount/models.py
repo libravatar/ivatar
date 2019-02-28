@@ -40,7 +40,7 @@ def file_format(image_type):
     Helper method returning a short image type
     '''
     if image_type == 'JPEG':
-        return 'jpeg'
+        return 'jpg'
     elif image_type == 'PNG':
         return 'png'
     elif image_type == 'GIF':
@@ -52,7 +52,7 @@ def pil_format(image_type):
     '''
     Helper method returning the 'encoder name' for PIL
     '''
-    if image_type == 'jpg' or image_type == 'jpeg':
+    if image_type == 'jpg':
         return 'JPEG'
     elif image_type == 'png':
         return 'PNG'
