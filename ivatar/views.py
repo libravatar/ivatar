@@ -167,9 +167,10 @@ class AvatarImageView(TemplateView):
                         content_type='image/png')
 
                 if str(default) == 'pagan':
-                    img = pagan.Avatar(kwargs['digest'])
+                    paganobj = pagan.Avatar(kwargs['digest'])
                     data = BytesIO()
-                    img.img.save(data, 'PNG', quality=JPEG_QUALITY)
+                    img = paganobj.img.resize((size, size), Image.ANTIALIAS)
+                    img.save(data, 'PNG', quality=JPEG_QUALITY)
                     data.seek(0)
                     return HttpResponse(
                         data,
