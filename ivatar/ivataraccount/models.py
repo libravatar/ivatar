@@ -37,10 +37,10 @@ from .gravatar import get_photo as get_gravatar_photo
 
 def file_format(image_type):
     '''
-    Helper method returning a 3 character long image type
+    Helper method returning a short image type
     '''
     if image_type == 'JPEG':
-        return 'jpg'
+        return 'jpeg'
     elif image_type == 'PNG':
         return 'png'
     elif image_type == 'GIF':
@@ -52,7 +52,7 @@ def pil_format(image_type):
     '''
     Helper method returning the 'encoder name' for PIL
     '''
-    if image_type == 'jpg':
+    if image_type == 'jpg' or image_type == 'jpeg':
         return 'JPEG'
     elif image_type == 'png':
         return 'PNG'
