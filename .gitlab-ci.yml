@@ -3,6 +3,7 @@ image: ofalk/centos7-python36
 before_script:
   - virtualenv -p python3.6 /tmp/.virtualenv
   - source /tmp/.virtualenv/bin/activate
+  - pip install Pillow
   - pip install -r requirements.txt
   - pip install python-coveralls
   - pip install coverage
