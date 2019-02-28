@@ -36,4 +36,4 @@ git+https://github.com/ofalk/monsterid.git
 git+https://github.com/ofalk/Robohash.git@devel
 python-memcached
 git+https://github.com/ercpe/pydenticon5.git
-git+https://github.com/flavono123/identicon.git
+git+https://github.com/ofalk/identicon.git
