@@ -18,7 +18,7 @@ from PIL import Image
 from monsterid.id import build_monster as BuildMonster
 import Identicon
 from pydenticon5 import Pydenticon5
-
+import pagan
 from robohash import Robohash
 
 from ivatar.settings import AVATAR_MAX_SIZE, JPEG_QUALITY, DEFAULT_AVATAR_SIZE
@@ -161,6 +161,15 @@ class AvatarImageView(TemplateView):
                     img = Image.open(BytesIO(identicon))
                     img = img.resize((size, size), Image.ANTIALIAS)
                     img.save(data, 'PNG', quality=JPEG_QUALITY)
+                    data.seek(0)
+                    return HttpResponse(
+                        data,
+                        content_type='image/png')
+
+                if str(default) == 'pagan':
+                    img = pagan.Avatar(kwargs['digest'])
+                    data = BytesIO()
+                    img.img.save(data, 'PNG', quality=JPEG_QUALITY)
                     data.seek(0)
                     return HttpResponse(
                         data,
