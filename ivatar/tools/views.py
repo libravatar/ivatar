@@ -1,6 +1,8 @@
 '''
 View classes for ivatar/tools/
 '''
+from socket import inet_ntop, AF_INET6
+
 from django.views.generic.edit import FormView
 from django.urls import reverse_lazy as reverse
 from django.shortcuts import render
@@ -53,6 +55,7 @@ class CheckView(FormView):
         mailurl = None
         openidurl = None
         mailurl_secure = None
+        mailurl_secure_256 = None
         openidurl_secure = None
         mail_hash = None
         mail_hash256 = None
@@ -63,6 +66,8 @@ class CheckView(FormView):
 
         if form.cleaned_data['default_url']:
             default_url = form.cleaned_data['default_url']
+        elif form.cleaned_data['default_opt'] and form.cleaned_data['default_opt'] != 'none':
+            default_url = form.cleaned_data['default_opt']
         else:
             default_url = None
 
