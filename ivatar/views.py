@@ -71,6 +71,10 @@ class AvatarImageView(TemplateView):
         gravatarredirect = False
         gravatarproxy = True
 
+        # In case no digest at all is provided, return to home page
+        if not 'digest' in kwargs:
+            return HttpResponseRedirect(reverse_lazy('home'))
+
         if 'd' in request.GET:
             default = request.GET['d']
         if 'default' in request.GET:
