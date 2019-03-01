@@ -72,7 +72,7 @@
 <div class="form-group"><label for="id_mail">{% trans 'E-Mail' %}</label>
 <input type="email" name="mail" maxlength="254" minlength="6" class="form-control" placeholder="{% trans 'E-Mail' %}" {% if form.mail.value %} value="{{ form.mail.value }}" {% endif %} id="id_mail"></div>
 <div class="form-group"><label for="id_openid">{% trans 'OpenID' %}</label>
-<input type="text" name="openid" maxlength="255" minlength="11" class="form-control" placeholder="{% trans 'OpenID' %}" {% if form.mail.value %} value="{{ form.openid.value }}" {% endif %} id="id_openid"></div>
+<input type="text" name="openid" maxlength="255" minlength="11" class="form-control" placeholder="{% trans 'OpenID' %}" {% if form.openid.value %} value="{{ form.openid.value }}" {% endif %} id="id_openid"></div>
 <div class="form-group"><label for="id_size">{% trans 'Size' %}</label>
 <input type="number" name="size" min="5" max="512" class="form-control" placeholder="{% trans 'Size' %}" {% if form.size.value %} value="{{ form.size.value }}" {% else %} value="100" {% endif %} required id="id_size"></div>
 {% if form.default_url.errors %}
