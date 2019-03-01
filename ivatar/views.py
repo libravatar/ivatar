@@ -58,6 +58,11 @@ class AvatarImageView(TemplateView):
     '''
     # TODO: Do cache resize images!! Memcached?
 
+    def options(self, request, *args, **kwargs):  # pylint: disable=too-many-branches,too-many-statements,too-many-locals,too-many-return-statements
+        response = HttpResponse("", content_type='text/plain')
+        response['Allow'] = "404 mm mp retro pagan wavatar monsterid robohash identicon"
+        return response
+
     def get(self, request, *args, **kwargs):  # pylint: disable=too-many-branches,too-many-statements,too-many-locals,too-many-return-statements
         '''
         Override get from parent class
