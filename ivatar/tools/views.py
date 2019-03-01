@@ -1,6 +1,8 @@
 '''
 View classes for ivatar/tools/
 '''
+from socket import inet_ntop, AF_INET6
+
 from django.views.generic.edit import FormView
 from django.urls import reverse_lazy as reverse
 from django.shortcuts import render
