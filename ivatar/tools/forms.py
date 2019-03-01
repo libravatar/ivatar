@@ -4,6 +4,7 @@ Classes for our ivatar.tools.forms
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ValidationError
+from django.forms.utils import ErrorList
 
 from ivatar.settings import AVATAR_MAX_SIZE
 from ivatar.settings import MIN_LENGTH_URL, MAX_LENGTH_URL
@@ -56,7 +57,23 @@ class CheckForm(forms.Form):
         required=True,
     )
 
-    default_url = forms.CharField(
+    default_opt = forms.ChoiceField(
+        label=_('Default'),
+        required=False,
+        widget=forms.RadioSelect,
+        choices = [
+            ('retro', _('Retro style (similar to GitHub)')),
+            ('robohash', _('Roboter style')),
+            ('pagan', _('Retro adventure character')),
+            ('wavatar', _('Wavatar style')),
+            ('monsterid', _('Monster style')),
+            ('identicon', _('Identicon style')),
+            ('mm', _('Mystery man')),
+            ('none', _('None')),
+        ],
+    )
+
+    default_url = forms.URLField(
         label=_('Default URL'),
         min_length=1,
         max_length=MAX_LENGTH_URL,
@@ -67,6 +84,17 @@ class CheckForm(forms.Form):
         self.cleaned_data = super().clean()
         mail = self.cleaned_data.get('mail')
         openid = self.cleaned_data.get('openid')
+        default_url = self.cleaned_data.get('default_url')
+        default_opt = self.cleaned_data.get('default_opt')
+        if default_url and default_opt and default_opt != 'none':
+            if not 'default_url' in self._errors:
+                self._errors['default_url'] = ErrorList()
+            if not 'default_opt' in self._errors:
+                self._errors['default_opt'] = ErrorList()
+
+            errstring = _('Only default URL OR default keyword may be specified')
+            self._errors['default_url'].append(errstring)
+            self._errors['default_opt'].append(errstring)
         if not mail and not openid:
             raise ValidationError(_('Either OpenID or mail must be specified'))
         return self.cleaned_data

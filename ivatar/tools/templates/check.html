@@ -6,33 +6,7 @@
 
 {% block content %}
 
-<h1>{% trans 'Check e-mail or openid' %}</h1>
-
-  {% if form.errors %}
-    <p class="error">{% trans "Please correct errors below:" %}<br>
-    {{ form.errors|join:', ' }}
-    </p>
-  {% endif %}
-
-<div style="max-width:640px">
-<form method="post" name="check">
-{% csrf_token %}
-<div class="form-group"><label for="id_mail">{% trans 'E-Mail' %}</label>
-<input type="email" name="mail" maxlength="254" minlength="6" class="form-control" placeholder="{% trans 'E-Mail' %}" {% if mailurl %} value="{{ form.mail.value }}" {% endif %} id="id_mail"></div>
-<div class="form-group"><label for="id_openid">{% trans 'OpenID' %}</label>
-<input type="text" name="openid" maxlength="255" minlength="11" class="form-control" placeholder="{% trans 'OpenID' %}" {% if openidurl %} value="{{ form.openid.value }}" {% endif %} id="id_openid"></div>
-<div class="form-group"><label for="id_size">{% trans 'Size' %}</label>
-<input type="number" name="size" min="5" max="512" class="form-control" placeholder="{% trans 'Size' %}" {% if mailurl or openidurl %} value="{{ form.size.value }}" {% else %} value="100" {% endif %} required id="id_size"></div>
-<div class="form-group"><label for="id_default_url">{% trans 'Default URL or special keyword' %}</label>
-<input type="text" name="default_url" class="form-control" placeholder="{% trans 'Default' %}" {% if mailurl or openidurl %} value="{{ form.default_url.value }}" {% endif %} id="id_default_url"></div>
-  <div class="form-group">
-      <button type="submit" class="btn btn-default">{% trans 'Check' %}</button>
-</div>
-</form>
-</div>
-
 {% if mailurl or openidurl %}
-<hr/>
       <h2>This is what the avatars will look like depending on the hash and protocol you use:</h2>
     <p>
         {% if mail_hash %}
@@ -83,5 +57,50 @@
       {% endif %}
     </div>
 {% endif %}
+
+<h1>{% trans 'Check e-mail or openid' %}</h1>
+
+{% if form.errors %}
+  {% for error in form.non_field_errors %}
+    <div class="alert alert-danger" role="alert">{{ error|escape }}</div>
+  {% endfor %}
+{% endif %}
+
+<div style="max-width:640px">
+<form method="post" name="check">
+{% csrf_token %}
+<div class="form-group"><label for="id_mail">{% trans 'E-Mail' %}</label>
+<input type="email" name="mail" maxlength="254" minlength="6" class="form-control" placeholder="{% trans 'E-Mail' %}" {% if form.mail.value %} value="{{ form.mail.value }}" {% endif %} id="id_mail"></div>
+<div class="form-group"><label for="id_openid">{% trans 'OpenID' %}</label>
+<input type="text" name="openid" maxlength="255" minlength="11" class="form-control" placeholder="{% trans 'OpenID' %}" {% if form.mail.value %} value="{{ form.openid.value }}" {% endif %} id="id_openid"></div>
+<div class="form-group"><label for="id_size">{% trans 'Size' %}</label>
+<input type="number" name="size" min="5" max="512" class="form-control" placeholder="{% trans 'Size' %}" {% if form.size.value %} value="{{ form.size.value }}" {% else %} value="100" {% endif %} required id="id_size"></div>
+{% if form.default_url.errors %}
+<div class="alert alert-danger" role="alert">{{ form.default_url.errors }}</div>
+{% endif %}
+<div class="form-group"><label for="id_default_url">{% trans 'Default URL or special keyword' %}</label>
+<input type="text" name="default_url" class="form-control" placeholder="{% trans 'Default' %}" {% if form.default_url.value %} value="{{ form.default_url.value }}" {% endif %} id="id_default_url"></div>
+{% if form.default_opt.errors %}
+<div class="alert alert-danger" role="alert">{{ form.default_opt.errors }}</div>
+{% endif %}
+
+<div class="form-group"><label for="id_default_opt">{% trans 'Default (special keyword)' %}</label>
+  {% for opt in form.default_opt.field.choices %}
+  <div class="radio" {% if forloop.counter|divisibleby:2 %}even{% else %}odd{% endif %}>
+    <input type="radio" name="default_opt" value="{{ opt.0 }}"
+      id="default_opt-{{ opt.0 }}"
+      {% if form.default_opt.value == opt.0 %}checked{% endif %}
+    >
+    <label for="default_opt-{{ opt.0 }}">{{ opt.1 }}</label>
+  </div>
+  {% endfor %}
+</div>
+
+  <div class="form-group">
+      <button type="submit" class="btn btn-default">{% trans 'Check' %}</button>
+</div>
+</form>
+</div>
+
 <div style="height:40px"></div>
 {% endblock content %}
