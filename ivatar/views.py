@@ -220,6 +220,8 @@ class AvatarImageView(TemplateView):
         obj.photo.save()
         obj.access_count += 1
         obj.save()
+        if imgformat == 'jpg':
+            imgformat = 'jpeg'
         return HttpResponse(
             data,
             content_type='image/%s' % imgformat)

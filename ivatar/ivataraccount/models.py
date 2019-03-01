@@ -40,7 +40,7 @@ def file_format(image_type):
     Helper method returning a short image type
     '''
     if image_type == 'JPEG':
-        return 'jpeg'
+        return 'jpg'
     elif image_type == 'PNG':
         return 'png'
     elif image_type == 'GIF':

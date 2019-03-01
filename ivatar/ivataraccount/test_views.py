@@ -358,7 +358,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         # Probably not the best way to access the content type
         self.assertEqual(
             response['Content-Type'],
-            'image/jpeg',
+            'image/jpg',
             'Content type wrong!?')
 
         self.assertEqual(
@@ -640,7 +640,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
             'Successfully uploaded',
             'JPEG upload failed?!')
         self.assertEqual(
-            self.user.photo_set.first().format, 'jpeg',
+            self.user.photo_set.first().format, 'jpg',
             'Format must be jpeg, since we uploaded a jpeg!')
         self.test_confirm_email()
         self.user.confirmedemail_set.first().photo = self.user.photo_set.first()
