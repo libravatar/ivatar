@@ -42,7 +42,7 @@ from .forms import UpdatePreferenceForm, UploadLibravatarExportForm
 from .forms import DeleteAccountForm
 from .models import UnconfirmedEmail, ConfirmedEmail, Photo
 from .models import UnconfirmedOpenId, ConfirmedOpenId, DjangoOpenIDStore
-from .models import UserPreference
+from .models import UserPreference, APIKey
 from .models import file_format
 from . read_libravatar_export import read_gzdata as libravatar_read_gzdata
 
@@ -952,3 +952,20 @@ class DeleteAccountView(SuccessMessageMixin, FormView):
                 raise(_('No password given'))
         request.user.delete() # should delete all confirmed/unconfirmed/photo objects
         return super().post(self, request, args, kwargs)
+
+@method_decorator(login_required, name='dispatch')
+class GenerateAPIKey(View):
+    '''
+    View class that generates an API key
+    '''
+
+    def post(self, request, *args, **kwargs):
+        '''
+        Handle API key generation
+        '''
+        if hasattr(request.user, 'apikey'):
+            messages.warning(request, _('You already have an API key'))
+        else:
+            request.user.apikey = APIKey.objects.create(user=request.user)
+            messages.warning(request, _('API key created'))
+        return HttpResponseRedirect(reverse_lazy('user_preference'))

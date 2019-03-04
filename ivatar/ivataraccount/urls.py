@@ -24,6 +24,7 @@ from . views import UserPreferenceView, UploadLibravatarExportView
 from . views import ResendConfirmationMailView
 from . views import IvatarLoginView
 from . views import DeleteAccountView
+from . views import GenerateAPIKey
 
 # Define URL patterns, self documenting
 # To see the fancy, colorful evaluation of these use:
@@ -115,4 +116,5 @@ urlpatterns = [  # pylint: disable=invalid-name
         UploadLibravatarExportView.as_view(), name='upload_export'),
     url(r'resend_confirmation_mail/(?P<email_id>\d+)',
         ResendConfirmationMailView.as_view(), name='resend_confirmation_mail'),
+    url(r'generate_api_key/$', GenerateAPIKey.as_view(), name='generate_api_key'),
 ]

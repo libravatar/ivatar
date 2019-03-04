@@ -33,6 +33,7 @@ from ivatar.settings import MAX_PIXELS, AVATAR_MAX_SIZE, JPEG_QUALITY
 from ivatar.settings import MAX_LENGTH_URL
 from ivatar.settings import SECURE_BASE_URL, SITE_NAME, DEFAULT_FROM_EMAIL
 from .gravatar import get_photo as get_gravatar_photo
+from ivatar.utils import random_string
 
 
 def file_format(image_type):
@@ -46,6 +47,9 @@ def file_format(image_type):
     elif image_type == 'GIF':
         return 'gif'
     return None
+
+def random_api_key():
+    return random_string(32)
 
 
 def pil_format(image_type):
@@ -61,6 +65,18 @@ def pil_format(image_type):
 
     logger.info('Unsupported file format: %s', image_type)
     return None
+
+
+class APIKey(models.Model):
+    '''
+    Holds the users API key
+    '''
+    api_key = models.CharField(max_length=32, default=random_api_key, unique=True, blank=False, null=False)
+    user = models.OneToOneField(
+        User,
+        on_delete=models.deletion.CASCADE,
+        primary_key=True,
+    )
 
 
 class UserPreference(models.Model):
