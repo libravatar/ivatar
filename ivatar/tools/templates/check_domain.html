@@ -34,7 +34,6 @@
     </form>
   </div>
 
-<!-- TODO TODO TODO: I need better styling -->
   {% if result %}
     <hr/>
     <h2>The following servers will be used for your domain</h2>
@@ -44,8 +43,8 @@
 </div>
 <div class="panel-body">
 {% if result.avatar_server_http %}
-<a href="{{result.avatar_server_http}}">
-<h4>{{result.avatar_server_http}}</h4>
+<a href="http://{{result.avatar_server_http}}">
+<h4>http://{{result.avatar_server_http}}</h4>
 </a>
 {% if result.avatar_server_http_ipv4 %}
 <br><center>{{ result.avatar_server_http_ipv4 }}</center>
@@ -66,8 +65,8 @@
 </div>
 <div class="panel-body">
 {% if result.avatar_server_https %}
-<a href="{{result.avatar_server_https}}">
-<h4>{{result.avatar_server_https}}</h4>
+<a href="https://{{result.avatar_server_https}}">
+<h4>https://{{result.avatar_server_https}}</h4>
 </a>
 {% if result.avatar_server_https_ipv4 %}
 <br><center>{{ result.avatar_server_https_ipv4 }}</center>
