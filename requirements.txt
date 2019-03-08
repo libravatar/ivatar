@@ -38,3 +38,4 @@ python-memcached
 git+https://github.com/ercpe/pydenticon5.git
 git+https://github.com/flavono123/identicon.git
 pagan
+simple-crypt
