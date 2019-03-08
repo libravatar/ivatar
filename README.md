@@ -16,6 +16,10 @@ Reports / code documentation
 Authors and contributors
 ========================
 
-Initial developer: François Marier - https://fmarier.org/
+Lead developer/Owner: Oliver Falk (aka ofalk or falko) - https://git.linux-kernel.at/oliver
+Operations: Michal Novotny (aka clime)
+QA: Tristan Le Guern (aka tleguern)
+Frontend developer: Niklas Poslovski (aka nipos)
+Organisation/Meeting moderation: Lars Kruse (aka sumpfralle)
 
-Lead developer/Owner: Oliver Falk - https://git.linux-kernel.at/oliver
+Initial developer: François Marier - https://fmarier.org/
