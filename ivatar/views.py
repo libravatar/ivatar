@@ -12,7 +12,9 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
 from django.urls import reverse_lazy
-
+from django.contrib import messages
+from simplecrypt import decrypt
+from binascii import unhexlify
 from PIL import Image
 
 from monsterid.id import build_monster as BuildMonster
@@ -24,6 +26,7 @@ from robohash import Robohash
 from ivatar.settings import AVATAR_MAX_SIZE, JPEG_QUALITY, DEFAULT_AVATAR_SIZE
 from . ivataraccount.models import ConfirmedEmail, ConfirmedOpenId
 from . ivataraccount.models import pil_format, file_format
+from . ivataraccount.models import APIKey
 
 URL_TIMEOUT = 5  # in seconds
 
@@ -79,6 +82,21 @@ class AvatarImageView(TemplateView):
         # In case no digest at all is provided, return to home page
         if not 'digest' in kwargs:
             return HttpResponseRedirect(reverse_lazy('home'))
+
+        # Encrypted digest
+        if len(kwargs['digest']) >= 200:
+            # If this is an encrypted digest, we need the key, without the key, return home
+            if not 'key' in request.GET:
+                print('No key provided. If digest >=200, we expect it to be encrypted and it needs a key to decrypt')
+                return HttpResponseRedirect(reverse_lazy('home'))
+            try:
+                keypair = APIKey.objects.get(public_key=request.GET['key'])
+                if not keypair:
+                    print("Key %s doesn't exist!" % request.GET['key'])
+                    messages.error(request, _("This key doesn't exist"))
+                kwargs['digest'] = decrypt(keypair.secret_key, unhexlify(kwargs['digest'])).decode('utf-8')
+            except Exception as e:
+                messages.error(request, _("Error decrypting: %s" % e))
 
         if 'd' in request.GET:
             default = request.GET['d']

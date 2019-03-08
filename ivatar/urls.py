@@ -15,6 +15,14 @@ urlpatterns = [  # pylint: disable=invalid-name
     url('openid/', include('django_openid_auth.urls')),
     url('accounts/', include('ivatar.ivataraccount.urls')),
     url('tools/', include('ivatar.tools.urls')),
+    # Encrypted digest
+    url(
+        r'avatar/(?P<digest>\w{264})',
+        AvatarImageView.as_view(), name='avatar_view'),
+    url(
+        r'avatar/(?P<digest>\w{200})',
+        AvatarImageView.as_view(), name='avatar_view'),
+    # Unencrypted digest
     url(
         r'avatar/(?P<digest>\w{64})',
         AvatarImageView.as_view(), name='avatar_view'),

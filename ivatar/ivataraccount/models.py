@@ -69,9 +69,10 @@ def pil_format(image_type):
 
 class APIKey(models.Model):
     '''
-    Holds the users API key
+    Holds the users API keys (public and private/secret)
     '''
-    api_key = models.CharField(max_length=32, default=random_api_key, unique=True, blank=False, null=False)
+    public_key = models.CharField(max_length=32, default=random_api_key, unique=True, blank=False, null=False)
+    secret_key = models.CharField(max_length=32, default=random_api_key, unique=False, blank=False, null=False)
     user = models.OneToOneField(
         User,
         on_delete=models.deletion.CASCADE,
