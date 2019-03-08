@@ -187,3 +187,5 @@ CACHES = {
     ],
   }
 }
+
+CACHE_IMAGES_MAX_AGE = 24 * 60 * 60

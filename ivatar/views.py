@@ -22,6 +22,7 @@ import pagan
 from robohash import Robohash
 
 from ivatar.settings import AVATAR_MAX_SIZE, JPEG_QUALITY, DEFAULT_AVATAR_SIZE
+from ivatar.settings import CACHE_IMAGES_MAX_AGE
 from . ivataraccount.models import ConfirmedEmail, ConfirmedOpenId
 from . ivataraccount.models import pil_format, file_format
 
@@ -150,7 +151,7 @@ class AvatarImageView(TemplateView):
                     response = HttpResponse(
                         data,
                         content_type='image/png')
-                    response['Cache-Control'] = 'max-age=300'
+                    response['Cache-Control'] = 'max-age=%i' % CACHE_IMAGES_MAX_AGE
                     return response
 
                 if str(default) == 'robohash':
@@ -162,10 +163,10 @@ class AvatarImageView(TemplateView):
                     data = BytesIO()
                     robohash.img.save(data, format='png')
                     data.seek(0)
-                    response =  HttpResponse(
+                    response = HttpResponse(
                         data,
                         content_type='image/png')
-                    response['Cache-Control'] = 'max-age=300'
+                    response['Cache-Control'] = 'max-age=%i' % CACHE_IMAGES_MAX_AGE
                     return response
 
                 if str(default) == 'retro':
@@ -178,7 +179,7 @@ class AvatarImageView(TemplateView):
                     response =  HttpResponse(
                         data,
                         content_type='image/png')
-                    response['Cache-Control'] = 'max-age=300'
+                    response['Cache-Control'] = 'max-age=%i' % CACHE_IMAGES_MAX_AGE
                     return response
 
                 if str(default) == 'pagan':
@@ -190,7 +191,7 @@ class AvatarImageView(TemplateView):
                     response = HttpResponse(
                         data,
                         content_type='image/png')
-                    response['Cache-Control'] = 'max-age=300'
+                    response['Cache-Control'] = 'max-age=%i' % CACHE_IMAGES_MAX_AGE
                     return response
 
                 if str(default) == 'identicon':
@@ -204,7 +205,7 @@ class AvatarImageView(TemplateView):
                     response = HttpResponse(
                         data,
                         content_type='image/png')
-                    response['Cache-Control'] = 'max-age=300'
+                    response['Cache-Control'] = 'max-age=%i' % CACHE_IMAGES_MAX_AGE
                     return response
 
                 if str(default) == 'mm' or str(default) == 'mp':
@@ -244,7 +245,7 @@ class AvatarImageView(TemplateView):
         response = HttpResponse(
             data,
             content_type='image/%s' % imgformat)
-        response['Cache-Control'] = 'max-age=300'
+        response['Cache-Control'] = 'max-age=%i' % CACHE_IMAGES_MAX_AGE
         return response
 
 class GravatarProxyView(View):
@@ -317,7 +318,7 @@ class GravatarProxyView(View):
             response = HttpResponse(
                 data.read(),
                 content_type='image/%s' % file_format(img.format))
-            response['Cache-Control'] = 'max-age=300'
+            response['Cache-Control'] = 'max-age=%i' % CACHE_IMAGES_MAX_AGE
             return response
 
         except ValueError as exc:
