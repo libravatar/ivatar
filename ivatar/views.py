@@ -22,6 +22,7 @@ import pagan
 from robohash import Robohash
 
 from ivatar.settings import AVATAR_MAX_SIZE, JPEG_QUALITY, DEFAULT_AVATAR_SIZE
+from ivatar.settings import CACHE_IMAGES_MAX_AGE
 from . ivataraccount.models import ConfirmedEmail, ConfirmedOpenId
 from . ivataraccount.models import pil_format, file_format
 
@@ -147,9 +148,11 @@ class AvatarImageView(TemplateView):
                     data = BytesIO()
                     monsterdata.save(data, 'PNG', quality=JPEG_QUALITY)
                     data.seek(0)
-                    return HttpResponse(
+                    response = HttpResponse(
                         data,
                         content_type='image/png')
+                    response['Cache-Control'] = 'max-age=%i' % CACHE_IMAGES_MAX_AGE
+                    return response
 
                 if str(default) == 'robohash':
                     roboset = 'any'
@@ -160,9 +163,11 @@ class AvatarImageView(TemplateView):
                     data = BytesIO()
                     robohash.img.save(data, format='png')
                     data.seek(0)
-                    return HttpResponse(
+                    response = HttpResponse(
                         data,
                         content_type='image/png')
+                    response['Cache-Control'] = 'max-age=%i' % CACHE_IMAGES_MAX_AGE
+                    return response
 
                 if str(default) == 'retro':
                     identicon = Identicon.render(kwargs['digest'])
@@ -171,9 +176,11 @@ class AvatarImageView(TemplateView):
                     img = img.resize((size, size), Image.ANTIALIAS)
                     img.save(data, 'PNG', quality=JPEG_QUALITY)
                     data.seek(0)
-                    return HttpResponse(
+                    response =  HttpResponse(
                         data,
                         content_type='image/png')
+                    response['Cache-Control'] = 'max-age=%i' % CACHE_IMAGES_MAX_AGE
+                    return response
 
                 if str(default) == 'pagan':
                     paganobj = pagan.Avatar(kwargs['digest'])
@@ -181,9 +188,11 @@ class AvatarImageView(TemplateView):
                     img = paganobj.img.resize((size, size), Image.ANTIALIAS)
                     img.save(data, 'PNG', quality=JPEG_QUALITY)
                     data.seek(0)
-                    return HttpResponse(
+                    response = HttpResponse(
                         data,
                         content_type='image/png')
+                    response['Cache-Control'] = 'max-age=%i' % CACHE_IMAGES_MAX_AGE
+                    return response
 
                 if str(default) == 'identicon':
                     p = Pydenticon5()
@@ -193,9 +202,11 @@ class AvatarImageView(TemplateView):
                     data = BytesIO()
                     img.save(data, 'PNG', quality=JPEG_QUALITY)
                     data.seek(0)
-                    return HttpResponse(
+                    response = HttpResponse(
                         data,
                         content_type='image/png')
+                    response['Cache-Control'] = 'max-age=%i' % CACHE_IMAGES_MAX_AGE
+                    return response
 
                 if str(default) == 'mm' or str(default) == 'mp':
                     # If mm is explicitly given, we need to catch that
@@ -231,9 +242,11 @@ class AvatarImageView(TemplateView):
         obj.save()
         if imgformat == 'jpg':
             imgformat = 'jpeg'
-        return HttpResponse(
+        response = HttpResponse(
             data,
             content_type='image/%s' % imgformat)
+        response['Cache-Control'] = 'max-age=%i' % CACHE_IMAGES_MAX_AGE
+        return response
 
 class GravatarProxyView(View):
     '''
@@ -302,9 +315,11 @@ class GravatarProxyView(View):
             data = BytesIO(gravatarimagedata.read())
             img = Image.open(data)
             data.seek(0)
-            return HttpResponse(
+            response = HttpResponse(
                 data.read(),
                 content_type='image/%s' % file_format(img.format))
+            response['Cache-Control'] = 'max-age=%i' % CACHE_IMAGES_MAX_AGE
+            return response
 
         except ValueError as exc:
             print('Value error: %s' % exc)

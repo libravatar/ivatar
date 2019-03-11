@@ -816,12 +816,16 @@ class UploadLibravatarExportView(SuccessMessageMixin, FormView):
 
     def form_valid(self, form):
         data = self.request.FILES['export_file']
-        items = libravatar_read_gzdata(data.read())
-        # DEBUG print(items)
-        return render(self.request, 'choose_libravatar_export.html', {
-            'emails': items['emails'],
-            'photos': items['photos'],
-        })
+        try:
+            items = libravatar_read_gzdata(data.read())
+            # DEBUG print(items)
+            return render(self.request, 'choose_libravatar_export.html', {
+                'emails': items['emails'],
+                'photos': items['photos'],
+            })
+        except Exception as e:
+            messages.error(self.request, _('Unable to parse file: %s' % e))
+            return HttpResponseRedirect(reverse_lazy('upload_export'))
 
 
 @method_decorator(login_required, name='dispatch')
