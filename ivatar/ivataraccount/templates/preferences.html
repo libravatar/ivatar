@@ -48,40 +48,42 @@
 
 -->
 
-<h2>{% trans 'API Key' %}</h2>
-{% if user.apikey %}
-<div id="copiedToClipboard" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">{% trans 'Copied' %}</h4>
+{% if perms.ivataraccount.can_us_api %}
+  <h2>{% trans 'API Key' %}</h2>
+  {% if user.apikey %}
+  <div id="copiedToClipboard" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">{% trans 'Copied' %}</h4>
+        </div>
+        <div class="modal-body">
+          <p>{% trans 'Key has been copied to the clipboard' %}</p>
+        </div>
       </div>
-      <div class="modal-body">
-        <p>{% trans 'Key has been copied to the clipboard' %}</p>
-      </div>
-    </div>
 
+    </div>
   </div>
-</div>
-<script>
-  function copyToClipboard(fieldId) {
-    var copyText = document.getElementById(fieldId);
-    copyText.select();
-    document.execCommand("copy");
-    $("#copiedToClipboard").modal("show");
-    setTimeout(function() {$('#copiedToClipboard').modal('hide');}, 2000);
-  }
-</script>
-<div class="form-group"><label for="public_key">{% trans 'Public key' %}</label>
-<input type="text" name="public_key" id="public_key" value="{{ user.apikey.public_key }}" style="width:400px;" class="form-control" readonly onclick="copyToClipboard('public_key')">
-</div>
-<div class="form-group"><label for="secret_key">{% trans 'Secret key' %}</label>
-<input type="text" name="secret_key" id="secret_key" value="{{ user.apikey.secret_key }}" style="width:400px;" class="form-control" readonly onclick="copyToClipboard('secret_key')">
-{% else %}
-  <form action="{% url 'generate_api_key' %}" method="post">{% csrf_token %}
-    <button type="submit" class="btn btn-default">{% trans 'Generate API key' %}</button>
-</form>
+  <script>
+    function copyToClipboard(fieldId) {
+      var copyText = document.getElementById(fieldId);
+      copyText.select();
+      document.execCommand("copy");
+      $("#copiedToClipboard").modal("show");
+      setTimeout(function() {$('#copiedToClipboard').modal('hide');}, 2000);
+    }
+  </script>
+  <div class="form-group"><label for="public_key">{% trans 'Public key' %}</label>
+  <input type="text" name="public_key" id="public_key" value="{{ user.apikey.public_key }}" style="width:400px;" class="form-control" readonly onclick="copyToClipboard('public_key')">
+  </div>
+  <div class="form-group"><label for="secret_key">{% trans 'Secret key' %}</label>
+  <input type="text" name="secret_key" id="secret_key" value="{{ user.apikey.secret_key }}" style="width:400px;" class="form-control" readonly onclick="copyToClipboard('secret_key')">
+  {% else %}
+    <form action="{% url 'generate_api_key' %}" method="post">{% csrf_token %}
+      <button type="submit" class="btn btn-default">{% trans 'Generate API key' %}</button>
+  </form>
+  {% endif %}
 {% endif %}
 
 <div style="height:40px"></div>
