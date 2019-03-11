@@ -188,4 +188,6 @@ CACHES = {
   }
 }
 
-CACHE_IMAGES_MAX_AGE = 24 * 60 * 60
+# This is 5 minutes caching for generated/resized images,
+# so the sites don't hit ivatar so much
+CACHE_IMAGES_MAX_AGE = 5 * 60
