@@ -26,6 +26,9 @@ from openid.association import Association as OIDAssociation
 from openid.store import nonce as oidnonce
 from openid.store.interface import OpenIDStore
 
+from simplecrypt import encrypt
+from binascii import hexlify
+
 from libravatar import libravatar_url
 
 from ivatar.settings import MAX_LENGTH_EMAIL, logger
@@ -65,6 +68,25 @@ def pil_format(image_type):
 
     logger.info('Unsupported file format: %s', image_type)
     return None
+
+def get_key_from_args(public_key=None, secret_key=None):
+    encryption_key = None
+    if type(public_key) is str:
+        try:
+            key = APIKey.objects.get(public_key=public_key)
+            encryption_key = key.secret_key
+        except APIKey.DoesNotExist:
+            raise Exception(_('Key given, does not exist'))
+    if type(public_key) is APIKey:
+        encryption_key = public_key.secret_key
+    if type(secret_key) is str:
+        encryption_key = secret_key
+    if type(secret_key) is APIKey:
+        encryption_key = secret_key.secret_key
+    if not encryption_key:
+        raise Exception(_('No key given for encryption'))
+    return encryption_key
+
 
 
 class APIKey(models.Model):
@@ -355,6 +377,14 @@ class ConfirmedEmail(BaseAccountModel):
 
     def __str__(self):
         return '%s (%i) from %s' % (self.email, self.pk, self.user)
+
+    def encrypted_digest_sha256(self, public_key=None, secret_key=None):
+        encryption_key = get_key_from_args(public_key=public_key, secret_key=secret_key)
+        return hexlify(encrypt(encryption_key, self.digest_sha256))
+
+    def encrypted_digest(self, public_key=None, secret_key=None):
+        encryption_key = get_key_from_args(public_key=public_key, secret_key=secret_key)
+        return hexlify(encrypt(encryption_key, self.digest))
 
 
 class UnconfirmedEmail(BaseAccountModel):
