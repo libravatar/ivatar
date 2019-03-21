@@ -61,5 +61,8 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         """
         Test incorrect digest
         """
-        response = self.client.get('/avatar/%s' % 'x'*65)
-        self.assertEqual(response.status_code, 200, 'no 200 ok?')
+        response = self.client.get('/avatar/%s' % 'x'*65, follow=True)
+        self.assertRedirects(
+            response=response,
+            expected_url='/static/img/deadbeef.png',
+            msg_prefix='Why does an invalid hash not redirect to deadbeef?')
