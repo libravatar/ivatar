@@ -1,7 +1,7 @@
-image: ofalk/centos7-python36
+image: docker.io/ofalk/fedora28-python3
 
 before_script:
-  - virtualenv -p python3.6 /tmp/.virtualenv
+  - virtualenv-3 -p python3 /tmp/.virtualenv
   - source /tmp/.virtualenv/bin/activate
   - pip install Pillow
   - pip install -r requirements.txt
