@@ -32,11 +32,7 @@ urlpatterns = [  # pylint: disable=invalid-name
     url(r'avatar/$', AvatarImageView.as_view(), name='avatar_view'),
     url(
         r'avatar/(?P<digest>\w*)',
-        TemplateView.as_view(
-            template_name='error.html',
-            extra_context={
-                'errormessage': 'Incorrect digest length',
-            })),
+        RedirectView.as_view(url='/static/img/deadbeef.png'), name='invalid_hash'),
     url(
         r'gravatarproxy/(?P<digest>\w*)',
         GravatarProxyView.as_view(), name='gravatarproxy'),
