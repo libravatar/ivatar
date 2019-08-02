@@ -695,10 +695,10 @@ class CropPhotoView(TemplateView):
         '''
         photo = self.model.objects.get(pk=kwargs['pk'], user=request.user)  # pylint: disable=no-member
         dimensions = {
-            'x': int(request.POST['x']),
-            'y': int(request.POST['y']),
-            'w': int(request.POST['w']),
-            'h': int(request.POST['h'])
+            'x': int(float(request.POST['x'])),
+            'y': int(float(request.POST['y'])),
+            'w': int(float(request.POST['w'])),
+            'h': int(float(request.POST['h'])),
         }
         email = openid = None
         if 'email' in request.POST:

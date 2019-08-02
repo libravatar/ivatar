@@ -1,6 +1,7 @@
 {% load static %}
 {% load i18n %}<!DOCTYPE HTML>
 {% include 'header.html' %}
+{% block header %}{% endblock header %}
 <title>{{ site_name }} :: {% block title %}{% trans 'Freeing the Web, one face at a time!' %}{% endblock title %}</title>
 
 {% spaceless %}
