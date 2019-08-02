@@ -409,7 +409,7 @@ class RawImageView(DetailView):
 
     def get(self, request, *args, **kwargs):
         photo = self.model.objects.get(pk=kwargs['pk'])  # pylint: disable=no-member
-        if not photo.user.id == request.user.id:
+        if not photo.user.id == request.user.id and not request.user.is_staff:
             return HttpResponseRedirect(reverse_lazy('home'))
         return HttpResponse(
             BytesIO(photo.data), content_type='image/%s' % photo.format)
@@ -695,10 +695,10 @@ class CropPhotoView(TemplateView):
         '''
         photo = self.model.objects.get(pk=kwargs['pk'], user=request.user)  # pylint: disable=no-member
         dimensions = {
-            'x': int(request.POST['x']),
-            'y': int(request.POST['y']),
-            'w': int(request.POST['w']),
-            'h': int(request.POST['h'])
+            'x': int(float(request.POST['x'])),
+            'y': int(float(request.POST['y'])),
+            'w': int(float(request.POST['w'])),
+            'h': int(float(request.POST['h'])),
         }
         email = openid = None
         if 'email' in request.POST:
@@ -883,6 +883,15 @@ class ProfileView(TemplateView):
     template_name = 'profile.html'
 
     def get(self, request, *args, **kwargs):
+        if 'profile_username' in kwargs:
+            if not request.user.is_staff:
+                return HttpResponseRedirect(reverse_lazy('profile'))
+            try:
+                u = User.objects.get(username=kwargs['profile_username'])
+                request.user = u
+            except:
+                pass
+
         self._confirm_claimed_openid()
         return super().get(self, request, args, kwargs)
 
