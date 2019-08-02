@@ -8,7 +8,6 @@
 
 {% block content %}
 <style>
-
 </style>
 <h1>{% trans 'Crop photo' %}</h1>
 
@@ -37,6 +36,7 @@ function updateCoords(c) {
     $('#w').val(c.w);
     $('#h').val(c.h);
 };
+
 function checkCoords() {
     if (parseInt($('#w').val())) return true;
     alert('Please select a crop region then press submit.');
@@ -44,11 +44,28 @@ function checkCoords() {
 };
 </script>
 <script type="text/javascript">
+    /// TODO: This needs to be reworked!
+    /// Should be some reasonable function of distance of the image to the
+    /// left and right screen border  or so.
+    var windowwidth = $(window).width();
+    var usewidth = windowwidth - 60;
+    if(windowwidth < 400) {
+      usewidth = windowwidth - 60;
+    }
+    if(windowwidth > 800) {
+      usewidth = windowwidth - 100;
+    }
+    if(windowwidth > 1200) {
+      usewidth = windowwidth - 400;
+    }
+
     jQuery(function($){
         $('#cropbox').Jcrop({
             onSelect: updateCoords,
-bgOpacity:1,
-bgColor:'transparent'
+            bgOpacity: .2,
+            bgColor: 'transparent',
+            boxWidth: usewidth,
+            aspectRatio: 80 / 80,
       });
     });
 </script>
