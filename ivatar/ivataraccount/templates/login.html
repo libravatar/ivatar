@@ -1,4 +1,4 @@
-{% extends 'base.html' %}                                                                                                                      
+{% extends 'base.html' %}
 {% load i18n %}
 
 {% block title %}{% trans 'Login to yourivatar account' %}{% endblock title %}
@@ -29,13 +29,13 @@
 <label for="id_password">{% trans 'Password' %}:</label>
 <input type="password" name="password" class="form-control" required id="id_password">
 </div>
-  <button type="submit" class="btn btn-default">{% trans 'Login' %}</button>
+  <button type="submit" class="button">{% trans 'Login' %}</button>
   &nbsp;
-  <a href="{% url 'openid-login' %}" class="btn btn-default">{% trans 'Login with OpenID' %}</a>
+  <a href="{% url 'openid-login' %}" class="button">{% trans 'Login with OpenID' %}</a>
   &nbsp;
-  <a href="{% url 'new_account' %}" class="btn btn-default">{% trans 'Create new user' %}</a>
+  <a href="{% url 'new_account' %}" class="button">{% trans 'Create new user' %}</a>
   &nbsp;
-  <a href="{% url 'password_reset' %}" class="btn btn-default">{% trans 'Password reset' %}</a>
+  <a href="{% url 'password_reset' %}" class="button">{% trans 'Password reset' %}</a>
 </form>
 </div>
 <div style="height:40px"></div>
