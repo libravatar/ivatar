@@ -25,6 +25,8 @@
   <input type='hidden' id='h' name='h' value='0'/>
 <div class="form-group">
   <button type="submit" class="button" onsubmit="return checkCoords();">{% trans 'Crop' %}</button>
+  &nbsp;
+  <a href="{% url 'profile' %}" class="button" title="{% trans 'May lead to wrong aspect ratio!' %}">{% trans 'Skip cropping' %}</a>
 </div>
 </form>
 
