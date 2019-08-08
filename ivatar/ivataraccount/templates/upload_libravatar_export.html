@@ -1,4 +1,4 @@
-{% extends 'base.html' %}                                                                                                                      
+{% extends 'base.html' %}
 {% load i18n %}
 {% load static %}
 
@@ -11,8 +11,9 @@
 {% csrf_token %}
 <div class="form-group">
 <label for="id_export_file">{% trans 'Export file' %}</label>
-<span class="btn btn-default uploadbtn" style="display:flex;width:120px;padding:0;height:36px;position:relative;align-items:center">
-<input type="file" name="export_file" required id="id_export_file" style="opacity:0;width:100%;height:100%;float:left">
+<span class="button" style="display:flex;width:120px;padding:0;height:36px;position:relative;align-items:center">
+<input type="file" name="export_file" required id="id_export_file"/>
+<label for="id_export_file">{% trans 'Select File' %}</label>
 </span>
 </div>
 <div class="form-group">
@@ -27,7 +28,7 @@
 <label for="id_can_distribute">{% trans 'can be freely copied' %}</label>
 </div>
 </div>
-        <button type="submit" class="btn btn-default">{% trans 'Upload' %}</button>
+        <button type="submit" class="button">{% trans 'Upload' %}</button>
     </form>
 <div style="height:40px"></div>
 {% endblock content %}

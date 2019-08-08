@@ -9,76 +9,82 @@
 {% url 'new_account' as new_account_url %}
 
 <div class="hero">
-<div class="container">
-<header>
-<h1>{{ site_name }}</h1>
-<h2>{% trans 'freeing the web one face at a time' %}</h2>
-{% if user.is_anonymous %}
-<a href="/accounts/login/" class="btn btn-lg btn-primary">{% trans 'Login' %}</a>&nbsp;
-<a href="/accounts/new/" class="btn btn-lg btn-primary">{% trans 'Sign up' %}</a>&nbsp;
-{% else %}
-<div class="btn-group">
+  <div class="container">
+    <header>
+      <h1 id='app'>{{ site_name }}</h1>
+      <h2>{% trans 'freeing the web one face at a time' %}</h2>
+      {% if user.is_anonymous %}
+      <a href="/accounts/login/" class="btn btn-lg btn-primary">{% trans 'Login' %}</a>&nbsp;
+      <a href="/accounts/new/" class="btn btn-lg btn-primary">{% trans 'Sign up' %}</a>&nbsp;
+      {% else %}
+      <div class="btn-group">
         <a class="btn btn-lg btn-primary dropdown-toggle" href="#" id="account_dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <i class="fa fa-user" aria-hidden="true"></i> {{ request.user }}
+          <i class="fa fa-user" aria-hidden="true"></i> {{ request.user }}
         </a>
         <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-            <li><a href="{% url 'profile'  %}"><i class="fa fa-fw fa-image" aria-hidden="true"></i> {% trans 'Profile' %}</a></li>
-            <li><a href="{% url 'user_preference' %}"><i class="fa fa-fw fa-cog" aria-hidden="true"></i> {% trans 'Preferences' %}</a></li>
-            <li><a href="{% url 'import_photo' %}"><i class="fa fa-fw fa-envelope-square" aria-hidden="true"></i> {% trans 'Import photo via mail address' %}</a></li>
-            <li><a href="{% url 'upload_export' %}"><i class="fa fa-fw fa-file-archive-o" aria-hidden="true"></i> {% trans 'Import libravatar XML export' %}</a></li>
-            <li><a href="{% url 'password_change' %}"><i class="fa fa-fw fa-key" aria-hidden="true"></i> {% trans 'Change password' %}</a></li>
-            <li><a href="{% url 'password_reset' %}"><i class="fa fa-fw fa-unlock-alt" aria-hidden="true"></i> {% trans 'Reset password' %}</a></li>
-            <li><a href="{% url 'logout' %}"><i class="fa fa-fw fa-sign-out" aria-hidden="true"></i> {% trans 'Logout' %}</a></li>
-    {% if user.is_staff %}
-      <li>
-        <a href="{% url 'admin:index' %}" target="_new"><i class="fa fa-fw fa-user-secret" aria-hidden="true"></i> {% trans 'Admin' %}</a>
-      </li>
-    {% endif %}
-            </ul>
+          <li><a href="{% url 'profile'  %}"><i class="fa fa-fw fa-image" aria-hidden="true"></i> {% trans 'Profile' %}</a></li>
+          <li><a href="{% url 'user_preference' %}"><i class="fa fa-fw fa-cog" aria-hidden="true"></i> {% trans 'Preferences' %}</a></li>
+          <li><a href="{% url 'import_photo' %}"><i class="fa fa-fw fa-envelope-square" aria-hidden="true"></i> {% trans 'Import photo via mail address' %}</a></li>
+          <li><a href="{% url 'upload_export' %}"><i class="fa fa-fw fa-file-archive-o" aria-hidden="true"></i> {% trans 'Import libravatar XML export' %}</a></li>
+          <li><a href="{% url 'password_change' %}"><i class="fa fa-fw fa-key" aria-hidden="true"></i> {% trans 'Change password' %}</a></li>
+          <li><a href="{% url 'password_reset' %}"><i class="fa fa-fw fa-unlock-alt" aria-hidden="true"></i> {% trans 'Reset password' %}</a></li>
+          <li><a href="{% url 'logout' %}"><i class="fa fa-fw fa-sign-out" aria-hidden="true"></i> {% trans 'Logout' %}</a></li>
+          {% if user.is_staff %}
+          <li>
+            <a href="{% url 'admin:index' %}" target="_new"><i class="fa fa-fw fa-user-secret" aria-hidden="true"></i> {% trans 'Admin' %}</a>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+      {% endif %}
+      &nbsp;<a href="/tools/check/" class="btn btn-lg btn-primary">{% trans 'Check' %}</a>&nbsp;
+    </header>
+  </div>
 </div>
-{% endif %}
-&nbsp;<a href="/tools/check/" class="btn btn-lg btn-primary">{% trans 'Check' %}</a>&nbsp;
-</header>
-</div>
-</div>
-<div class="social"></div>
-<div class="clipper"></div>
 <section class="content">
-<div class="container">
-<div class="text-center">
-<h2>{% trans 'The open avatar service' %}</h2>
-<p class="lead">{% blocktrans %}{{ site_name }} is a service which delivers your avatar (profile picture) to other websites. If you create an account with us, your photo could start popping up next to forum posts or blog comments on any site where you left your email address.{% endblocktrans %}<br>
-<a href="https://wiki.libravatar.org/description/">{% trans 'Read more...' %}</a></p>
-</div>
-<hr/>
-<div class="row">
-<section class="col-md-8">
-<h1>{% trans 'Federated Open Source Service' %}</h1>
-<p class="lead">{% trans 'This service is powered by <a href="https://www.gnu.org/licenses/agpl.html">Free and Open Source software</a> called <a href="https://git.linux-kernel.at/oliver/ivatar">ivatar</a>. With this software you can also <a href="https://wiki.libravatar.org/running_your_own/">run your own instance</a> and serve avatars yourself.' %}</p>
-<hr>
-<h1>{% trans 'Simple API for Developers' %}</h1>
-<p class="lead">{% trans 'Application developers can easily add support for this service using our <a href="https://wiki.libravatar.org/api/">simple API</a> or one of the <a href="https://wiki.libravatar.org/libraries/">libraries and plugins</a> available for a number of platforms and languages.' %}</p>
-<hr/>
-<a class="btn btn-default btn-lg btn-block" href="https://wiki.libravatar.org/contribute/">{% trans 'Contribute' %}</a>
-</section>
-<section class="col-md-4">
-<h1>Useful links</h1>
-<a class="btn btn-default" href="{% url 'contact' %}">{% trans 'Contact us' %}</a><br/>
-<a class="btn btn-default" href="{% url 'security' %}">{% trans 'Security' %}</a><br/>
-<a class="btn btn-default" href="https://git.linux-kernel.at/oliver/ivatar/">{% trans 'Source code' %}</a><br/>
-<a class="btn btn-default" href="https://git.linux-kernel.at/oliver/ivatar/issues">{% trans 'Report bugs' %}</a><br/>
-<a class="btn btn-default" href="https://answers.launchpad.net/libravatar">{% trans 'Questions' %}</a><br/>
-<a class="btn btn-default" href="https://wiki.libravatar.org/">{% trans 'Wiki' %}</a><br/>
-<a class="btn btn-default" href="http://blog.libravatar.org/">{% trans 'Blog' %}</a><br/>
-<h3>{% trans 'Social media' %}</h3>
-<a class="btn btn-default" rel="me" href="https://photog.social/@libravatar">Mastodon</a><br/>
-<a class="btn btn-default" href="https://identi.ca/libravatar">Identica</a><br/>
-<a class="btn btn-default" href="https://twitter.com/libravatar">Twitter</a><br/>
-</section>
-</div>
-<div class="text-center">
-<h3>{% trans 'Big thanks to our sponsors without whom none of this would be possible!' %}</h3>
-<a href="https://fedoraproject.org/"><img src="{% static '/img/Fedora_logo.png' %}" title="Fedora Project" alt="{% trans 'Fedora Logo' %}"></a>
-</div>
-</section>
-{% endblock %}
+  <div class="container">
+    <div class="text-center">
+      <h2 style="text-transform: capitalize;font-size: 35px;">{% trans 'The open avatar service' %}</h2>
+      <p>{% blocktrans %}{{ site_name }} is a service which delivers your avatar (profile picture) to other websites. If you create an account with us, your photo could start popping up next to forum posts or blog comments on any site where you left your email address.{% endblocktrans %}<br>
+        <a href="https://wiki.libravatar.org/description/">{% trans 'Read more...' %}</a></p>
+      </div>
+      <hr/>
+
+      <div class="main-content-container">
+        <div class="left">
+
+          <h2 style="text-transform: capitalize;">{% trans 'Federated Open Source Service' %}</h1>
+            <p>{% trans 'This service is powered by <a href="https://www.gnu.org/licenses/agpl.html">Free and Open Source software</a> called <a href="https://git.linux-kernel.at/oliver/ivatar" target="_new">ivatar</a>. With this software you can also <a href="https://wiki.libravatar.org/running_your_own/">run your own instance</a> and serve avatars yourself.' %}</p>
+            <hr>
+            <h2>{% trans 'Simple API for Developers' %}</h1>
+              <p>{% trans 'Application developers can easily add support for this service using our <a href="https://wiki.libravatar.org/api/">simple API</a> or one of the <a href="https://wiki.libravatar.org/libraries/">libraries and plugins</a> available for a number of platforms and languages.' %}</p>
+              <hr/>
+              <a id="contribute" class="button" href="https://wiki.libravatar.org/contribute/">{% trans 'Contribute' %}</a>
+
+
+            </div>
+            <div class="middle">
+              <h2 style="text-transform: capitalize;">Useful links</h1>
+                <a class="button" href="{% url 'contact' %}" style="width: 20rem;font-size: 18px;">{% trans 'Contact us' %}</a><br/>
+                <a class="button" href="{% url 'security' %}" style="width: 20rem;font-size: 18px;">{% trans 'Security' %}</a><br/>
+                <a class="button" href="https://git.linux-kernel.at/oliver/ivatar/" target="_new" style="width: 20rem;font-size: 18px;">{% trans 'Source code' %}</a><br/>
+                <a class="button" href="https://git.linux-kernel.at/oliver/ivatar/issues" target="_new" style="width: 20rem;font-size: 18px;">{% trans 'Report bugs' %}</a><br/>
+                <a class="button" href="https://wiki.libravatar.org/talk_to_us/" target="_new" style="width: 20rem;font-size: 18px;">{% trans 'Questions' %}</a><br/>
+                <a class="button" href="https://wiki.libravatar.org/" target="_new" style="width: 20rem;font-size: 18px;">{% trans 'Wiki' %}</a><br/>
+                <a class="button" href="http://blog.libravatar.org/" target="_new" style="width: 20rem;font-size: 18px;">{% trans 'Blog' %}</a><br/>
+
+              </div>
+              <div class="right">
+                <h2 style="text-transform: capitalize;">{% trans 'Social media' %}</h1>
+                  <a class="button" rel="me" href="https://photog.social/@libravatar" target="_new" style="width: 20rem;font-size: 18px;">Mastodon</a><br/>
+                  <a class="button" href="https://identi.ca/libravatar" target="_new" style="width: 20rem;font-size: 18px;">Identica</a><br/>
+                  <a class="button" href="https://twitter.com/libravatar" target="_new" style="width: 20rem;font-size: 18px;">Twitter</a><br/>
+
+                </div>
+              </div>
+              <div class="text-center">
+                <h3>{% trans 'Big thanks to our sponsors without whom none of this would be possible!' %}</h3>
+                <a href="https://fedoraproject.org/" target="_new" ><img src="{% static '/img/Fedora_logo.png' %}" title="Fedora Project" alt="{% trans 'Fedora Logo' %}"></a>
+              </div>
+            </section>
+            {% endblock %}
