@@ -28,10 +28,10 @@
 <input class="required openid" id="id_openid_identifier" size="70" maxlength="255" name="openid_identifier" value="{{ openid_identifier }}" type="text"></p>
 
 <p>
-<button type="submit" class="btn btn-default">{% trans 'Login' %}</button>
+<button type="submit" class="button">{% trans 'Login' %}</button>
 <input type="hidden" name="next" value="{{ request.build_absolute_uri }}{% url 'profile' %}" />
 &nbsp;
-<button type="reset" class="btn btn-default" onclick="window.history.back();">{% trans 'Cancel' %}</button>
+<button type="reset" class="button" onclick="window.history.back();">{% trans 'Cancel' %}</button>
 
 </form>
 
