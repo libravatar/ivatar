@@ -33,6 +33,7 @@ urlpatterns = [  # pylint: disable=invalid-name
     url('run_your_own/', TemplateView.as_view(template_name='run_your_own.html'), name='run_your_own'),
     url('features/', TemplateView.as_view(template_name='features.html'), name='features'),
     url('security/', TemplateView.as_view(template_name='security.html'), name='security'),
+    url('privacy/', TemplateView.as_view(template_name='privacy.html'), name='privacy'),
     url('contact/', TemplateView.as_view(template_name='contact.html'), name='contact'),
     path('talk_to_us/', RedirectView.as_view(url='/contact'), name='talk_to_us'),
     url('', TemplateView.as_view(template_name='home.html'), name='home'),

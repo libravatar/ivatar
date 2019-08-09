@@ -19,9 +19,13 @@
 <link rel="icon" type="image/png" href="{% static '/img/nobody/195.png' %}" sizes="195x195">
 <link rel="mask-icon" href="{% static '/img/safari-pinned-tab.svg' %}" color="#fa711f">
 <link rel="stylesheet" href="{% static '/css/bootstrap.min.css' %}" type="text/css">
-<link rel="stylesheet" href="{% static '/css/tortin.css' %}" type="text/css">
-<link rel="stylesheet" href="{% static '/css/fonts.css' %}" type="text/css">
+
 <link rel="stylesheet" href="{% static '/css/fontawesome.min.css' %}">
+
+<!-- Libravatar CSS -->
+<link rel="stylesheet" href="{% static "css/libravatar_base.css" %}" type="text/css" media="screen">
+
+
 <script src="{% static '/js/jquery-3.3.1.slim.min.js' %}"></script>
 {% if user.is_authenticated %}
   {% if user.userpreference and user.userpreference.theme != 'default' %}
@@ -30,7 +34,7 @@
     {% endwith %}
   {% endif %}
 {% endif %}
-<link rel="manifest" href="/manifest.json">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="msapplication-TileImage" content="{% static '/img/nobody/144.png' %}">
 <meta name="msapplication-TileColor" content="#36b7d7">
