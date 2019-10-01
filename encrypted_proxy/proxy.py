@@ -1,0 +1,32 @@
+#!/usr/bin/env python3
+
+import urllib.request
+import sys
+import os
+from lib.MyCypher import MyCypher
+import libravatar
+
+# Both need to be the same as in your client code that encrypts the
+# mail address
+iv = 'asdf'
+key = 'Hallo123'
+
+#sys.stderr.buffer.write(b'%s' % bytes(os.environ.get("QUERY_STRING", "No Query String in url"), 'utf-8'))
+
+cypher = MyCypher(iv = iv, key = key)
+mail = cypher.decrypt(os.environ.get('QUERY_STRING').encode('utf-8')).decode('utf-8')
+
+link = libravatar.libravatar_url(mail)
+sys.stderr.buffer.write(b'%s' % bytes(link, 'utf-8'))
+
+data = None
+with urllib.request.urlopen(link) as f:
+    data = f.read()
+
+for header in f.headers._headers:
+    if header[0] == 'Content-Type':
+        sys.stdout.buffer.write(b"%s: %s\n\n" % (bytes(header[0], 'utf-8'), bytes(header[1], 'utf-8')))
+        sys.stdout.flush()
+        break
+
+sys.stdout.buffer.write(data)
