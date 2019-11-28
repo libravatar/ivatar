@@ -1228,8 +1228,8 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         response = self.client.get(url, follow=True)
         self.assertRedirects(
             response=response,
-            expected_url='/static/img/mm/80.png',
-            msg_prefix='Why does this not redirect to the default img?')
+            expected_url='/gravatarproxy/1b1d0b654430c012e47e350db07c83c5?s=80&default=mm',
+            msg_prefix='Why does this not redirect to the gravatarproxy and defaulting to mm?')
         # Eventually one should check if the data is the same
 
     def test_avatar_url_inexisting_mail_digest_w_default_mm_gravatarproxy_disabled(self):  # pylint: disable=invalid-name
