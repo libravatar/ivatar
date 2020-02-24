@@ -1,7 +1,7 @@
 image: docker.io/ofalk/fedora31-python3
 
 before_script:
-  - virtualenv-3 -p python3 /tmp/.virtualenv
+  - virtualenv -p python3 /tmp/.virtualenv
   - source /tmp/.virtualenv/bin/activate
   - pip install Pillow
   - pip install -r requirements.txt
