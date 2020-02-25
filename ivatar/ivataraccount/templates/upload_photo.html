@@ -1,4 +1,4 @@
-{% extends 'base.html' %}                                                                                                                      
+{% extends 'base.html' %}
 {% load i18n %}
 {% load static %}
 
@@ -19,25 +19,26 @@
 {% endif %}
 <div class="form-group">
 <label for="id_photo">{% trans 'Photo' %}:</label>
-<span class="btn btn-default uploadbtn" style="display:flex;width:120px;padding:0;height:36px;position:relative;align-items:center">
+<span class="button uploadbtn" style="display:flex;width:14rem;padding:0;height:36px;position:relative;align-items:center">
 <input type="file" name="photo" required id="id_photo" accept="image/*" style="opacity:0;width:100%;height:100%;float:left">
+<label for="id_photo">{% trans 'Select Photo' %}</label>
 </span>
 </div>
     {% blocktrans with max_file_size|filesizeformat as max_size %}Maximum file size of {{ max_size }}.{% endblocktrans %}</p>
 
 <div class="form-group">
 <div class="checkbox">
-<input type="checkbox" name="not_porn" required id="id_not_porn">
+<input type="checkbox" name="not_porn" checked required id="id_not_porn">
 <label for="id_not_porn"><b>{% trans 'required' %}</b>; {% trans 'suitable for all ages (i.e. no offensive content)' %}</label>
 </div>
 </div>
 <div class="form-group">
 <div class="checkbox">
-<input type="checkbox" name="can_distribute" required id="id_can_distribute">
+<input type="checkbox" name="can_distribute" checked required id="id_can_distribute">
 <label for="id_can_distribute"><b>{% trans 'required' %}</b>; {% trans 'can be freely copied' %}</label>
 </div>
 </div>
-      <button type="submit" class="btn btn-default">{% trans 'Upload' %}</button>
+      <button type="submit" class="button">{% trans 'Upload' %}</button>
   </form>
 <div style="height:40px"></div>
 {% endblock content %}
