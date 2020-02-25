@@ -15,6 +15,8 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 from simplecrypt import decrypt
 from binascii import unhexlify
+from django.db.models import Q
+
 from PIL import Image
 
 from monsterid.id import build_monster as BuildMonster
@@ -127,7 +129,15 @@ class AvatarImageView(TemplateView):
             except ObjectDoesNotExist:
                 model = ConfirmedOpenId
                 try:
-                    obj = model.objects.get(digest=kwargs['digest'])
+                    d = kwargs['digest']
+                    # OpenID is tricky. http vs. https, versus trailing slash or not
+                    # However, some users eventually have added their variations already
+                    # and therfore we need to use filter() and first()
+                    obj = model.objects.filter(
+                        Q(digest=d) |
+                        Q(alt_digest1=d) |
+                        Q(alt_digest2=d) |
+                        Q(alt_digest3=d)).first()
                 except:
                     pass
 
