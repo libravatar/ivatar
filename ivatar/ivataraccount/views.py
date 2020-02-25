@@ -266,17 +266,6 @@ class AssignPhotoOpenIDView(SuccessMessageMixin, TemplateView):
         Handle post - assign photo to openid
         '''
         photo = None
-        if 'photo_id' not in request.POST:
-            messages.error(request,
-                           _('Invalid request [photo_id] missing'))
-            return HttpResponseRedirect(reverse_lazy('profile'))
-
-        try:
-            photo = self.model.objects.get(  # pylint: disable=no-member
-                id=request.POST['photo_id'], user=request.user)
-        except self.model.DoesNotExist:  # pylint: disable=no-member
-            messages.error(request, _('Photo does not exist'))
-            return HttpResponseRedirect(reverse_lazy('profile'))
 
         try:
             openid = ConfirmedOpenId.objects.get(  # pylint: disable=no-member
@@ -285,7 +274,21 @@ class AssignPhotoOpenIDView(SuccessMessageMixin, TemplateView):
             messages.error(request, _('Invalid request'))
             return HttpResponseRedirect(reverse_lazy('profile'))
 
-        openid.photo = photo
+        if 'photoNone' in request.POST:
+            openid.photo = None
+        else:
+            if 'photo_id' not in request.POST:
+                messages.error(request,
+                               _('Invalid request [photo_id] missing'))
+                return HttpResponseRedirect(reverse_lazy('profile'))
+
+            try:
+                photo = self.model.objects.get(  # pylint: disable=no-member
+                    id=request.POST['photo_id'], user=request.user)
+            except self.model.DoesNotExist:  # pylint: disable=no-member
+                messages.error(request, _('Photo does not exist'))
+                return HttpResponseRedirect(reverse_lazy('profile'))
+            openid.photo = photo
         openid.save()
 
         messages.success(request, _('Successfully changed photo'))

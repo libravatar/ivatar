@@ -1,0 +1,30 @@
+{% extends 'base_home.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans 'federated avatar hosting service' %}{% endblock %}
+
+{% block content %}
+
+<div class="hero">
+  <div class="container">
+    <header>
+      <h1 id='app'>{{ site_name }}</h1>
+      <h2>{% trans 'freeing the web one face at a time' %}</h2>
+    </header>
+  </div>
+</div>
+<section class="content">
+  <div class="container">
+    <div class="text-center">
+      <h2 style="text-transform: capitalize;font-size: 35px;">{% trans 'Maintenance mode' %}</h2>
+	Libravatar is currently in maintenance mode.<br/>
+	Avatars are still served, but all write operations may result
+	in loss of these changes.
+      </p>
+      <hr/>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

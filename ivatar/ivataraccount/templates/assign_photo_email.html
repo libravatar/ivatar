@@ -22,7 +22,7 @@ outline: inherit;
 {% url 'upload_photo' as upload_url %}
 <h4>{% blocktrans %}You need to <a href="{{ upload_url }}">upload some photos</a> first!{% endblocktrans %}</h4>
 
-<p><a href="{% url 'profile' %}" class="btn btn-default">{% trans 'Back to your profile' %}</a></p>
+<p><a href="{% url 'profile' %}" class="button">{% trans 'Back to your profile' %}</a></p>
 
 {% else %}
 
@@ -61,8 +61,8 @@ outline: inherit;
   </form>
 </div>
 <div style="height:8px"></div>
-  <a href="{% url 'upload_photo' %}" class="btn btn-default">{% blocktrans %}Upload a new one{% endblocktrans %}</a>&nbsp;&nbsp;
-  <a href="{% url 'import_photo' email.pk %}" class="btn btn-default">{% blocktrans %}Import from other services{% endblocktrans %}</a>
+  <a href="{% url 'upload_photo' %}" class="button">{% blocktrans %}Upload a new one{% endblocktrans %}</a>&nbsp;&nbsp;
+  <a href="{% url 'import_photo' email.pk %}" class="button">{% blocktrans %}Import from other services{% endblocktrans %}</a>
 {% endif %}
 <div style="height:40px"></div>
 {% endblock content %}

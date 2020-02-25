@@ -64,7 +64,7 @@ urlpatterns = [  # pylint: disable=invalid-name
     ), name='export'),
     path('delete/', DeleteAccountView.as_view(), name='delete'),
     path('profile/', ProfileView.as_view(), name='profile'),
-    url('profile/(?P<profile_username>\w+)', ProfileView.as_view(), name='profile_with_profile_username'),
+    url('profile/(?P<profile_username>.+)', ProfileView.as_view(), name='profile_with_profile_username'),
     path('add_email/', AddEmailView.as_view(), name='add_email'),
     path('add_openid/', AddOpenIDView.as_view(), name='add_openid'),
     path('upload_photo/', UploadPhotoView.as_view(), name='upload_photo'),

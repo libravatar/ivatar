@@ -1,14 +1,12 @@
-{% load static %}                                                                                                                              
+{% load static %}
 {% load i18n %}
+</div>
 <div class="clipper-footer"></div>
 <footer>
 <div class="container">
 <div class="pull-left">
-<p><b>{% blocktrans %}{{ site_name }}</b> is a service running the <a href="https://git.linux-kernel.at/oliver/ivatar/">ivatar</a> software, version {{ ivatar_version }} under the <a href="http://www.gnu.org/licenses/agpl-3.0.html">AGPLv3.0</a> license.{% endblocktrans %}
+<p><b>{% blocktrans %}{{ site_name }}</b> is a service running the <a href="https://git.linux-kernel.at/oliver/ivatar/" target="_new">ivatar</a> software, version {{ ivatar_version }} under the <a href="http://www.gnu.org/licenses/agpl-3.0.html" target="_new">AGPLv3.0</a> license. | <a href="/privacy/">Privacy policy</a>{% endblocktrans %}
 {% block footer %}{% endblock footer %}</p>
-</div>
-<div class="pull-right">
-<a href="http://vtex.github.io/tortin">Get <strong>Tortin</strong> Theme</a>
 </div>
 </div>
 </footer>

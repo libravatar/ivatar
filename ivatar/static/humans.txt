@@ -5,6 +5,12 @@ Site: http://oliver.falk.priv.at
 Twitter: @ofalk
 Location: Austria
 
+Operations: Michal Novotny
+QA: Tristan Le Guern
+Frontend developer: Lukas Schönsgibl, Niklas Poslovski (aka nipos)
+Organisation/Meeting moderation: Lars Kruse
+
+
 Initial creator/developer: François  Marier
 Site: http://fmarier.org/
 Twitter: @fmarier

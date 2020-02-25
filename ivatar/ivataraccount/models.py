@@ -219,7 +219,7 @@ class Photo(BaseAccountModel):
         # Testing? Ideas anyone?
         except Exception as exc:  # pylint: disable=broad-except
             # For debugging only
-            print('Exception caught: %s' % exc)
+            print('Exception caught in Photo.save(): %s' % exc)
             return False
         self.format = file_format(img.format)
         if not self.format:
