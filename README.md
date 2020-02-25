@@ -17,9 +17,13 @@ Authors and contributors
 ========================
 
 Lead developer/Owner: Oliver Falk (aka ofalk or falko) - https://git.linux-kernel.at/oliver
+
 Operations: Michal Novotny (aka clime)
+
 QA: Tristan Le Guern (aka tleguern)
+
 Frontend developer: Lukas Schönsgibl (aka hybridpicker), Niklas Poslovski (aka nipos)
+
 Organisation/Meeting moderation: Lars Kruse (aka sumpfralle)
 
 Initial developer: François Marier - https://fmarier.org/

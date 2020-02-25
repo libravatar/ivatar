@@ -7,6 +7,11 @@
 {% block content %}
 <h1>{% trans 'Account settings' %}</h1>
 
+<div class="form-group">
+<label for="id_email">{% trans 'Your email' %}:</label>
+<input type="text" name="email" disabled class="form-control" value="{{ user.email }}" id="id_email" style="max-width:600px;">
+</div>
+
 <!-- TODO: Language stuff not yet fully implemented; Esp. translations are only half-way there
 
 <h2>{% trans 'Language' %}</h2>
