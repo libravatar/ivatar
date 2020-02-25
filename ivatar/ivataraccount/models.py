@@ -32,6 +32,7 @@ from ivatar.settings import MAX_LENGTH_EMAIL, logger
 from ivatar.settings import MAX_PIXELS, AVATAR_MAX_SIZE, JPEG_QUALITY
 from ivatar.settings import MAX_LENGTH_URL
 from ivatar.settings import SECURE_BASE_URL, SITE_NAME, DEFAULT_FROM_EMAIL
+from ivatar.utils import openid_variations
 from .gravatar import get_photo as get_gravatar_photo
 
 
@@ -422,7 +423,15 @@ class ConfirmedOpenId(BaseAccountModel):
         null=True,
         on_delete=models.deletion.SET_NULL,
     )
+    # http://<id>/ base version - http w/ trailing slash
     digest = models.CharField(max_length=64)
+    # http://<id> - http w/o trailing slash
+    alt_digest1 = models.CharField(max_length=64, null=True, blank=True, default=None)
+    # https://<id>/ - https w/ trailing slash
+    alt_digest2 = models.CharField(max_length=64, null=True, blank=True, default=None)
+    # https://<id> - https w/o trailing slash
+    alt_digest3 = models.CharField(max_length=64, null=True, blank=True, default=None)
+
     access_count = models.BigIntegerField(default=0, editable=False)
 
     class Meta:  # pylint: disable=too-few-public-methods
@@ -450,10 +459,13 @@ class ConfirmedOpenId(BaseAccountModel):
         lowercase_url = urlunsplit(
             (url.scheme.lower(), netloc, url.path, url.query, url.fragment)
         )
-        #if lowercase_url[-1] != '/':
-        #    lowercase_url += '/'
         self.openid = lowercase_url
-        self.digest = hashlib.sha256(lowercase_url.encode('utf-8')).hexdigest()
+
+        self.digest = hashlib.sha256(openid_variations(lowercase_url)[0].encode('utf-8')).hexdigest()
+        self.alt_digest1 = hashlib.sha256(openid_variations(lowercase_url)[1].encode('utf-8')).hexdigest()
+        self.alt_digest2 = hashlib.sha256(openid_variations(lowercase_url)[2].encode('utf-8')).hexdigest()
+        self.alt_digest3 = hashlib.sha256(openid_variations(lowercase_url)[3].encode('utf-8')).hexdigest()
+
         return super().save(force_insert, force_update, using, update_fields)
 
     def __str__(self):
