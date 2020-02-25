@@ -1230,7 +1230,6 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
             response=response,
             expected_url='/gravatarproxy/1b1d0b654430c012e47e350db07c83c5?s=80&default=mm',
             status_code=302,
-            target_status_code=200,
             msg_prefix='Why does this not redirect to the gravatarproxy and defaulting to mm?')
         # Eventually one should check if the data is the same
 
