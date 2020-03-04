@@ -194,5 +194,7 @@ CACHES = {
 }
 
 # This is 5 minutes caching for generated/resized images,
-# so the sites don't hit ivatar so much
+# so the sites don't hit ivatar so much - it's what's set in the HTTP header
 CACHE_IMAGES_MAX_AGE = 5 * 60
+
+CACHE_RESPONSE = False

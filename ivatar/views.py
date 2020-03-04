@@ -23,7 +23,7 @@ from pydenticon5 import Pydenticon5
 import pagan
 from robohash import Robohash
 
-from ivatar.settings import AVATAR_MAX_SIZE, JPEG_QUALITY, DEFAULT_AVATAR_SIZE
+from ivatar.settings import AVATAR_MAX_SIZE, JPEG_QUALITY, DEFAULT_AVATAR_SIZE, CACHE_RESPONSE
 from ivatar.settings import CACHE_IMAGES_MAX_AGE
 from . ivataraccount.models import ConfirmedEmail, ConfirmedOpenId
 from . ivataraccount.models import pil_format, file_format
@@ -57,13 +57,14 @@ def get_size(request, size=DEFAULT_AVATAR_SIZE):
 
 class CachingHttpResponse(HttpResponse):
     def __init__(self, uri, content=b'', content_type=None, status=200, reason=None, charset=None):
-        caches['filesystem'].set(uri, {
-            'content': content,
-            'content_type': content_type,
-            'status': status,
-            'reason': reason,
-            'charset': charset
-        })
+        if CACHE_RESPONSE:
+            caches['filesystem'].set(uri, {
+                'content': content,
+                'content_type': content_type,
+                'status': status,
+                'reason': reason,
+                'charset': charset
+            })
         return super().__init__(content, content_type, status, reason, charset)
 
 class AvatarImageView(TemplateView):
@@ -92,15 +93,16 @@ class AvatarImageView(TemplateView):
         uri = request.build_absolute_uri()
 
         # Check the cache first
-        centry = caches['filesystem'].get(uri)
-        if centry:
-            # For DEBUG purpose only print('Cached entry for %s' % uri)
-            return HttpResponse(
-                centry['content'], 
-                content_type=centry['content_type'], 
-                status=centry['status'], 
-                reason = centry['reason'], 
-                charset = centry['charset'])
+        if CACHE_RESPONSE:
+            centry = caches['filesystem'].get(uri)
+            if centry:
+                # For DEBUG purpose only print('Cached entry for %s' % uri)
+                return HttpResponse(
+                    centry['content'], 
+                    content_type=centry['content_type'], 
+                    status=centry['status'], 
+                    reason = centry['reason'], 
+                    charset = centry['charset'])
 
         # In case no digest at all is provided, return to home page
         if not 'digest' in kwargs:
