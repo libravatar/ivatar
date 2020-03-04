@@ -186,7 +186,7 @@ CACHES = {
   'filesystem': {
     'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
     'LOCATION': '/var/tmp/ivatar_cache',
-    'TIMEOUT': 300,
+    'TIMEOUT': 900, # 15 minutes
   }
 }
 
@@ -194,7 +194,7 @@ CACHES = {
 # so the sites don't hit ivatar so much - it's what's set in the HTTP header
 CACHE_IMAGES_MAX_AGE = 5 * 60
 
-CACHE_RESPONSE = False
+CACHE_RESPONSE = True
 
 # This MUST BE THE LAST!
 if os.path.isfile(os.path.join(BASE_DIR, 'config_local.py')):
