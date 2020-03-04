@@ -185,9 +185,16 @@ CACHES = {
     'LOCATION': [
         '127.0.0.1:11211',
     ],
+  },
+  'filesystem': {
+    'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+    'LOCATION': '/var/tmp/ivatar_cache',
+    'TIMEOUT': 300,
   }
 }
 
 # This is 5 minutes caching for generated/resized images,
-# so the sites don't hit ivatar so much
+# so the sites don't hit ivatar so much - it's what's set in the HTTP header
 CACHE_IMAGES_MAX_AGE = 5 * 60
+
+CACHE_RESPONSE = False
