@@ -10,6 +10,7 @@ from ssl import SSLError
 from django.views.generic.base import TemplateView, View
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.cache import cache
 from django.utils.translation import ugettext_lazy as _
 from django.urls import reverse_lazy
 from django.db.models import Q
@@ -146,8 +147,6 @@ class AvatarImageView(TemplateView):
                     url = reverse_lazy('gravatarproxy', args=[kwargs['digest']]) \
                         + '?s=%i' % size + '&default=%s&f=y' % default
                     return HttpResponseRedirect(url)
-
-
 
                 if str(default) == str(404):
                     return HttpResponseNotFound(_('<h1>Image not found</h1>'))
@@ -291,10 +290,14 @@ class GravatarProxyView(View):
             # redirect to our default instead.
             gravatar_test_url = 'https://secure.gravatar.com/avatar/' + kwargs['digest'] \
                 + '?s=%i' % 50
+            if cache.get(gravatar_test_url) == 'default':
+                print("Cached Gravatar response: Default.")
+                return redir_default(default)
             try:
                 testdata = urlopen(gravatar_test_url, timeout=URL_TIMEOUT)
                 data = BytesIO(testdata.read())
                 if hashlib.md5(data.read()).hexdigest() == '71bc262d627971d13fe6f3180b93062a':
+                    cache.set(gravatar_test_url, 'default', 60)
                     return redir_default(default)
             except Exception as exc:
                 print('Gravatar test url fetch failed: %s' % exc)
@@ -303,22 +306,29 @@ class GravatarProxyView(View):
             + '?s=%i' % size + '&d=%s' % default
 
         try:
+            if cache.get(gravatar_url) == 'err':
+                print('Cached Gravatar fetch failed with URL error')
+                return redir_default(default)
+
             gravatarimagedata = urlopen(gravatar_url, timeout=URL_TIMEOUT)
         except HTTPError as exc:
             if exc.code != 404 and exc.code != 503:
                 print(
                     'Gravatar fetch failed with an unexpected %s HTTP error' %
                     exc.code)
+            cache.set(gravatar_url, 'err', 30)
             return redir_default(default)
         except URLError as exc:
             print(
                 'Gravatar fetch failed with URL error: %s' %
                 exc.reason)
+            cache.set(gravatar_url, 'err', 30)
             return redir_default(default)
         except SSLError as exc:
             print(
                 'Gravatar fetch failed with SSL error: %s' %
                 exc.reason)
+            cache.set(gravatar_url, 'err', 30)
             return redir_default(default)
         try:
             data = BytesIO(gravatarimagedata.read())
