@@ -185,6 +185,11 @@ CACHES = {
     'LOCATION': [
         '127.0.0.1:11211',
     ],
+  },
+  'filesystem': {
+    'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+    'LOCATION': '/var/tmp/ivatar_cache',
+    'TIMEOUT': 300,
   }
 }
 

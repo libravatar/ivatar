@@ -10,7 +10,7 @@ from ssl import SSLError
 from django.views.generic.base import TemplateView, View
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.cache import cache
+from django.core.cache import cache, caches
 from django.utils.translation import ugettext_lazy as _
 from django.urls import reverse_lazy
 from django.db.models import Q
@@ -55,6 +55,17 @@ def get_size(request, size=DEFAULT_AVATAR_SIZE):
     return size
 
 
+class CachingHttpResponse(HttpResponse):
+    def __init__(self, uri, content=b'', content_type=None, status=200, reason=None, charset=None):
+        caches['filesystem'].set(uri, {
+            'content': content,
+            'content_type': content_type,
+            'status': status,
+            'reason': reason,
+            'charset': charset
+        })
+        return super().__init__(content, content_type, status, reason, charset)
+
 class AvatarImageView(TemplateView):
     '''
     View to return (binary) image, based on OpenID/Email (both by digest)
@@ -78,6 +89,18 @@ class AvatarImageView(TemplateView):
         forcedefault = False
         gravatarredirect = False
         gravatarproxy = True
+        uri = request.build_absolute_uri()
+
+        # Check the cache first
+        centry = caches['filesystem'].get(uri)
+        if centry:
+            # For DEBUG purpose only print('Cached entry for %s' % uri)
+            return HttpResponse(
+                centry['content'], 
+                content_type=centry['content_type'], 
+                status=centry['status'], 
+                reason = centry['reason'], 
+                charset = centry['charset'])
 
         # In case no digest at all is provided, return to home page
         if not 'digest' in kwargs:
@@ -156,7 +179,8 @@ class AvatarImageView(TemplateView):
                     data = BytesIO()
                     monsterdata.save(data, 'PNG', quality=JPEG_QUALITY)
                     data.seek(0)
-                    response = HttpResponse(
+                    response = CachingHttpResponse(
+                        uri,
                         data,
                         content_type='image/png')
                     response['Cache-Control'] = 'max-age=%i' % CACHE_IMAGES_MAX_AGE
@@ -171,7 +195,8 @@ class AvatarImageView(TemplateView):
                     data = BytesIO()
                     robohash.img.save(data, format='png')
                     data.seek(0)
-                    response = HttpResponse(
+                    response = CachingHttpResponse(
+                        uri,
                         data,
                         content_type='image/png')
                     response['Cache-Control'] = 'max-age=%i' % CACHE_IMAGES_MAX_AGE
@@ -184,7 +209,8 @@ class AvatarImageView(TemplateView):
                     img = img.resize((size, size), Image.ANTIALIAS)
                     img.save(data, 'PNG', quality=JPEG_QUALITY)
                     data.seek(0)
-                    response =  HttpResponse(
+                    response =  CachingHttpResponse(
+                        uri,
                         data,
                         content_type='image/png')
                     response['Cache-Control'] = 'max-age=%i' % CACHE_IMAGES_MAX_AGE
@@ -196,7 +222,8 @@ class AvatarImageView(TemplateView):
                     img = paganobj.img.resize((size, size), Image.ANTIALIAS)
                     img.save(data, 'PNG', quality=JPEG_QUALITY)
                     data.seek(0)
-                    response = HttpResponse(
+                    response = CachingHttpResponse(
+                        uri,
                         data,
                         content_type='image/png')
                     response['Cache-Control'] = 'max-age=%i' % CACHE_IMAGES_MAX_AGE
@@ -210,7 +237,8 @@ class AvatarImageView(TemplateView):
                     data = BytesIO()
                     img.save(data, 'PNG', quality=JPEG_QUALITY)
                     data.seek(0)
-                    response = HttpResponse(
+                    response = CachingHttpResponse(
+                        uri,
                         data,
                         content_type='image/png')
                     response['Cache-Control'] = 'max-age=%i' % CACHE_IMAGES_MAX_AGE
@@ -250,7 +278,8 @@ class AvatarImageView(TemplateView):
         obj.save()
         if imgformat == 'jpg':
             imgformat = 'jpeg'
-        response = HttpResponse(
+        response = CachingHttpResponse(
+            uri,
             data,
             content_type='image/%s' % imgformat)
         response['Cache-Control'] = 'max-age=%i' % CACHE_IMAGES_MAX_AGE
@@ -334,7 +363,8 @@ class GravatarProxyView(View):
             data = BytesIO(gravatarimagedata.read())
             img = Image.open(data)
             data.seek(0)
-            response = HttpResponse(
+            response = CachingHttpResponse(
+                uri,
                 data.read(),
                 content_type='image/%s' % file_format(img.format))
             response['Cache-Control'] = 'max-age=%i' % CACHE_IMAGES_MAX_AGE
