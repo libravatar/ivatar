@@ -322,7 +322,8 @@ class GravatarProxyView(View):
             gravatar_test_url = 'https://secure.gravatar.com/avatar/' + kwargs['digest'] \
                 + '?s=%i' % 50
             if cache.get(gravatar_test_url) == 'default':
-                print("Cached Gravatar response: Default.")
+                # DEBUG only
+                # print("Cached Gravatar response: Default.")
                 return redir_default(default)
             try:
                 testdata = urlopen(gravatar_test_url, timeout=URL_TIMEOUT)
@@ -365,8 +366,7 @@ class GravatarProxyView(View):
             data = BytesIO(gravatarimagedata.read())
             img = Image.open(data)
             data.seek(0)
-            response = CachingHttpResponse(
-                uri,
+            response = HttpResponse(
                 data.read(),
                 content_type='image/%s' % file_format(img.format))
             response['Cache-Control'] = 'max-age=%i' % CACHE_IMAGES_MAX_AGE
