@@ -670,7 +670,7 @@ color:#335ECF;
    }
    footer {
      height: 8rem;
-     position: absolute;
+     position: relative;
      bottom: 0;
    }
    footer .container {
