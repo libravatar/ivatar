@@ -27,6 +27,7 @@ from ivatar.settings import AVATAR_MAX_SIZE, JPEG_QUALITY, DEFAULT_AVATAR_SIZE, 
 from ivatar.settings import CACHE_IMAGES_MAX_AGE
 from . ivataraccount.models import ConfirmedEmail, ConfirmedOpenId
 from . ivataraccount.models import pil_format, file_format
+from . utils import mm_ng
 
 URL_TIMEOUT = 5  # in seconds
 
@@ -238,6 +239,18 @@ class AvatarImageView(TemplateView):
                     img = p.draw(newdigest, size, 0)
                     data = BytesIO()
                     img.save(data, 'PNG', quality=JPEG_QUALITY)
+                    data.seek(0)
+                    response = CachingHttpResponse(
+                        uri,
+                        data,
+                        content_type='image/png')
+                    response['Cache-Control'] = 'max-age=%i' % CACHE_IMAGES_MAX_AGE
+                    return response
+
+                if str(default) == 'mmng':
+                    mmngimg = mm_ng(hash=kwargs['digest'], size=size)
+                    data = BytesIO()
+                    mmngimg.save(data, 'PNG', quality=JPEG_QUALITY)
                     data.seek(0)
                     response = CachingHttpResponse(
                         uri,
