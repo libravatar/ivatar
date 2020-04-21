@@ -69,6 +69,7 @@ class CheckForm(forms.Form):
             ('monsterid', _('Monster style')),
             ('identicon', _('Identicon style')),
             ('mm', _('Mystery man')),
+            ('mmng', _('Mystery man NextGen')),
             ('none', _('None')),
         ],
     )
