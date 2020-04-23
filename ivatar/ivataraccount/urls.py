@@ -100,7 +100,7 @@ urlpatterns = [  # pylint: disable=invalid-name
         r'import_photo/$',
         ImportPhotoView.as_view(), name='import_photo'),
     url(
-        r'import_photo/(?P<email_addr>[\w.]+@[\w.]+.[\w.]+)',
+        r'import_photo/(?P<email_addr>[\w.+-]+@[\w.]+.[\w.]+)',
         ImportPhotoView.as_view(), name='import_photo'),
     url(
         r'import_photo/(?P<email_id>\d+)',
