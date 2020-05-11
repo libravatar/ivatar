@@ -99,14 +99,14 @@ class AvatarImageView(TemplateView):
             if centry:
                 # For DEBUG purpose only print('Cached entry for %s' % uri)
                 return HttpResponse(
-                    centry['content'], 
-                    content_type=centry['content_type'], 
-                    status=centry['status'], 
-                    reason = centry['reason'], 
-                    charset = centry['charset'])
+                    centry['content'],
+                    content_type=centry['content_type'],
+                    status=centry['status'],
+                    reason=centry['reason'],
+                    charset=centry['charset'])
 
         # In case no digest at all is provided, return to home page
-        if not 'digest' in kwargs:
+        if 'digest' not in kwargs:
             return HttpResponseRedirect(reverse_lazy('home'))
 
         if 'd' in request.GET:
@@ -248,7 +248,7 @@ class AvatarImageView(TemplateView):
                     return response
 
                 if str(default) == 'mmng':
-                    mmngimg = mm_ng(hash=kwargs['digest'], size=size)
+                    mmngimg = mm_ng(idhash=kwargs['digest'], size=size)
                     data = BytesIO()
                     mmngimg.save(data, 'PNG', quality=JPEG_QUALITY)
                     data.seek(0)

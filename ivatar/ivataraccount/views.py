@@ -898,6 +898,18 @@ class ProfileView(TemplateView):
         self._confirm_claimed_openid()
         return super().get(self, request, args, kwargs)
 
+    def get_context_data(self, **kwargs):
+        '''
+        Provide additional context data, like if max_photos is reached
+        already or not.
+        '''
+        context = super().get_context_data(**kwargs)
+        context['max_photos'] = False
+        if self.request.user:
+            if self.request.user.photo_set.all().count() >= MAX_NUM_PHOTOS:
+                context['max_photos'] = True
+                return context
+
     def _confirm_claimed_openid(self):
         openids = self.request.user.useropenid_set.all()
         # If there is only one OpenID, we eventually need to add it to the user account
