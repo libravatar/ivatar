@@ -731,6 +731,9 @@ class UserPreferenceView(FormView, UpdateView):
     success_url = reverse_lazy('user_preference')
 
     def post(self, request, *args, **kwargs):  # pylint: disable=unused-argument
+        '''
+        Process POST-ed data from this form
+        '''
         userpref = None
         try:
             userpref = self.request.user.userpreference
@@ -738,6 +741,30 @@ class UserPreferenceView(FormView, UpdateView):
             userpref = UserPreference(user=self.request.user)
         userpref.theme = request.POST['theme']
         userpref.save()
+        try:
+            if request.POST['email'] != self.request.user.email:
+                addresses = list(self.request.user.confirmedemail_set.all().values_list('email', flat=True))
+                if request.POST['email'] not in addresses:
+                    messages.error(self.request, _('Mail address not allowed: %s' % request.POST['email']))
+                else:
+                    self.request.user.email = request.POST['email']
+                    self.request.user.save()
+                    messages.info(self.request, _('Mail address changed.'))
+        except Exception as e:  # pylint: disable=broad-except
+            messages.error(self.request, _('Error setting new mail address: %s' % e))
+
+        try:
+            if request.POST['first_name'] or request.POST['last_name']:
+                if request.POST['first_name'] != self.request.user.first_name:
+                    self.request.user.first_name = request.POST['first_name']
+                    messages.info(self.request, _('First name changed.'))
+                if request.POST['last_name'] != self.request.user.last_name:
+                    self.request.user.last_name = request.POST['last_name']
+                    messages.info(self.request, _('Last name changed.'))
+                self.request.user.save()
+        except Exception as e:  # pylint: disable=broad-except
+            messages.error(self.request, _('Error setting names: %s' % e))
+
         return HttpResponseRedirect(reverse_lazy('user_preference'))
 
 
