@@ -963,18 +963,47 @@ class PasswordResetView(PasswordResetViewOriginal):
         '''
         Since we have the mail addresses in ConfirmedEmail model,
         we need to set the email on the user object in order for the
-        PasswordResetView class to pick up the correct user
+        PasswordResetView class to pick up the correct user.
+        In case we have the mail address in the User objecct, we still
+        need to assign a random password in order for PasswordResetView
+        class to pick up the user - else it will silently do nothing.
         '''
         if 'email' in request.POST:
+            user = None
+
+            # Try to find the user via the normal user class
             try:
-                confirmed_email = ConfirmedEmail.objects.get(email=request.POST['email'])
-                confirmed_email.user.email = confirmed_email.email
-                if not confirmed_email.user.password or confirmed_email.user.password == '!':
-                    random_pass = User.objects.make_random_password()
-                    confirmed_email.user.set_pasword(random_pass)
-                confirmed_email.user.save()
-            except Exception as exc:
+                user = User.objects.get(email=request.POST['email'])
+            except ObjectDoesNotExist as exc:  # pylint: disable=unused-variable
+                # keep this for debugging only
+                # print('Exception: %s' % exc)
                 pass
+
+            # If we didn't find the user in the previous step,
+            # try the ConfirmedEmail class instead.
+            # If we find the user there, we need to set the mail
+            # attribute on the user object accordingly
+            if not user:
+                try:
+                    confirmed_email = ConfirmedEmail.objects.get(email=request.POST['email'])
+                    user = confirmed_email.user
+                    user.email = confirmed_email.email
+                    user.save()
+                except ObjectDoesNotExist as exc:  # pylint: disable=unused-variable
+                    # keep this for debugging only
+                    # print('Exception: %s' % exc)
+                    pass
+
+            # If we found the user, set a random password. Else, the
+            # ResetPasswordView class will silently ignore the password
+            # reset request
+            if user:
+                if not user.password or user.password == '!':
+                    random_pass = User.objects.make_random_password()
+                    user.set_password(random_pass)
+                    user.save()
+
+        # Whatever happens above, let the original function handle the rest
         return super().post(self, request, args, kwargs)
 
 
