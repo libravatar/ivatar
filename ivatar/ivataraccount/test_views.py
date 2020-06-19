@@ -10,6 +10,7 @@ import django
 from django.test import TestCase
 from django.test import Client
 from django.urls import reverse
+from django.core import mail
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 import hashlib
@@ -1513,3 +1514,79 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
             200,
             'First and last name not correctly listed in profile page',
         )
+
+    def test_password_reset_page(self):
+        '''
+        Just test if the password reset page come up correctly
+        '''
+        response = self.client.get(reverse('password_reset'))
+        self.assertEqual(response.status_code, 200, 'no 200 ok?')
+
+    def test_password_reset_wo_mail(self):
+        '''
+        Test if the password reset doesn't error out
+        if the mail address doesn't exist
+        '''
+        # Avoid sending out mails
+        settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+
+        # Empty database / eliminate existing users
+        User.objects.all().delete()
+        url = reverse('password_reset')
+        response = self.client.post(
+            url, {
+                'email': 'asdf@asdf.local',
+            },
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200, 'password reset page not working?')
+        self.assertEqual(len(mail.outbox), 0, 'user does not exist, there should be no mail in the outbox!')
+
+    def test_password_reset_w_mail(self):
+        '''
+        Test if the password reset works correctly with email in
+        User object
+        '''
+        # Avoid sending out mails
+        settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+
+        url = reverse('password_reset')
+        # Our test user doesn't have an email address by default - but we need one set
+        self.user.email = 'asdf@asdf.local'
+        self.user.save()
+        response = self.client.post(
+            url, {
+                'email': self.user.email,
+            },
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200, 'password reset page not working?')
+        self.assertEqual(len(mail.outbox), 1, 'User exists, there should be a mail in the outbox!')
+        self.assertEqual(mail.outbox[0].to[0], self.user.email, 'Sending mails to the wrong \
+                mail address?')
+
+    def test_password_reset_w_confirmed_mail(self):
+        '''
+        Test if the password reset works correctly with confirmed
+        mail
+        '''
+        # Avoid sending out mails
+        settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+
+        url = reverse('password_reset')
+        # Our test user doesn't have a confirmed mail identity - add one
+        self.user.confirmedemail_set.create(email='asdf@asdf.local')
+        self.user.save()
+
+        response = self.client.post(
+            url, {
+                'email': self.user.confirmedemail_set.first().email,
+            },
+            follow=True,
+        )
+        # Since the object is touched in another process, we need to refresh it
+        self.user.refresh_from_db()
+        self.assertEqual(response.status_code, 200, 'password reset page not working?')
+        self.assertEqual(self.user.email, self.user.confirmedemail_set.first().email, 'The password reset view, should have corrected this!')
+        self.assertEqual(len(mail.outbox), 1, 'user exists, there should be a mail in the outbox!')
+        self.assertEqual(mail.outbox[0].to[0], self.user.email, 'why are we sending mails to the wrong mail address?')
