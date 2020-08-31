@@ -956,11 +956,11 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
             args=[self.user.confirmedopenid_set.first().id])
         # The get is for the view - test context data
         self.client.get(url, {
-            'photo_id': self.user.photo_set.first().id,
+            'photo_id': int(self.user.photo_set.first().id),
         })
         # The post is for the actual assigning
         response = self.client.post(url, {
-            'photo_id': self.user.photo_set.first().id,
+            'photo_id': int(self.user.photo_set.first().id),
         }, follow=True)
         self.assertEqual(response.status_code, 200, 'cannot assign photo?')
         self.assertEqual(
