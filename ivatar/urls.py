@@ -29,7 +29,8 @@ urlpatterns = [  # pylint: disable=invalid-name
         GravatarProxyView.as_view(), name='gravatarproxy'),
     url('description/', TemplateView.as_view(template_name='description.html'), name='description'),
     # The following two are TODO TODO TODO TODO TODO
-    url('run_your_own/', TemplateView.as_view(template_name='run_your_own.html'), name='run_your_own'),
+    url('run_your_own/',
+        TemplateView.as_view(template_name='run_your_own.html'), name='run_your_own'),
     url('features/', TemplateView.as_view(template_name='features.html'), name='features'),
     url('security/', TemplateView.as_view(template_name='security.html'), name='security'),
     url('privacy/', TemplateView.as_view(template_name='privacy.html'), name='privacy'),
@@ -39,10 +40,10 @@ urlpatterns = [  # pylint: disable=invalid-name
 
 MAINTENANCE = False
 try:
-  if settings.MAINTENANCE:
-    MAINTENANCE = True
-except:
-  pass
+    if settings.MAINTENANCE:
+        MAINTENANCE = True
+except:  # pylint: disable=bare-except
+    pass
 
 if MAINTENANCE:
     urlpatterns.append(url('', TemplateView.as_view(template_name='maintenance.html'), name='home'))
