@@ -731,3 +731,19 @@ color:#335ECF;
 .row.profileid{
    display:grid;
  }
+
+.panel-body.profile > img { grid-area: img; }
+.panel-body.profile > .profile-edit { grid-area: edit; }
+.panel-body.profile > .email-delete { grid-area: delete; }
+
+.panel-body.profile {
+  display: grid;
+  grid-template-areas:
+    'img edit edit edit edit edit'
+    'img delete delete delete delete delete';
+  grid-gap: 0;
+}
+
+.panel-body.profile > div, .panel-body.profile > img {
+  text-align: center;
+}
