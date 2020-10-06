@@ -70,39 +70,40 @@ outline: inherit;
 
 {% if user.confirmedemail_set.count or user.confirmedopenid_set.count %}
 <h3>{% trans 'You have the following confirmed identities:' %}</h3>
-<div class="row">
+<div class="row profileid">
     {% for email in user.confirmedemail_set.all %}
         <form action="{% url 'remove_confirmed_email' email.id %}" method="post">
 {% csrf_token %}
-<div class="panel" style="width:172px;margin-left:20px;float:left">
+<div>
   <div class="panel-heading" style="padding-right:0">
-    <h3 class="panel-title" title="{{ email.email }}" style="display:inline-flex"><a href="{% url 'assign_photo_email' email.id %}"><i class="fa fa-edit"></i></a>&nbsp;
-<button type="submit" class="nobutton" onclick="return confirm('{% trans 'Are you sure that you want to delete this email address?' %}')"><i class="fa fa-trash"></i></button>&nbsp;
+    <h3 class="panel-title" title="{{ email.email }}" style="display:inline-flex">
+      <a href="{% url 'assign_photo_email' email.id %}">
+        <i class="fa fa-edit"></i>
+      </a>&nbsp;
+<button type="submit" class="nobutton" onclick="return confirm('{% trans 'Are you sure that you want to delete this email address?' %}')">
+  <i class="fa fa-trash"></i>
+</button>&nbsp;
 {{ email.email|truncatechars:12 }}</h3>
 </div>
   <div class="panel-body" style="height:130px">
-        <center>
           <img title="{% trans 'Access count' %}: {{ email.access_count }}" style="max-height:100px;max-width:100px" src="{% if email.photo %}{% url 'raw_image' email.photo.id %}{% else %}{% static '/img/nobody/80.png' %}{% endif %}">
-        </center>
 </div>
 </div>
         </form>
     {% endfor %}
     {% for openid in user.confirmedopenid_set.all %}
         <form action="{% url 'remove_confirmed_openid' openid.id %}" method="post">{% csrf_token %}
-<div class="panel" style="width:172px;margin-left:20px;float:left">
+<div>
   <div class="panel-heading" style="padding-right:0">
     <h3 class="panel-title" title="{{ openid.openid }}" style="display:inline-flex"><a href="{% url 'assign_photo_openid' openid.pk %}"><i class="fa fa-edit"></i></a>&nbsp;
 <button type="submit" class="nobutton" onclick="return confirm('{% trans 'Are you sure that you want to delete this OpenID?' %}')"><i class="fa fa-trash"></i></button>&nbsp;
 {{ openid.openid|cut:"http://"|cut:"https://"|truncatechars:12 }}</h3>
 </div>
-  <div class="panel-body" style="height:130px">
-        <center>
-          <img title="{% trans 'Access count' %}: {{ openid.access_count }}" style="max-height:100px;max-width:100px" src="{% if openid.photo %}{% url 'raw_image' openid.photo.id %}{% else %}{% static '/img/nobody/80.png' %}{% endif %}">
-        </center>
+<div class="panel-body" style="height:130px">
+  <img title="{% trans 'Access count' %}: {{ openid.access_count }}" style="max-height:100px;max-width:100px" src="{% if openid.photo %}{% url 'raw_image' openid.photo.id %}{% else %}{% static '/img/nobody/80.png' %}{% endif %}">
 </div>
 </div>
-        </form>
+</form>
     {% endfor %}
 </div>
 {% endif %}
@@ -118,16 +119,16 @@ outline: inherit;
 <span class="input-group-addon" style="width: auto;">{{ email.email }}</span>
 </div>
 </form>
-        {# TODO: (expires in xx hours) #}
-    {% endfor %}
-    {% for openid in user.unconfirmedopenid_set.all %}
-        <form action="{% url 'remove_unconfirmed_openid' openid.id %}" method="post">
+{# TODO: (expires in xx hours) #}
+{% endfor %}
+{% for openid in user.unconfirmedopenid_set.all %}
+<form action="{% url 'remove_unconfirmed_openid' openid.id %}" method="post">
 {% csrf_token %}
 <div class="btn-group form-group" role="group">
-<button type="submit" class="button" onclick="return confirm('{% trans 'Are you sure that you want to delete this OpenID?' %}')"><i class="fa fa-trash"></i></button>
-<span class="input-group-addon">{{ openid.openid }}</span>
+  <button type="submit" class="button" onclick="return confirm('{% trans 'Are you sure that you want to delete this OpenID?' %}')"><i class="fa fa-trash"></i></button>
+  <span class="input-group-addon">{{ openid.openid }}</span>
 </div>
-        </form>
+</form>
         {# TODO: (expires in xx hours) #}
     {% endfor %}
 {% endif %}
@@ -140,16 +141,14 @@ outline: inherit;
 <h3>{% trans 'Here are the photos you have uploaded/imported:' %}</h3>
 <div class="row">
   {% for photo in user.photo_set.all %}
-<div class="panel panel-tortin" style="width:132px;margin-left:20px;float:left">
-  <div class="panel-heading">
-    <h3 class="panel-title"><a href="{% url 'delete_photo' photo.pk %}" onclick="return confirm('{% trans 'Are you sure that you want to delete this image?' %}')"><i class="fa fa-trash"></i></a> {% trans 'Image' %} {{ forloop.counter }}</h3>
-</div>
-  <div class="panel-body" style="height:130px">
-        <center>
-          <img title="{% trans 'Access count' %}: {{ photo.access_count }}" style="max-height:100px;max-width:100px" src="{% url 'raw_image' photo.id %}">
-        </center>
-</div>
-</div>
+  <div class="panel panel-tortin" style="width:132px;margin-left:20px;float:left">
+    <div class="panel-heading">
+      <h3 class="panel-title"><a href="{% url 'delete_photo' photo.pk %}" onclick="return confirm('{% trans 'Are you sure that you want to delete this image?' %}')"><i class="fa fa-trash"></i></a> {% trans 'Image' %} {{ forloop.counter }}</h3>
+    </div>
+    <div class="panel-body" style="height:130px">
+      <img title="{% trans 'Access count' %}: {{ photo.access_count }}" style="max-height:100px;max-width:100px" src="{% url 'raw_image' photo.id %}">
+    </div>
+  </div>
 {% endfor %}
 </div>
 {% endif %}

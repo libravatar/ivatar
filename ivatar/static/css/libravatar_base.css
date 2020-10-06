@@ -728,3 +728,6 @@ color:#335ECF;
      margin-top: 11rem !important;
    }
  }
+.row.profileid{
+   display:grid;
+ }
