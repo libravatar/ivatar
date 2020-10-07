@@ -754,4 +754,12 @@ color:#335ECF;
 }
 .panel-heading.profile > h3{
   color: #353535;
+  font-weight: bold;
+}
+.profile-edit > a{
+  color: #353535;
+  text-decoration: none;
+}
+.email-delete button{
+  color: #353535;
 }
