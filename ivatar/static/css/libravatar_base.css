@@ -731,35 +731,44 @@ color:#335ECF;
 .row.profileid{
    display:grid;
  }
-
-.panel-body.profile > img { grid-area: img; }
-.panel-body.profile > .profile-edit { grid-area: edit; }
-.panel-body.profile > .email-delete { grid-area: delete; }
-
-.panel-body.profile {
-  display: grid;
+.panel-body.profile{
+  display: none;
   grid-template-areas:
     'img edit edit edit edit edit'
     'img delete delete delete delete delete';
   grid-gap: 0;
 }
+.panel-body.profile > img { grid-area: img; }
+.panel-body.profile > .profile-edit { grid-area: edit; }
+.panel-body.profile > .email-delete { grid-area: delete; }
 
+.profile-container:hover .panel-body.profile{
+  display: grid;
+}
+.profile-container:hover .panel-heading.profile{
+  border-bottom: solid 5px #2D5FE3;
+}
 .panel-body.profile > div, .panel-body.profile > img {
   text-align: left;
 }
+
 .panel-heading.profile{
-  background: #A8BCC7;
+  background: none;
   border-top-left-radius: unset;
   border-top-right-radius: unset;
+  border-bottom: solid 5px #2F95EDB3;
 }
+
 .panel-heading.profile > h3{
   color: #353535;
   font-weight: bold;
 }
+
 .profile-edit > a{
   color: #353535;
   text-decoration: none;
 }
+
 .email-delete button{
   color: #353535;
 }
