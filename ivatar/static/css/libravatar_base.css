@@ -747,3 +747,11 @@ color:#335ECF;
 .panel-body.profile > div, .panel-body.profile > img {
   text-align: left;
 }
+.panel-heading.profile{
+  background: #A8BCC7;
+  border-top-left-radius: unset;
+  border-top-right-radius: unset;
+}
+.panel-heading.profile > h3{
+  color: #353535;
+}

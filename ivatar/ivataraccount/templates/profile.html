@@ -66,9 +66,6 @@ outline: inherit;
     display: contents;
   }
 }
-.panel-heading{
-  background: #70768682;
-}
 </style>
 
 {% if user.confirmedemail_set.count or user.confirmedopenid_set.count %}
@@ -78,7 +75,7 @@ outline: inherit;
 <form action="{% url 'remove_confirmed_email' email.id %}" method="post">
 {% csrf_token %}
 <div>
-  <div class="panel-heading" style="padding-right:0">
+  <div class="panel-heading profile" style="padding-right:0">
     <h3 class="panel-title" title="{{ email.email }}" style="display:inline-flex">
       {{ email.email }}
     </h3>
@@ -102,9 +99,9 @@ outline: inherit;
     {% for openid in user.confirmedopenid_set.all %}
         <form action="{% url 'remove_confirmed_openid' openid.id %}" method="post">{% csrf_token %}
 <div>
-  <div class="panel-heading" style="padding-right:0">
-    <h3 class="panel-title" title="{{ openid.openid }}" style="display:inline-flex"><a href="{% url 'assign_photo_openid' openid.pk %}"><i class="fa fa-edit"></i></a>&nbsp;
-{{ openid.openid|cut:"http://"|cut:"https://"|truncatechars:12 }}</h3>
+  <div class="panel-heading profile" style="padding-right:0">
+    <h3 class="panel-title" title="{{ openid.openid }}" style="display:inline-flex">
+{{ openid.openid|cut:"http://"|cut:"https://"|truncatechars:30 }}</h3>
 </div>
 <div class="panel-body profile">
   <img title="{% trans 'Access count' %}: {{ openid.access_count }}" style="max-height:100px;max-width:100px" src="{% if openid.photo %}{% url 'raw_image' openid.photo.id %}{% else %}{% static '/img/nobody/80.png' %}{% endif %}">
