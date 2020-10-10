@@ -75,7 +75,7 @@
   <form action="{% url 'remove_confirmed_email' email.id %}" method="post">
     {% csrf_token %}
       <div class="profile-container">
-          <img title="{% trans 'Access count' %}: {{ email.access_count }}" style="max-height:100px;max-width:100px" src="{% if email.photo %}{% url 'raw_image' email.photo.id %}{% else %}{% static '/img/nobody/80.png' %}{% endif %}">
+          <img title="{% trans 'Access count' %}: {{ email.access_count }}" style="max-height:80px;max-width:80px" src="{% if email.photo %}{% url 'raw_image' email.photo.id %}{% else %}{% static '/img/nobody/80.png' %}{% endif %}">
           <h3 class="panel-title email-profile" title="{{ email.email }}">
             {{ email.email }}
           </h3>
@@ -98,7 +98,7 @@
   <form action="{% url 'remove_confirmed_openid' openid.id %}" method="post">{% csrf_token %}
     <div>
       <div class="profile-container">
-        <img title="{% trans 'Access count' %}: {{ openid.access_count }}" style="max-height:100px;max-width:100px" src="{% if openid.photo %}{% url 'raw_image' openid.photo.id %}{% else %}{% static '/img/nobody/80.png' %}{% endif %}">
+        <img title="{% trans 'Access count' %}: {{ openid.access_count }}" style="max-height:80px;max-width:80px" src="{% if openid.photo %}{% url 'raw_image' openid.photo.id %}{% else %}{% static '/img/nobody/80.png' %}{% endif %}">
         <h3 class="panel-title email-profile" title="{{ openid.openid }}">
           {{ openid.openid|cut:"http://"|cut:"https://"|truncatechars:30 }}
         </h3>
