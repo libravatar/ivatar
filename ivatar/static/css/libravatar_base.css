@@ -404,7 +404,6 @@ transition: all 0.3s;
     top: 26rem;
   }
 }
-
 @media only screen and (max-width: 620px) {
   #page .container #home-form {
     margin-bottom: 2rem;
@@ -728,25 +727,23 @@ color:#335ECF;
      margin-top: 11rem !important;
    }
  }
-.row.profileid{
-   display:grid;
- }
-.panel-body.profile{
-  display: none;
-  grid-template-areas:
-    'img edit edit edit edit edit'
-    'img delete delete delete delete delete';
-  grid-gap: 0;
-}
-.panel-body.profile > img { grid-area: img; }
-.panel-body.profile > .profile-edit { grid-area: edit; }
-.panel-body.profile > .email-delete { grid-area: delete; }
 
-.profile-container:hover .panel-body.profile{
-  display: grid;
-}
+/*
 .profile-container:hover .panel-heading.profile{
   border-bottom: solid 5px #2D5FE3;
+}
+*/
+.profile-container{
+  border-top: solid 5px #2F95EDB3;
+  display: grid;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+.profile-container:hover{
+  border-top: solid 5px #335ECF;
+}
+.profile-container img{
+  margin: 0.5em;
 }
 .panel-body.profile > div, .panel-body.profile > img {
   text-align: left;
@@ -756,10 +753,9 @@ color:#335ECF;
   background: none;
   border-top-left-radius: unset;
   border-top-right-radius: unset;
-  border-bottom: solid 5px #2F95EDB3;
 }
 
-.panel-heading.profile > h3{
+.profile-container > h3{
   color: #353535;
   font-weight: bold;
 }
@@ -771,4 +767,37 @@ color:#335ECF;
 
 .email-delete button{
   color: #353535;
+}
+
+.email-profile { grid-area: email; }
+
+.profile-container{
+  padding-top: 2rem;
+}
+.profile-container > img {
+  grid-area: img;
+  margin: auto;
+}
+.profile-container > ul {
+  grid-area: list;
+  list-style-type: none;
+  padding:0;
+  font-size: 18px;
+}
+.profile-container > ul > li{
+  padding-top: 0.5rem;
+}
+.profile-container > ul > li > a:hover{
+  text-decoration: none;
+}
+.profile-container {
+  display: grid;
+  grid-template-areas:
+    'img email email email email email'
+    'img list list list list list';
+  grid-gap: 0;
+}
+
+.profile-container > div, profile-container > img {
+  text-align: center;
 }
