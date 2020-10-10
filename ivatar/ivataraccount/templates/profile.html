@@ -6,7 +6,16 @@
 {% block title %}{% trans 'Your Profile' %}{% endblock title %}
 
 {% block content %}
-
+<script type="text/javascript">
+  function add_active(id){
+    var elems = document.querySelector(".active");
+    if(elems !==null){
+      elems.classList.remove("active");
+    }
+    element = document.getElementById(id);
+    element.classList.add("active");
+  }
+</script>
 <h1>
   {% trans 'Your Profile' %} -
   {% if user.first_name and user.last_name %}
@@ -68,14 +77,15 @@
   }
 </style>
 
+
 {% if user.confirmedemail_set.count or user.confirmedopenid_set.count %}
 <h3>{% trans 'You have the following confirmed identities:' %}</h3>
 <div class="row profileid">
   {% for email in user.confirmedemail_set.all %}
   <form action="{% url 'remove_confirmed_email' email.id %}" method="post">
     {% csrf_token %}
-      <div class="profile-container">
-          <img title="{% trans 'Access count' %}: {{ email.access_count }}" style="max-height:80px;max-width:80px" src="{% if email.photo %}{% url 'raw_image' email.photo.id %}{% else %}{% static '/img/nobody/80.png' %}{% endif %}">
+      <div id="email-conf-{{ forloop.counter }}" class="profile-container" onclick="add_active('email-conf-{{ forloop.counter }}')">
+          <img title="{% trans 'Access count' %}: {{ email.access_count }}" src="{% if email.photo %}{% url 'raw_image' email.photo.id %}{% else %}{% static '/img/nobody/80.png' %}{% endif %}">
           <h3 class="panel-title email-profile" title="{{ email.email }}">
             {{ email.email }}
           </h3>
@@ -97,8 +107,8 @@
   {% for openid in user.confirmedopenid_set.all %}
   <form action="{% url 'remove_confirmed_openid' openid.id %}" method="post">{% csrf_token %}
     <div>
-      <div class="profile-container">
-        <img title="{% trans 'Access count' %}: {{ openid.access_count }}" style="max-height:80px;max-width:80px" src="{% if openid.photo %}{% url 'raw_image' openid.photo.id %}{% else %}{% static '/img/nobody/80.png' %}{% endif %}">
+      <div id="id-conf-{{ forloop.counter }}" class="profile-container" onclick="add_active('id-conf-{{ forloop.counter }}')">
+        <img title="{% trans 'Access count' %}: {{ openid.access_count }}" src="{% if openid.photo %}{% url 'raw_image' openid.photo.id %}{% else %}{% static '/img/nobody/80.png' %}{% endif %}">
         <h3 class="panel-title email-profile" title="{{ openid.openid }}">
           {{ openid.openid|cut:"http://"|cut:"https://"|truncatechars:30 }}
         </h3>

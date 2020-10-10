@@ -759,18 +759,17 @@ color:#335ECF;
   color: #353535;
   font-weight: bold;
 }
-
-.profile-edit > a{
+.profile-container > ul > li > a, .profile-container button{
   color: #353535;
   text-decoration: none;
 }
-
-.email-delete button{
-  color: #353535;
+.profile-container.active{
+  border-top: solid 5px #335ECF;
 }
-
+.profile-container ul > li > button:hover, .profile-container ul > li > a:hover{
+  color: #335ECF;
+}
 .email-profile { grid-area: email; }
-
 .profile-container{
   padding-top: 2rem;
 }
@@ -797,7 +796,33 @@ color:#335ECF;
     'img list list list list list';
   grid-gap: 0;
 }
-
 .profile-container > div, profile-container > img {
   text-align: center;
+}
+.profile-container.active > img{
+  max-height:120px;
+  max-width:120px;
+}
+.profile-container > ul{
+  display:none
+}
+.profile-container.active > ul{
+  display:block;
+}
+.profile-container > img{
+  max-height:80px;
+  max-width:80px;
+}
+h3.panel-title{
+  margin-top: unset;
+}
+.profile-container > h3{
+  padding-top: 26px;
+}
+.profile-container.active > h3{
+  padding-top: 12px;
+}
+.profile-container:hover, .profile-container.active{
+  cursor: pointer;
+  background: gainsboro;
 }
