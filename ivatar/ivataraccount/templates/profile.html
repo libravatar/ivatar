@@ -77,6 +77,13 @@
   }
 </style>
 
+<noscript>
+    <style type="text/css">
+      .profile-container > ul{
+        display:block;
+      }
+    </style>
+</noscript>
 
 {% if user.confirmedemail_set.count or user.confirmedopenid_set.count %}
 <h3>{% trans 'You have the following confirmed identities:' %}</h3>
