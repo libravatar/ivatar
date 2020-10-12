@@ -102,7 +102,7 @@
       <div id="email-conf-{{ forloop.counter }}" class="profile-container" onclick="add_active('email-conf-{{ forloop.counter }}')">
           <img title="{% trans 'Access count' %}: {{ email.access_count }}" src="{% if email.photo %}{% url 'raw_image' email.photo.id %}{% else %}{% static '/img/nobody/80.png' %}{% endif %}">
           <h3 class="panel-title email-profile" title="{{ email.email }}">
-            {{ email.email }}
+             {{ email.email }}
           </h3>
           <ul>
             <li>
