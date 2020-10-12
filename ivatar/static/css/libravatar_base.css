@@ -733,9 +733,6 @@ color:#335ECF;
   padding-top: 1rem;
   padding-bottom: 1rem;
 }
-.profile-container:hover{
-  border-top: solid 5px #335ECF;
-}
 .profile-container img{
   margin: 0.5em;
 }
