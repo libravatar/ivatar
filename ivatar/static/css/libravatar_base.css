@@ -839,3 +839,7 @@ h3.panel-title{
 .profile-container:hover h3{
   padding-top: 12px;
 }
+.alert-success {
+    color: #353535;
+    background-color: #3582d71f;
+}
