@@ -789,6 +789,7 @@ color:#335ECF;
     'img email email email email email'
     'img list list list list list';
   grid-gap: 0;
+  grid-template-columns: 20% 80%;
 }
 .profile-container > div, profile-container > img {
   text-align: center;
