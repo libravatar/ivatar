@@ -125,7 +125,7 @@
       <div id="id-conf-{{ forloop.counter }}" class="profile-container" onclick="add_active('id-conf-{{ forloop.counter }}')">
         <img title="{% trans 'Access count' %}: {{ openid.access_count }}" src="{% if openid.photo %}{% url 'raw_image' openid.photo.id %}{% else %}{% static '/img/nobody/80.png' %}{% endif %}">
         <h3 class="panel-title email-profile" title="{{ openid.openid }}">
-          {{ openid.openid|cut:"http://"|cut:"https://"|truncatechars:30 }}
+          {{ openid.openid }}
         </h3>
         <ul>
           <li>
