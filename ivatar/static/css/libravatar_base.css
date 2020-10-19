@@ -82,14 +82,17 @@ h2 {
   letter-spacing: 0.05rem;
   font-weight: 500;
 }
-
 h3 {
   font-family: 'Lato', sans-serif;
   font-size: 24px;
   margin-bottom: 2rem;
   color: #545454;
 }
-
+ @media only screen and (max-width: 470px) {
+   h3{
+     font-size: 20px;
+   }
+}
 h4 {
   font-family: 'Lato', sans-serif;
   font-size: 25px;
@@ -791,6 +794,11 @@ color:#335ECF;
   grid-gap: 0;
   grid-template-columns: 20% 80%;
 }
+@media only screen and (max-width: 700px) {
+  .profile-container {
+    grid-template-columns: 40% 60%;
+  }
+}
 .profile-container > div, profile-container > img {
   text-align: center;
 }
@@ -819,6 +827,11 @@ h3.panel-title{
 }
 .profile-container > h3{
   padding-top: 26px;
+}
+@media only screen and (max-width: 470px) {
+  .profile-container > h3{
+    padding-top: 20px;
+  }
 }
 .profile-container.active > h3{
   padding-top: 12px;
