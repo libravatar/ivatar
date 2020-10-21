@@ -170,8 +170,7 @@
   {# TODO: (expires in xx hours) #}
   {% endfor %}
   {% endif %}
-
-  <p>
+  <p style="padding-top:5px;">
     {% if not max_emails %}<a href="{% url 'add_email' %}" class="button" >{% trans 'Add a new email address' %}</a>&nbsp;{% endif %}
     <a href="{% url 'add_openid' %}" class="button">{% trans 'Add a new OpenID' %}</a></p>
   </p>
