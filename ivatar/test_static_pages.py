@@ -2,31 +2,17 @@
 Test our views in ivatar.ivataraccount.views and ivatar.views
 '''
 # pylint: disable=too-many-lines
-from urllib.parse import urlsplit
-from io import BytesIO
-import io
 import os
 import django
 from django.test import TestCase
 from django.test import Client
 from django.urls import reverse
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate
-import hashlib
 
-from libravatar import libravatar_url
-
-from PIL import Image
+from ivatar.utils import random_string
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'ivatar.settings'
 django.setup()
-
-# pylint: disable=wrong-import-position
-from ivatar import settings
-from ivatar.ivataraccount.forms import MAX_NUM_UNCONFIRMED_EMAILS_DEFAULT
-from ivatar.ivataraccount.models import Photo, ConfirmedOpenId
-from ivatar.utils import random_string
-# pylint: enable=wrong-import-position
 
 
 class Tester(TestCase):  # pylint: disable=too-many-public-methods
@@ -77,4 +63,3 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         """
         response = self.client.get(reverse('security'))
         self.assertEqual(response.status_code, 200, 'no 200 ok?')
-
