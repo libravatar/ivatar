@@ -108,7 +108,7 @@ else:
                 'MAILGUN_SENDER_DOMAIN': os.environ['IVATAR_MAILGUN_SENDER_DOMAIN'],
             }
             EMAIL_BACKEND = 'anymail.backends.mailgun.EmailBackend'  # pragma: no cover
-        except Exception as exc:
+        except Exception as exc:  # pragma: nocover
             EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 SERVER_EMAIL = os.environ.get('SERVER_EMAIL', 'ivatar@mg.linux-kernel.at')
