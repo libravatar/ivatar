@@ -25,7 +25,7 @@ django.setup()
 # pylint: disable=wrong-import-position
 from ivatar import settings
 from ivatar.ivataraccount.forms import MAX_NUM_UNCONFIRMED_EMAILS_DEFAULT
-from ivatar.ivataraccount.models import Photo, ConfirmedOpenId
+from ivatar.ivataraccount.models import Photo, ConfirmedOpenId, ConfirmedEmail
 from ivatar.utils import random_string
 # pylint: enable=wrong-import-position
 
@@ -452,13 +452,40 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
             'email',
             'Address already added, currently unconfirmed')
 
-    def test_add_already_confirmed_email(self):  # pylint: disable=invalid-name
+    def test_add_already_confirmed_email_self(self):  # pylint: disable=invalid-name
         '''
         Request adding mail address that is already confirmed (by someone)
         '''
         # Create test mail and confirm it, reuse test code
         # Should set EMAIL_BACKEND, so no need to do it here
         self.test_confirm_email()
+
+        response = self.client.post(
+            reverse('add_email'), {
+                'email': self.email,
+            },
+            follow=True,
+        )
+        self.assertFormError(
+            response,
+            'form',
+            'email',
+            'Address already confirmed (by you)')
+
+    def test_add_already_confirmed_email_other(self):  # pylint: disable=invalid-name
+        '''
+        Request adding mail address that is already confirmed (by someone)
+        '''
+        # Create test mail and confirm it, reuse test code
+        # Should set EMAIL_BACKEND, so no need to do it here
+        self.test_confirm_email()
+
+        # Create another user and assign the mail address to that one
+        # in order to test the correct error message
+        otheruser = User.objects.create(username='otheruser')
+        confirmedemail = ConfirmedEmail.objects.last()
+        confirmedemail.user = otheruser
+        confirmedemail.save()
 
         response = self.client.post(
             reverse('add_email'), {

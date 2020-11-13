@@ -62,12 +62,14 @@ class AddEmailForm(forms.Form):
                 _('Address already added, currently unconfirmed'))
             return False
 
-        # Check whether or not the email is already confirmed by someone
-        if ConfirmedEmail.objects.filter(
-                email=self.cleaned_data['email']).exists():
-            self.add_error(
-                'email',
-                _('Address already confirmed (by someone else)'))
+        # Check whether or not the email is already confirmed (by someone)
+        check_mail = ConfirmedEmail.objects.filter(
+            email=self.cleaned_data['email'])
+        if check_mail.exists():
+            msg = _('Address already confirmed (by someone else)')
+            if check_mail.first().user == request.user:
+                msg = _('Address already confirmed (by you)')
+            self.add_error('email', msg)
             return False
 
         unconfirmed = UnconfirmedEmail()

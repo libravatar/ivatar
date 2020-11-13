@@ -57,7 +57,10 @@ def get_size(request, size=DEFAULT_AVATAR_SIZE):
 
 
 class CachingHttpResponse(HttpResponse):
-    def __init__(self, uri, content=b'', content_type=None, status=200, reason=None, charset=None):
+    '''
+    Handle caching of response
+    '''
+    def __init__(self, uri, content=b'', content_type=None, status=200, reason=None, charset=None):  # pylint: disable=too-many-arguments
         if CACHE_RESPONSE:
             caches['filesystem'].set(uri, {
                 'content': content,
@@ -66,7 +69,7 @@ class CachingHttpResponse(HttpResponse):
                 'reason': reason,
                 'charset': charset
             })
-        return super().__init__(content, content_type, status, reason, charset)
+        super().__init__(content, content_type, status, reason, charset)
 
 class AvatarImageView(TemplateView):
     '''
@@ -74,7 +77,7 @@ class AvatarImageView(TemplateView):
     '''
     # TODO: Do cache resize images!! Memcached?
 
-    def options(self, request, *args, **kwargs):  # pylint: disable=too-many-branches,too-many-statements,too-many-locals,too-many-return-statements
+    def options(self, request, *args, **kwargs):
         response = HttpResponse("", content_type='text/plain')
         response['Allow'] = "404 mm mp retro pagan wavatar monsterid robohash identicon"
         return response
@@ -137,7 +140,7 @@ class AvatarImageView(TemplateView):
             except ObjectDoesNotExist:
                 model = ConfirmedOpenId
                 try:
-                    d = kwargs['digest']
+                    d = kwargs['digest']  # pylint: disable=invalid-name
                     # OpenID is tricky. http vs. https, versus trailing slash or not
                     # However, some users eventually have added their variations already
                     # and therfore we need to use filter() and first()
@@ -146,7 +149,7 @@ class AvatarImageView(TemplateView):
                         Q(alt_digest1=d) |
                         Q(alt_digest2=d) |
                         Q(alt_digest3=d)).first()
-                except:
+                except:  # pylint: disable=bare-except
                     pass
 
 
@@ -212,7 +215,7 @@ class AvatarImageView(TemplateView):
                     img = img.resize((size, size), Image.ANTIALIAS)
                     img.save(data, 'PNG', quality=JPEG_QUALITY)
                     data.seek(0)
-                    response =  CachingHttpResponse(
+                    response = CachingHttpResponse(
                         uri,
                         data,
                         content_type='image/png')
@@ -233,7 +236,7 @@ class AvatarImageView(TemplateView):
                     return response
 
                 if str(default) == 'identicon':
-                    p = Pydenticon5()
+                    p = Pydenticon5()  # pylint: disable=invalid-name
                     # In order to make use of the whole 32 bytes digest, we need to redigest them.
                     newdigest = hashlib.md5(bytes(kwargs['digest'], 'utf-8')).hexdigest()
                     img = p.draw(newdigest, size, 0)
@@ -306,7 +309,7 @@ class GravatarProxyView(View):
     '''
     # TODO: Do cache images!! Memcached?
 
-    def get(self, request, *args, **kwargs):  # pylint: disable=too-many-branches,too-many-statements,too-many-locals,no-self-use,unused-argument
+    def get(self, request, *args, **kwargs):  # pylint: disable=too-many-branches,too-many-statements,too-many-locals,no-self-use,unused-argument,too-many-return-statements
         '''
         Override get from parent class
         '''
@@ -314,7 +317,7 @@ class GravatarProxyView(View):
             url = reverse_lazy(
                 'avatar_view',
                 args=[kwargs['digest']]) + '?s=%i' % size + '&forcedefault=y'
-            if default != None:
+            if default is not None:
                 url += '&default=%s' % default
             return HttpResponseRedirect(url)
 
@@ -325,7 +328,7 @@ class GravatarProxyView(View):
         try:
             if str(request.GET['default']) != 'None':
                 default = request.GET['default']
-        except:
+        except:  # pylint: disable=bare-except
             pass
 
         if str(default) != 'wavatar':
@@ -344,7 +347,7 @@ class GravatarProxyView(View):
                 if hashlib.md5(data.read()).hexdigest() == '71bc262d627971d13fe6f3180b93062a':
                     cache.set(gravatar_test_url, 'default', 60)
                     return redir_default(default)
-            except Exception as exc:
+            except Exception as exc:  # pylint: disable=broad-except
                 print('Gravatar test url fetch failed: %s' % exc)
 
         gravatar_url = 'https://secure.gravatar.com/avatar/' + kwargs['digest'] \

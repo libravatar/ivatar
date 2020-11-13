@@ -17,6 +17,6 @@ class TestCase(unittest.TestCase):
         '''
         Run wsgi import
         '''
-        import ivatar.wsgi
+        import ivatar.wsgi  # pylint: disable=import-outside-toplevel
         self.assertEqual(ivatar.wsgi.application.__class__,
                          django.core.handlers.wsgi.WSGIHandler)
