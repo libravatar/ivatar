@@ -34,18 +34,20 @@ from openid.consumer import consumer
 from ipware import get_client_ip
 
 from libravatar import libravatar_url
-from ivatar.settings import MAX_NUM_PHOTOS, MAX_PHOTO_SIZE, JPEG_QUALITY, AVATAR_MAX_SIZE
-from .gravatar import get_photo as get_gravatar_photo
+from ivatar.settings import MAX_NUM_PHOTOS, MAX_PHOTO_SIZE
+from ivatar.settings import JPEG_QUALITY, AVATAR_MAX_SIZE
+from . gravatar import get_photo as get_gravatar_photo
 
-from .forms import AddEmailForm, UploadPhotoForm, AddOpenIDForm
-from .forms import UpdatePreferenceForm, UploadLibravatarExportForm
-from .forms import DeleteAccountForm
-from .models import UnconfirmedEmail, ConfirmedEmail, Photo
-from .models import UnconfirmedOpenId, ConfirmedOpenId, DjangoOpenIDStore
-from .models import UserPreference
-from .models import file_format
+from . forms import AddEmailForm, UploadPhotoForm, AddOpenIDForm
+from . forms import UpdatePreferenceForm, UploadLibravatarExportForm
+from . forms import DeleteAccountForm
+from . models import UnconfirmedEmail, ConfirmedEmail, Photo
+from . models import UnconfirmedOpenId, ConfirmedOpenId, DjangoOpenIDStore
+from . models import UserPreference
+from . models import file_format
 from . read_libravatar_export import read_gzdata as libravatar_read_gzdata
 
+import py_avataaars as PyAvataaars
 
 def openid_logging(message, level=0):
     '''
@@ -1036,3 +1038,44 @@ class DeleteAccountView(SuccessMessageMixin, FormView):
                 raise(_('No password given'))
         request.user.delete() # should delete all confirmed/unconfirmed/photo objects
         return super().post(self, request, args, kwargs)
+
+
+@method_decorator(login_required, name='dispatch')
+class AvatarCreatorView(TemplateView):
+    '''
+    View class responsible for handling avatar creation
+    '''
+    template_name = 'avatar_creator.html'
+
+    def get(self, request, *args, **kwargs):
+        '''
+        Handle get for create view
+        '''
+        if request.user:
+            if not request.user.is_authenticated:
+                return HttpResponseRedirect(reverse_lazy('profile'))
+
+        return super().get(self, request, args, kwargs)
+
+    def get_context_data(self, **kwargs):
+        '''
+        Provide additional context data
+        '''
+        context = super().get_context_data(**kwargs)
+        context['SkinColor'] = list(PyAvataaars.SkinColor)
+        context['HairColor'] = list(PyAvataaars.HairColor)
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
+class AvatarView(View):
+    '''
+    View class responsible for handling avatar view
+    '''
+    def get(self, request, *args, **kwargs):
+        '''
+        Handle get for create view
+        '''
+        avatar = PyAvataaars.PyAvataaar()
+        return HttpResponse(
+            avatar.render_png(), content_type='image/png')

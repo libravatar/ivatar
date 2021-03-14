@@ -18,6 +18,7 @@ from . views import RemoveConfirmedEmailView, AssignPhotoEmailView
 from . views import RemoveUnconfirmedOpenIDView, RemoveConfirmedOpenIDView
 from . views import ImportPhotoView, RawImageView, DeletePhotoView
 from . views import UploadPhotoView, AssignPhotoOpenIDView
+from . views import AvatarCreatorView, AvatarView
 from . views import AddOpenIDView, RedirectOpenIDView, ConfirmOpenIDView
 from . views import CropPhotoView
 from . views import UserPreferenceView, UploadLibravatarExportView
@@ -63,10 +64,15 @@ urlpatterns = [  # pylint: disable=invalid-name
     ), name='export'),
     path('delete/', DeleteAccountView.as_view(), name='delete'),
     path('profile/', ProfileView.as_view(), name='profile'),
-    url('profile/(?P<profile_username>.+)', ProfileView.as_view(), name='profile_with_profile_username'),
+    url(
+        'profile/(?P<profile_username>.+)',
+        ProfileView.as_view(),
+        name='profile_with_profile_username'),
     path('add_email/', AddEmailView.as_view(), name='add_email'),
     path('add_openid/', AddOpenIDView.as_view(), name='add_openid'),
     path('upload_photo/', UploadPhotoView.as_view(), name='upload_photo'),
+    path('avatar_creator/', AvatarCreatorView.as_view(), name='avatar_creator'),
+    path('avatar_view/', AvatarView.as_view(), name='avataaar'),
     path('password_set/', PasswordSetView.as_view(), name='password_set'),
     url(
         r'remove_unconfirmed_openid/(?P<openid_id>\d+)',

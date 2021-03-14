@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+{% load bootstrap4 %}
+
+{% block title %}{% trans 'Avatar Creator' %}{% endblock title %}
+
+{% block content %}
+
+<style>
+  .achoose {
+    float:left;
+    margin-right:2px;
+    width:20px;
+    height:20px;
+  }
+</style>
+
+<h3>{% trans 'Adjust your avatar:' %}</h3>
+<div>
+  <div style="width:172px;margin-left:20px;float:left">
+    <img id="avatar_image" width="172px">
+    <script>
+      var skin = "{{ SkinColor.0.main_value }}";
+      var url = "{% url 'avataaar' %}?skin=" + skin
+      var ai = document.getElementById("avatar_image");
+      ai.src = url;
+    </script>
+  </div>
+  <div>
+    <div class="btn-group form-group" role="group" style="float:none;">
+      <h3>{% trans 'Skin color' %}</h3>
+      {% for color in SkinColor %}
+        <a class="button achoose" style="background:{{ color.main_value }};">&nbsp;</a>
+      {% endfor %}
+    </div>
+    <br/>
+    <div>
+      <h3>{% trans 'Hair color' %}</h3>
+      {% for color in HairColor %}
+        <a class="button achoose" style="background:{{ color.main_value }};">&nbsp;</a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+<div style="height:40px"></div>
+{% endblock content %}
