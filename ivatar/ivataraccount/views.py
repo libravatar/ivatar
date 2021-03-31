@@ -998,7 +998,7 @@ class PasswordResetView(PasswordResetViewOriginal):
             # ResetPasswordView class will silently ignore the password
             # reset request
             if user:
-                if not user.password or user.password == '!':
+                if not user.password or user.password.startswith('!'):
                     random_pass = User.objects.make_random_password()
                     user.set_password(random_pass)
                     user.save()
