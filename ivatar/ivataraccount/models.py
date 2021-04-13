@@ -347,6 +347,8 @@ class UnconfirmedEmail(BaseAccountModel):
     '''
     email = models.EmailField(max_length=MAX_LENGTH_EMAIL)
     verification_key = models.CharField(max_length=64)
+    last_send_date = models.DateTimeField(null=True, blank=True)
+    last_status = models.TextField(max_length=2047, null=True, blank=True) 
 
     class Meta:  # pylint: disable=too-few-public-methods
         '''
@@ -382,11 +384,17 @@ class UnconfirmedEmail(BaseAccountModel):
             'verification_link': link,
             'site_name': SITE_NAME,
         })
+        self.last_send_date = timezone.now()
+        self.last_status = 'OK'
         # if settings.DEBUG:
         #    print('DEBUG: %s' % link)
-        send_mail(
-            email_subject, email_body, DEFAULT_FROM_EMAIL,
-            [self.email])
+        try:
+            send_mail(
+                email_subject, email_body, DEFAULT_FROM_EMAIL,
+                [self.email])
+        except Exception as e:
+            self.last_status = "%s" % e
+        self.save()
         return True
 
     def __str__(self):
