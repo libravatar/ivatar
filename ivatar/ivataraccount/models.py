@@ -359,11 +359,12 @@ class UnconfirmedEmail(BaseAccountModel):
 
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):
-        hash_object = hashlib.new('sha256')
-        hash_object.update(
-            urandom(1024) + self.user.username.encode('utf-8')  # pylint: disable=no-member
-        )  # pylint: disable=no-member
-        self.verification_key = hash_object.hexdigest()
+        if not self.verification_key:
+            hash_object = hashlib.new('sha256')
+            hash_object.update(
+                urandom(1024) + self.user.username.encode('utf-8')  # pylint: disable=no-member
+            )  # pylint: disable=no-member
+            self.verification_key = hash_object.hexdigest()
         super(UnconfirmedEmail, self).save(
             force_insert,
             force_update,
