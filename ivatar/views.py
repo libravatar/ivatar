@@ -411,8 +411,4 @@ class StatsView(TemplateView, JsonResponse):
             'openids': ConfirmedOpenId.objects.all().count(),  # pylint: disable=no-member
         }
 
-        # JSON of course return json, but also normal web requests default to JSON
-        if request.content_type in ('application/json', 'text/plain', 'text/html'):
-            return JsonResponse(retval)
-
-        return HttpResponseRedirect(reverse_lazy('home'))
+        return JsonResponse(retval)
