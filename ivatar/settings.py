@@ -118,4 +118,6 @@ PROJECT_ROOT = os.path.abspath(
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 from config import *  # pylint: disable=wildcard-import,wrong-import-position,unused-wildcard-import
