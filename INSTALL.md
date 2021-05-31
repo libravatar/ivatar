@@ -23,6 +23,7 @@ cd ivatar
 virtualenv -p python3 .virtualenv 
 source .virtualenv/bin/activate
 pip install -r requirements.txt
+pip install pillow
 ~~~~
 
 ## (SQL) Migrations
