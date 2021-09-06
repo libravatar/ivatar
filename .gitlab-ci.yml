@@ -1,4 +1,4 @@
-image: docker.io/ofalk/fedora31-python3
+image: quay.io/rhn_support_ofalk/fedora34-python3
 
 before_script:
   - virtualenv -p python3 /tmp/.virtualenv
