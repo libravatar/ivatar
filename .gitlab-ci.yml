@@ -1,4 +1,6 @@
-image: quay.io/rhn_support_ofalk/fedora34-python3
+image:
+  name: quay.io/rhn_support_ofalk/fedora34-python3
+  entrypoint: [ '/bin/sh', '-c' ]
 
 before_script:
   - virtualenv -p python3 /tmp/.virtualenv
