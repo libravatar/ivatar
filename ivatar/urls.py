@@ -7,7 +7,7 @@ from django.conf.urls import url
 from django.conf.urls.static import static
 from django.views.generic import TemplateView, RedirectView
 from ivatar import settings
-from . views import AvatarImageView, GravatarProxyView
+from . views import AvatarImageView, GravatarProxyView, StatsView
 
 urlpatterns = [  # pylint: disable=invalid-name
     path('admin/', admin.site.urls),
@@ -36,6 +36,7 @@ urlpatterns = [  # pylint: disable=invalid-name
     url('privacy/', TemplateView.as_view(template_name='privacy.html'), name='privacy'),
     url('contact/', TemplateView.as_view(template_name='contact.html'), name='contact'),
     path('talk_to_us/', RedirectView.as_view(url='/contact'), name='talk_to_us'),
+    url('stats/', StatsView.as_view(), name='stats'),
 ]
 
 MAINTENANCE = False
