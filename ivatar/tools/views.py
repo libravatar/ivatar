@@ -2,6 +2,8 @@
 View classes for ivatar/tools/
 '''
 from socket import inet_ntop, AF_INET6
+import hashlib
+import random
 
 from django.views.generic.edit import FormView
 from django.urls import reverse_lazy as reverse
@@ -12,10 +14,9 @@ import DNS
 from libravatar import libravatar_url, parse_user_identity
 from libravatar import SECURE_BASE_URL as LIBRAVATAR_SECURE_BASE_URL
 from libravatar import BASE_URL as LIBRAVATAR_BASE_URL
-import hashlib
 
-from .forms import CheckDomainForm, CheckForm
 from ivatar.settings import SECURE_BASE_URL, BASE_URL
+from .forms import CheckDomainForm, CheckForm  # pylint: disable=relative-beyond-top-level
 
 
 class CheckDomainView(FormView):
@@ -32,12 +33,20 @@ class CheckDomainView(FormView):
         domain = form.cleaned_data['domain']
         result['avatar_server_http'] = lookup_avatar_server(domain, False)
         if result['avatar_server_http']:
-            result['avatar_server_http_ipv4'] = lookup_ip_address(result['avatar_server_http'], False)
-            result['avatar_server_http_ipv6'] = lookup_ip_address(result['avatar_server_http'], True)
+            result['avatar_server_http_ipv4'] = lookup_ip_address(
+                result['avatar_server_http'],
+                False)
+            result['avatar_server_http_ipv6'] = lookup_ip_address(
+                result['avatar_server_http'],
+                True)
         result['avatar_server_https'] = lookup_avatar_server(domain, True)
         if result['avatar_server_https']:
-            result['avatar_server_https_ipv4'] = lookup_ip_address(result['avatar_server_https'], False)
-            result['avatar_server_https_ipv6'] = lookup_ip_address(result['avatar_server_https'], True)
+            result['avatar_server_https_ipv4'] = lookup_ip_address(
+                result['avatar_server_https'],
+                False)
+            result['avatar_server_https_ipv6'] = lookup_ip_address(
+                result['avatar_server_https'],
+                True)
         return render(self.request, self.template_name, {
             'form': form,
             'result': result,
@@ -75,21 +84,21 @@ class CheckView(FormView):
             size = form.cleaned_data['size']
         if form.cleaned_data['mail']:
             mailurl = libravatar_url(
-              email=form.cleaned_data['mail'],
-              size=size,
-              default=default_url)
+                email=form.cleaned_data['mail'],
+                size=size,
+                default=default_url)
             mailurl = mailurl.replace(LIBRAVATAR_BASE_URL, BASE_URL)
             mailurl_secure = libravatar_url(
-              email=form.cleaned_data['mail'],
-              size=size,
-              https=True,
-              default=default_url)
+                email=form.cleaned_data['mail'],
+                size=size,
+                https=True,
+                default=default_url)
             mailurl_secure = mailurl_secure.replace(
-              LIBRAVATAR_SECURE_BASE_URL,
-              SECURE_BASE_URL)
+                LIBRAVATAR_SECURE_BASE_URL,
+                SECURE_BASE_URL)
             mail_hash = parse_user_identity(
-              email=form.cleaned_data['mail'],
-              openid=None)[0]
+                email=form.cleaned_data['mail'],
+                openid=None)[0]
             hash_obj = hashlib.new('sha256')
             hash_obj.update(form.cleaned_data['mail'].encode('utf-8'))
             mail_hash256 = hash_obj.hexdigest()
@@ -97,24 +106,25 @@ class CheckView(FormView):
                 mail_hash,
                 mail_hash256)
         if form.cleaned_data['openid']:
-            if not form.cleaned_data['openid'].startswith('http://') and not form.cleaned_data['openid'].startswith('https://'):
+            if not form.cleaned_data['openid'].startswith('http://') and \
+               not form.cleaned_data['openid'].startswith('https://'):
                 form.cleaned_data['openid'] = 'http://%s' % form.cleaned_data['openid']
             openidurl = libravatar_url(
-              openid=form.cleaned_data['openid'],
-              size=size,
-              default=default_url)
+                openid=form.cleaned_data['openid'],
+                size=size,
+                default=default_url)
             openidurl = openidurl.replace(LIBRAVATAR_BASE_URL, BASE_URL)
             openidurl_secure = libravatar_url(
-              openid=form.cleaned_data['openid'],
-              size=size,
-              https=True,
-              default=default_url)
+                openid=form.cleaned_data['openid'],
+                size=size,
+                https=True,
+                default=default_url)
             openidurl_secure = openidurl_secure.replace(
-              LIBRAVATAR_SECURE_BASE_URL,
-              SECURE_BASE_URL)
+                LIBRAVATAR_SECURE_BASE_URL,
+                SECURE_BASE_URL)
             openid_hash = parse_user_identity(
-              openid=form.cleaned_data['openid'],
-              email=None)[0]
+                openid=form.cleaned_data['openid'],
+                email=None)[0]
 
         return render(self.request, self.template_name, {
             'form': form,
@@ -166,7 +176,8 @@ def lookup_avatar_server(domain, https):
 
     records = []
     for answer in dns_request.answers:
-        if ('data' not in answer) or (not answer['data']) or (not answer['typename']) or (answer['typename'] != 'SRV'):
+        if ('data' not in answer) or (not answer['data']) or \
+            (not answer['typename']) or (answer['typename'] != 'SRV'):
             continue
 
         record = {'priority': int(answer['data'][0]), 'weight': int(answer['data'][1]),
@@ -203,7 +214,10 @@ def srv_hostname(records):
         if ret['priority'] > top_priority:
             # ignore the record (ret has lower priority)
             continue
-        elif ret['priority'] < top_priority:
+
+        # Take care - this if is only a if, if the above if
+        # uses continue at the end. else it should be an elsif
+        if ret['priority'] < top_priority:
             # reset the aretay (ret has higher priority)
             top_priority = ret['priority']
             total_weight = 0
@@ -218,7 +232,7 @@ def srv_hostname(records):
             priority_records.insert(0, (0, ret))
 
     if len(priority_records) == 1:
-        unused, ret = priority_records[0]
+        unused, ret = priority_records[0]  # pylint: disable=unused-variable
         return (ret['target'], ret['port'])
 
     # Select first record according to RFC2782 weight ordering algorithm (page 3)
@@ -261,7 +275,7 @@ def lookup_ip_address(hostname, ipv6):
 
         if ipv6:
             return inet_ntop(AF_INET6, answer['data'])
-        else:
-            return answer['data']
+
+        return answer['data']
 
     return None

@@ -155,10 +155,13 @@ outline: inherit;
 {% endif %}
 
 {% if not max_photos %}
-<p>
-<a href="{% url 'upload_photo' %}" class="button">{% trans 'Upload a new photo' %}</a>&nbsp;
-<a href="{% url 'import_photo' %}" class="button">{% trans 'Import photo from other services' %}</a>
-</p>
+  <p>
+    <a href="{% url 'upload_photo' %}" class="button">{% trans 'Upload a new photo' %}</a>&nbsp;
+    <a href="{% url 'import_photo' %}" class="button">{% trans 'Import photo from other services' %}</a>
+  </p>
+{% else %}
+    {% trans "You've reached the maximum number of allowed images!" %}<br/>
+    {% trans "No further images can be uploaded." %}
 {% endif %}
 <div style="height:40px"></div>
 {% endblock content %}

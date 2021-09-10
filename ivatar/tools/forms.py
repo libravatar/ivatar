@@ -69,6 +69,7 @@ class CheckForm(forms.Form):
             ('monsterid', _('Monster style')),
             ('identicon', _('Identicon style')),
             ('mm', _('Mystery man')),
+            ('mmng', _('Mystery man NextGen')),
             ('none', _('None')),
         ],
     )
@@ -98,3 +99,12 @@ class CheckForm(forms.Form):
         if not mail and not openid:
             raise ValidationError(_('Either OpenID or mail must be specified'))
         return self.cleaned_data
+
+    def clean_openid(self):
+        data = self.cleaned_data['openid']
+        return data.lower()
+
+    def clean_mail(self):
+        data = self.cleaned_data['mail']
+        print(data)
+        return data.lower()

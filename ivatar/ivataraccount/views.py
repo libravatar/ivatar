@@ -731,6 +731,9 @@ class UserPreferenceView(FormView, UpdateView):
     success_url = reverse_lazy('user_preference')
 
     def post(self, request, *args, **kwargs):  # pylint: disable=unused-argument
+        '''
+        Process POST-ed data from this form
+        '''
         userpref = None
         try:
             userpref = self.request.user.userpreference
@@ -738,6 +741,30 @@ class UserPreferenceView(FormView, UpdateView):
             userpref = UserPreference(user=self.request.user)
         userpref.theme = request.POST['theme']
         userpref.save()
+        try:
+            if request.POST['email'] != self.request.user.email:
+                addresses = list(self.request.user.confirmedemail_set.all().values_list('email', flat=True))
+                if request.POST['email'] not in addresses:
+                    messages.error(self.request, _('Mail address not allowed: %s' % request.POST['email']))
+                else:
+                    self.request.user.email = request.POST['email']
+                    self.request.user.save()
+                    messages.info(self.request, _('Mail address changed.'))
+        except Exception as e:  # pylint: disable=broad-except
+            messages.error(self.request, _('Error setting new mail address: %s' % e))
+
+        try:
+            if request.POST['first_name'] or request.POST['last_name']:
+                if request.POST['first_name'] != self.request.user.first_name:
+                    self.request.user.first_name = request.POST['first_name']
+                    messages.info(self.request, _('First name changed.'))
+                if request.POST['last_name'] != self.request.user.last_name:
+                    self.request.user.last_name = request.POST['last_name']
+                    messages.info(self.request, _('Last name changed.'))
+                self.request.user.save()
+        except Exception as e:  # pylint: disable=broad-except
+            messages.error(self.request, _('Error setting names: %s' % e))
+
         return HttpResponseRedirect(reverse_lazy('user_preference'))
 
 
@@ -898,6 +925,18 @@ class ProfileView(TemplateView):
         self._confirm_claimed_openid()
         return super().get(self, request, args, kwargs)
 
+    def get_context_data(self, **kwargs):
+        '''
+        Provide additional context data, like if max_photos is reached
+        already or not.
+        '''
+        context = super().get_context_data(**kwargs)
+        context['max_photos'] = False
+        if self.request.user:
+            if self.request.user.photo_set.all().count() >= MAX_NUM_PHOTOS:
+                context['max_photos'] = True
+                return context
+
     def _confirm_claimed_openid(self):
         openids = self.request.user.useropenid_set.all()
         # If there is only one OpenID, we eventually need to add it to the user account
@@ -924,18 +963,47 @@ class PasswordResetView(PasswordResetViewOriginal):
         '''
         Since we have the mail addresses in ConfirmedEmail model,
         we need to set the email on the user object in order for the
-        PasswordResetView class to pick up the correct user
+        PasswordResetView class to pick up the correct user.
+        In case we have the mail address in the User objecct, we still
+        need to assign a random password in order for PasswordResetView
+        class to pick up the user - else it will silently do nothing.
         '''
         if 'email' in request.POST:
+            user = None
+
+            # Try to find the user via the normal user class
             try:
-                confirmed_email = ConfirmedEmail.objects.get(email=request.POST['email'])
-                confirmed_email.user.email = confirmed_email.email
-                if not confirmed_email.user.password or confirmed_email.user.password == '!':
-                    random_pass = User.objects.make_random_password()
-                    confirmed_email.user.set_pasword(random_pass)
-                confirmed_email.user.save()
-            except Exception as exc:
+                user = User.objects.get(email=request.POST['email'])
+            except ObjectDoesNotExist as exc:  # pylint: disable=unused-variable
+                # keep this for debugging only
+                # print('Exception: %s' % exc)
                 pass
+
+            # If we didn't find the user in the previous step,
+            # try the ConfirmedEmail class instead.
+            # If we find the user there, we need to set the mail
+            # attribute on the user object accordingly
+            if not user:
+                try:
+                    confirmed_email = ConfirmedEmail.objects.get(email=request.POST['email'])
+                    user = confirmed_email.user
+                    user.email = confirmed_email.email
+                    user.save()
+                except ObjectDoesNotExist as exc:  # pylint: disable=unused-variable
+                    # keep this for debugging only
+                    # print('Exception: %s' % exc)
+                    pass
+
+            # If we found the user, set a random password. Else, the
+            # ResetPasswordView class will silently ignore the password
+            # reset request
+            if user:
+                if not user.password or user.password.startswith('!'):
+                    random_pass = User.objects.make_random_password()
+                    user.set_password(random_pass)
+                    user.save()
+
+        # Whatever happens above, let the original function handle the rest
         return super().post(self, request, args, kwargs)
 
 

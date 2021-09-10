@@ -8,11 +8,14 @@ from urllib.request import urlopen
 from urllib.error import HTTPError, URLError
 from ssl import SSLError
 from django.views.generic.base import TemplateView, View
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
+from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseNotFound, JsonResponse
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.cache import cache, caches
 from django.utils.translation import ugettext_lazy as _
 from django.urls import reverse_lazy
 from django.db.models import Q
+from django.contrib.auth.models import User
 
 from PIL import Image
 
@@ -23,9 +26,11 @@ import pagan
 from robohash import Robohash
 
 from ivatar.settings import AVATAR_MAX_SIZE, JPEG_QUALITY, DEFAULT_AVATAR_SIZE
+from ivatar.settings import CACHE_RESPONSE
 from ivatar.settings import CACHE_IMAGES_MAX_AGE
 from . ivataraccount.models import ConfirmedEmail, ConfirmedOpenId
 from . ivataraccount.models import pil_format, file_format
+from . utils import mm_ng
 
 URL_TIMEOUT = 5  # in seconds
 
@@ -54,13 +59,29 @@ def get_size(request, size=DEFAULT_AVATAR_SIZE):
     return size
 
 
+class CachingHttpResponse(HttpResponse):
+    '''
+    Handle caching of response
+    '''
+    def __init__(self, uri, content=b'', content_type=None, status=200,  # pylint: disable=too-many-arguments
+            reason=None, charset=None):
+        if CACHE_RESPONSE:
+            caches['filesystem'].set(uri, {
+                'content': content,
+                'content_type': content_type,
+                'status': status,
+                'reason': reason,
+                'charset': charset
+            })
+        super().__init__(content, content_type, status, reason, charset)
+
 class AvatarImageView(TemplateView):
     '''
     View to return (binary) image, based on OpenID/Email (both by digest)
     '''
     # TODO: Do cache resize images!! Memcached?
 
-    def options(self, request, *args, **kwargs):  # pylint: disable=too-many-branches,too-many-statements,too-many-locals,too-many-return-statements
+    def options(self, request, *args, **kwargs):
         response = HttpResponse("", content_type='text/plain')
         response['Allow'] = "404 mm mp retro pagan wavatar monsterid robohash identicon"
         return response
@@ -77,9 +98,22 @@ class AvatarImageView(TemplateView):
         forcedefault = False
         gravatarredirect = False
         gravatarproxy = True
+        uri = request.build_absolute_uri()
+
+        # Check the cache first
+        if CACHE_RESPONSE:
+            centry = caches['filesystem'].get(uri)
+            if centry:
+                # For DEBUG purpose only print('Cached entry for %s' % uri)
+                return HttpResponse(
+                    centry['content'],
+                    content_type=centry['content_type'],
+                    status=centry['status'],
+                    reason=centry['reason'],
+                    charset=centry['charset'])
 
         # In case no digest at all is provided, return to home page
-        if not 'digest' in kwargs:
+        if 'digest' not in kwargs:
             return HttpResponseRedirect(reverse_lazy('home'))
 
         if 'd' in request.GET:
@@ -110,7 +144,7 @@ class AvatarImageView(TemplateView):
             except ObjectDoesNotExist:
                 model = ConfirmedOpenId
                 try:
-                    d = kwargs['digest']
+                    d = kwargs['digest']  # pylint: disable=invalid-name
                     # OpenID is tricky. http vs. https, versus trailing slash or not
                     # However, some users eventually have added their variations already
                     # and therfore we need to use filter() and first()
@@ -119,7 +153,7 @@ class AvatarImageView(TemplateView):
                         Q(alt_digest1=d) |
                         Q(alt_digest2=d) |
                         Q(alt_digest3=d)).first()
-                except:
+                except:  # pylint: disable=bare-except
                     pass
 
 
@@ -147,8 +181,6 @@ class AvatarImageView(TemplateView):
                         + '?s=%i' % size + '&default=%s&f=y' % default
                     return HttpResponseRedirect(url)
 
-
-
                 if str(default) == str(404):
                     return HttpResponseNotFound(_('<h1>Image not found</h1>'))
 
@@ -157,7 +189,8 @@ class AvatarImageView(TemplateView):
                     data = BytesIO()
                     monsterdata.save(data, 'PNG', quality=JPEG_QUALITY)
                     data.seek(0)
-                    response = HttpResponse(
+                    response = CachingHttpResponse(
+                        uri,
                         data,
                         content_type='image/png')
                     response['Cache-Control'] = 'max-age=%i' % CACHE_IMAGES_MAX_AGE
@@ -172,7 +205,8 @@ class AvatarImageView(TemplateView):
                     data = BytesIO()
                     robohash.img.save(data, format='png')
                     data.seek(0)
-                    response = HttpResponse(
+                    response = CachingHttpResponse(
+                        uri,
                         data,
                         content_type='image/png')
                     response['Cache-Control'] = 'max-age=%i' % CACHE_IMAGES_MAX_AGE
@@ -185,7 +219,8 @@ class AvatarImageView(TemplateView):
                     img = img.resize((size, size), Image.ANTIALIAS)
                     img.save(data, 'PNG', quality=JPEG_QUALITY)
                     data.seek(0)
-                    response =  HttpResponse(
+                    response = CachingHttpResponse(
+                        uri,
                         data,
                         content_type='image/png')
                     response['Cache-Control'] = 'max-age=%i' % CACHE_IMAGES_MAX_AGE
@@ -197,21 +232,35 @@ class AvatarImageView(TemplateView):
                     img = paganobj.img.resize((size, size), Image.ANTIALIAS)
                     img.save(data, 'PNG', quality=JPEG_QUALITY)
                     data.seek(0)
-                    response = HttpResponse(
+                    response = CachingHttpResponse(
+                        uri,
                         data,
                         content_type='image/png')
                     response['Cache-Control'] = 'max-age=%i' % CACHE_IMAGES_MAX_AGE
                     return response
 
                 if str(default) == 'identicon':
-                    p = Pydenticon5()
+                    p = Pydenticon5()  # pylint: disable=invalid-name
                     # In order to make use of the whole 32 bytes digest, we need to redigest them.
                     newdigest = hashlib.md5(bytes(kwargs['digest'], 'utf-8')).hexdigest()
                     img = p.draw(newdigest, size, 0)
                     data = BytesIO()
                     img.save(data, 'PNG', quality=JPEG_QUALITY)
                     data.seek(0)
-                    response = HttpResponse(
+                    response = CachingHttpResponse(
+                        uri,
+                        data,
+                        content_type='image/png')
+                    response['Cache-Control'] = 'max-age=%i' % CACHE_IMAGES_MAX_AGE
+                    return response
+
+                if str(default) == 'mmng':
+                    mmngimg = mm_ng(idhash=kwargs['digest'], size=size)
+                    data = BytesIO()
+                    mmngimg.save(data, 'PNG', quality=JPEG_QUALITY)
+                    data.seek(0)
+                    response = CachingHttpResponse(
+                        uri,
                         data,
                         content_type='image/png')
                     response['Cache-Control'] = 'max-age=%i' % CACHE_IMAGES_MAX_AGE
@@ -251,7 +300,8 @@ class AvatarImageView(TemplateView):
         obj.save()
         if imgformat == 'jpg':
             imgformat = 'jpeg'
-        response = HttpResponse(
+        response = CachingHttpResponse(
+            uri,
             data,
             content_type='image/%s' % imgformat)
         response['Cache-Control'] = 'max-age=%i' % CACHE_IMAGES_MAX_AGE
@@ -263,7 +313,7 @@ class GravatarProxyView(View):
     '''
     # TODO: Do cache images!! Memcached?
 
-    def get(self, request, *args, **kwargs):  # pylint: disable=too-many-branches,too-many-statements,too-many-locals,no-self-use,unused-argument
+    def get(self, request, *args, **kwargs):  # pylint: disable=too-many-branches,too-many-statements,too-many-locals,no-self-use,unused-argument,too-many-return-statements
         '''
         Override get from parent class
         '''
@@ -271,7 +321,7 @@ class GravatarProxyView(View):
             url = reverse_lazy(
                 'avatar_view',
                 args=[kwargs['digest']]) + '?s=%i' % size + '&forcedefault=y'
-            if default != None:
+            if default is not None:
                 url += '&default=%s' % default
             return HttpResponseRedirect(url)
 
@@ -282,7 +332,7 @@ class GravatarProxyView(View):
         try:
             if str(request.GET['default']) != 'None':
                 default = request.GET['default']
-        except:
+        except:  # pylint: disable=bare-except
             pass
 
         if str(default) != 'wavatar':
@@ -291,34 +341,46 @@ class GravatarProxyView(View):
             # redirect to our default instead.
             gravatar_test_url = 'https://secure.gravatar.com/avatar/' + kwargs['digest'] \
                 + '?s=%i' % 50
+            if cache.get(gravatar_test_url) == 'default':
+                # DEBUG only
+                # print("Cached Gravatar response: Default.")
+                return redir_default(default)
             try:
                 testdata = urlopen(gravatar_test_url, timeout=URL_TIMEOUT)
                 data = BytesIO(testdata.read())
                 if hashlib.md5(data.read()).hexdigest() == '71bc262d627971d13fe6f3180b93062a':
+                    cache.set(gravatar_test_url, 'default', 60)
                     return redir_default(default)
-            except Exception as exc:
+            except Exception as exc:  # pylint: disable=broad-except
                 print('Gravatar test url fetch failed: %s' % exc)
 
         gravatar_url = 'https://secure.gravatar.com/avatar/' + kwargs['digest'] \
             + '?s=%i' % size + '&d=%s' % default
 
         try:
+            if cache.get(gravatar_url) == 'err':
+                print('Cached Gravatar fetch failed with URL error')
+                return redir_default(default)
+
             gravatarimagedata = urlopen(gravatar_url, timeout=URL_TIMEOUT)
         except HTTPError as exc:
             if exc.code != 404 and exc.code != 503:
                 print(
                     'Gravatar fetch failed with an unexpected %s HTTP error' %
                     exc.code)
+            cache.set(gravatar_url, 'err', 30)
             return redir_default(default)
         except URLError as exc:
             print(
                 'Gravatar fetch failed with URL error: %s' %
                 exc.reason)
+            cache.set(gravatar_url, 'err', 30)
             return redir_default(default)
         except SSLError as exc:
             print(
                 'Gravatar fetch failed with SSL error: %s' %
                 exc.reason)
+            cache.set(gravatar_url, 'err', 30)
             return redir_default(default)
         try:
             data = BytesIO(gravatarimagedata.read())
@@ -336,3 +398,17 @@ class GravatarProxyView(View):
 
         # We shouldn't reach this point... But make sure we do something
         return redir_default(default)
+
+
+class StatsView(TemplateView, JsonResponse):
+    '''
+    Return stats
+    '''
+    def get(self, request, *args, **kwargs):  # pylint: disable=too-many-branches,too-many-statements,too-many-locals,no-self-use,unused-argument,too-many-return-statements
+        retval = {
+            'users': User.objects.all().count(),
+            'mails': ConfirmedEmail.objects.all().count(),
+            'openids': ConfirmedOpenId.objects.all().count(),  # pylint: disable=no-member
+        }
+
+        return JsonResponse(retval)
