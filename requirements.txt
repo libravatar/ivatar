@@ -1,7 +1,7 @@
 autopep8
 bcrypt
 defusedxml
-Django<3.2
+Django
 django-auth-ldap
 django-bootstrap4
 django-coverage-plugin
