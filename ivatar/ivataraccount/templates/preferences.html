@@ -7,36 +7,56 @@
 {% block content %}
 <h1>{% trans 'Account settings' %}</h1>
 
-<div class="form-group">
-<label for="id_email">{% trans 'Your email' %}:</label>
-<input type="text" name="email" disabled class="form-control" value="{{ user.email }}" id="id_email" style="max-width:600px;">
-</div>
+<label for="id_username">{% trans 'Username' %}:</label>
+<input type="text" name="username" class="form-control" id="id_username" disabled value="{{ user.username }}" style="max-width:600px;">
+<form action="{% url 'user_preference' %}" method="post">{% csrf_token %}
+  <div class="form-group">
+    <label for="id_first_name">{% trans 'Firstname' %}:</label>
+    <input type="text" name="first_name" class="form-control" id="id_first_name" value="{{ user.first_name }}" style="max-width:600px;">
+    <label for="id_last_name">{% trans 'Lastname' %}:</label>
+    <input type="text" name="last_name" class="form-control" id="id_last_name" value="{{ user.last_name }}" style="max-width:600px;">
+
+    <label for="id_email">{% trans 'E-mail address' %}:</label>
+    <select name="email" class="form-control" id="id_email" style="max-width:600px;">
+      <option value="{{ user.email }}" selected>{{ user.email }}</option>
+      {% for confirmed_email in user.confirmedemail_set.all %}
+        {% if user.email != confirmed_email.email %}
+          <option value="{{ confirmed_email.email }}">{{ confirmed_email.email }}</option>
+        {% endif %}
+      {% endfor %}
+    </select>
+  </div>
+  <input type="hidden" name="theme" value="{{ user.userpreference.theme }}"/>
+  <button type="submit" class="button">{% trans 'Save' %}</button>
+</form>
 
 <!-- TODO: Language stuff not yet fully implemented; Esp. translations are only half-way there
 
 <h2>{% trans 'Language' %}</h2>
 <form action="{% url 'set_language' %}" method="post">{% csrf_token %}
-      <div class="form-group">
-        {% get_current_language as LANGUAGE_CODE %}
-        {% get_available_languages as LANGUAGES %}
-        {% get_language_info_list for LANGUAGES as languages %}
-        {% for language in languages %}
-			<div class="radio">
-			<input type="radio" name="language" value="{{ language.code }}" id="language-{{ language.code }}" {% if language.code == LANGUAGE_CODE %}checked{% endif %}>
-			<label for="language-{{ language.code }}">{{ language.name_local }}</label>
-			</div>
-        {% endfor %}
-      </div>
-    <br/>
-    <button type="submit" class="button">{% trans 'Save' %}</button>
+  <div class="form-group">
+    {% get_current_language as LANGUAGE_CODE %}
+      {% get_available_languages as LANGUAGES %}
+      {% get_language_info_list for LANGUAGES as languages %}
+      {% for language in languages %}
+        <div class="radio">
+          <input type="radio" name="language" value="{{ language.code }}" id="language-{{ language.code }}"
+            {% if language.code == LANGUAGE_CODE %}checked{% endif %}>
+          <label for="language-{{ language.code }}">{{ language.name_local }}</label>
+        </div>
+      {% endfor %}
+  </div>
+  <br/>
+  <button type="submit" class="button">{% trans 'Save' %}</button>
 </form>
 
 -->
 
-<div style="height:40px"></div>
+<div style="height:100px"></div>
 
 <!-- <p><a href="{% url 'export' %}" class="button">{% trans 'Export your data' %}</a></p> -->
 
-<p><a href="{% url 'delete' %}" class="button">{% trans 'Permanently delete your account' %}</a></p>
+<!-- TODO: Better coloring of the button -->
+<p><a href="{% url 'delete' %}" class="button" style="background:red; color:white;">{% trans 'Permanently delete your account' %}</a></p>
 <div style="height:2rem"></div>
 {% endblock content %}

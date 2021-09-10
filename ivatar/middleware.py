@@ -9,7 +9,7 @@ class MultipleProxyMiddleware(MiddlewareMixin):  # pylint: disable=too-few-publi
     with multiple proxies
     """
 
-    def process_request(self, request):
+    def process_request(self, request):  # pylint: disable=no-self-use
         """
         Rewrites the proxy headers so that forwarded server is
         used if available.

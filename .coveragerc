@@ -5,6 +5,11 @@ omit =
     node_modules/*
     .virtualenv/*
     import_libravatar.py
+    requirements.txt
+    static/admin/*
+    static/humans.txt
+    static/img/robots.txt
+
 
 [html]
 extra_css = coverage_extra_style.css

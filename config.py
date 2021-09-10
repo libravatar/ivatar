@@ -52,7 +52,7 @@ OPENID_CREATE_USERS = True
 OPENID_UPDATE_DETAILS_FROM_SREG = True
 
 SITE_NAME = os.environ.get('SITE_NAME', 'libravatar')
-IVATAR_VERSION = '1.3'
+IVATAR_VERSION = '1.4'
 
 SECURE_BASE_URL = os.environ.get('SECURE_BASE_URL', 'https://avatars.linux-kernel.at/avatar/')
 BASE_URL = os.environ.get('BASE_URL', 'http://avatars.linux-kernel.at/avatar/')
@@ -108,7 +108,7 @@ else:
                 'MAILGUN_SENDER_DOMAIN': os.environ['IVATAR_MAILGUN_SENDER_DOMAIN'],
             }
             EMAIL_BACKEND = 'anymail.backends.mailgun.EmailBackend'  # pragma: no cover
-        except Exception as exc:
+        except Exception as exc:  # pragma: nocover
             EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 SERVER_EMAIL = os.environ.get('SERVER_EMAIL', 'ivatar@mg.linux-kernel.at')
@@ -142,9 +142,6 @@ if 'POSTGRESQL_DATABASE' in os.environ:
         'PASSWORD': os.environ['POSTGRESQL_PASSWORD'],
         'HOST': 'postgresql',
     }
-
-if os.path.isfile(os.path.join(BASE_DIR, 'config_local.py')):
-    from config_local import *  # noqa # flake8: noqa # NOQA # pragma: no cover
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
 
@@ -185,9 +182,20 @@ CACHES = {
     'LOCATION': [
         '127.0.0.1:11211',
     ],
+  },
+  'filesystem': {
+    'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+    'LOCATION': '/var/tmp/ivatar_cache',
+    'TIMEOUT': 900, # 15 minutes
   }
 }
 
 # This is 5 minutes caching for generated/resized images,
-# so the sites don't hit ivatar so much
+# so the sites don't hit ivatar so much - it's what's set in the HTTP header
 CACHE_IMAGES_MAX_AGE = 5 * 60
+
+CACHE_RESPONSE = True
+
+# This MUST BE THE LAST!
+if os.path.isfile(os.path.join(BASE_DIR, 'config_local.py')):
+    from config_local import *  # noqa # flake8: noqa # NOQA # pragma: no cover
