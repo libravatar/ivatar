@@ -8,12 +8,14 @@ from urllib.request import urlopen
 from urllib.error import HTTPError, URLError
 from ssl import SSLError
 from django.views.generic.base import TemplateView, View
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
+from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseNotFound, JsonResponse
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.cache import cache, caches
 from django.utils.translation import ugettext_lazy as _
 from django.urls import reverse_lazy
 from django.db.models import Q
+from django.contrib.auth.models import User
 
 from PIL import Image
 
@@ -23,7 +25,8 @@ from pydenticon5 import Pydenticon5
 import pagan
 from robohash import Robohash
 
-from ivatar.settings import AVATAR_MAX_SIZE, JPEG_QUALITY, DEFAULT_AVATAR_SIZE, CACHE_RESPONSE
+from ivatar.settings import AVATAR_MAX_SIZE, JPEG_QUALITY, DEFAULT_AVATAR_SIZE
+from ivatar.settings import CACHE_RESPONSE
 from ivatar.settings import CACHE_IMAGES_MAX_AGE
 from . ivataraccount.models import ConfirmedEmail, ConfirmedOpenId
 from . ivataraccount.models import pil_format, file_format
@@ -60,7 +63,8 @@ class CachingHttpResponse(HttpResponse):
     '''
     Handle caching of response
     '''
-    def __init__(self, uri, content=b'', content_type=None, status=200, reason=None, charset=None):  # pylint: disable=too-many-arguments
+    def __init__(self, uri, content=b'', content_type=None, status=200,  # pylint: disable=too-many-arguments
+            reason=None, charset=None):
         if CACHE_RESPONSE:
             caches['filesystem'].set(uri, {
                 'content': content,
@@ -394,3 +398,17 @@ class GravatarProxyView(View):
 
         # We shouldn't reach this point... But make sure we do something
         return redir_default(default)
+
+
+class StatsView(TemplateView, JsonResponse):
+    '''
+    Return stats
+    '''
+    def get(self, request, *args, **kwargs):  # pylint: disable=too-many-branches,too-many-statements,too-many-locals,no-self-use,unused-argument,too-many-return-statements
+        retval = {
+            'users': User.objects.all().count(),
+            'mails': ConfirmedEmail.objects.all().count(),
+            'openids': ConfirmedOpenId.objects.all().count(),  # pylint: disable=no-member
+        }
+
+        return JsonResponse(retval)
