@@ -20,7 +20,7 @@ test_and_coverage:
     - echo "DEBUG = True" >> config_local.py
     - python manage.py collectstatic --noinput
     - coverage run --source . manage.py test -v3
-    - coverage report --fail-under=70
+    - coverage report --fail-under=69
     - coverage html
   artifacts:
     paths:
