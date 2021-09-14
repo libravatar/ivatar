@@ -9,6 +9,7 @@ omit =
     static/admin/*
     static/humans.txt
     static/img/robots.txt
+    ivatar/ivataraccount/read_libravatar_export.py
 
 
 [html]
