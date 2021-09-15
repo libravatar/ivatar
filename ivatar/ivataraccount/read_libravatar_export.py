@@ -4,14 +4,28 @@ Reading libravatar export
 """
 
 import binascii
+import os
 from io import BytesIO
 import gzip
 import xml.etree.ElementTree
 import base64
 from PIL import Image
+import django
+import sys
 
+sys.path.append(
+    os.path.join(
+        os.path.dirname(__file__),
+        "..",
+        "..",
+    )
+)
 
-SCHEMAROOT = "https://www.libravatar.org/schemas/export/0.2"
+os.environ["DJANGO_SETTINGS_MODULE"] = "ivatar.settings"
+django.setup()
+
+# pylint: disable=wrong-import-position
+from ivatar.settings import SCHEMAROOT
 
 
 def read_gzdata(gzdata=None):
