@@ -7,6 +7,9 @@ from urllib.parse import urlsplit
 from io import BytesIO
 import io
 import os
+import gzip
+import xml.etree.ElementTree
+import base64
 import django
 from django.test import TestCase
 from django.test import Client
@@ -30,6 +33,8 @@ from ivatar.ivataraccount.models import Photo, ConfirmedOpenId, ConfirmedEmail
 from ivatar.utils import random_string
 
 # pylint: enable=wrong-import-position
+
+TEST_IMAGE_FILE = os.path.join(settings.STATIC_ROOT, "img", "deadbeef.png")
 
 
 class Tester(TestCase):  # pylint: disable=too-many-public-methods
@@ -549,9 +554,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         self.login()
         url = reverse("upload_photo")
         # rb => Read binary
-        with open(
-            os.path.join(settings.STATIC_ROOT, "img", "deadbeef.png"), "rb"
-        ) as photo:
+        with open(TEST_IMAGE_FILE, "rb") as photo:
             response = self.client.post(
                 url,
                 {
@@ -1744,9 +1747,63 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
             "why are we sending mails to the wrong mail address?",
         )
 
-    def test_libravatar_export(self):
+    def test_export(self):
         """
         Test if export works
+        """
+
+        # Create well known strings to check if export
+        # works as expected
+        self.user.confirmedemail_set.create(email="asdf@asdf.local")
+        self.user.confirmedopenid_set.create(openid="http://asdf.asdf.local")
+        self.user.save()
+
+        # Ensure we have a photo uploaded
+        self.test_upload_image()
+
+        self.login()
+        self.client.get(reverse("export"))
+        response = self.client.post(
+            reverse("export"),
+            {},
+            follow=False,
+        )
+        self.assertIsInstance(response.content, bytes)
+        fh = gzip.open(BytesIO(response.content), "rb")
+        content = fh.read()
+        fh.close()
+        root = xml.etree.ElementTree.fromstring(content)
+        self.assertEqual(root.tag, "{%s}user" % settings.SCHEMAROOT)
+        self.assertEqual(
+            root.findall("{%s}account" % settings.SCHEMAROOT)[0].items()[0][1],
+            self.user.username,
+        )
+        self.assertEqual(
+            root.findall("{%s}account" % settings.SCHEMAROOT)[0].items()[1][1],
+            self.user.password,
+        )
+
+        self.assertEqual(
+            root.findall("{%s}emails" % settings.SCHEMAROOT)[0][0].text,
+            self.user.confirmedemail_set.first().email,
+        )
+        self.assertEqual(
+            root.findall("{%s}openids" % settings.SCHEMAROOT)[0][0].text,
+            self.user.confirmedopenid_set.first().openid,
+        )
+
+        data = root.findall("{%s}photos" % settings.SCHEMAROOT)[0][0].text
+
+        data = data.strip("'")
+        data = data.strip("\\n")
+        data = data.lstrip("b'")
+        bindata = base64.decodebytes(bytes(data, "utf-8"))
+        image = Image.open(BytesIO(bindata))
+        self.assertTrue(hasattr(image, "png"))
+
+    def test_upload_export(self):
+        """
+        Test if uploading export works
         """
 
         self.client.get(reverse("upload_export"))
