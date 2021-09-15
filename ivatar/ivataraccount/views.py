@@ -6,6 +6,8 @@ from io import BytesIO
 from urllib.request import urlopen
 import base64
 import binascii
+from xml.sax import saxutils
+import gzip
 
 from PIL import Image
 
@@ -1137,6 +1139,113 @@ class DeleteAccountView(SuccessMessageMixin, FormView):
                 messages.error(request, _("No password given"))
                 return HttpResponseRedirect(reverse_lazy("delete"))
 
-                raise (_("No password given"))
-        request.user.delete()  # should delete all confirmed/unconfirmed/photo objects
+                raise _("No password given")
+        # should delete all confirmed/unconfirmed/photo objects
+        request.user.delete()
         return super().post(self, request, args, kwargs)
+
+
+@method_decorator(login_required, name="dispatch")
+class ExportView(SuccessMessageMixin, TemplateView):
+    """
+    View class responsible for libravatar user data export
+    """
+
+    template_name = "export.html"
+    model = User
+
+    def get(self, request, *args, **kwargs):
+        return super().get(self, request, args, kwargs)
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handle real export
+        """
+        SCHEMA_ROOT = "https://www.libravatar.org/schemas/export/0.2"
+        SCHEMA_XSD = "%s/export.xsd" % SCHEMA_ROOT
+
+        def xml_header():
+            return (
+                """<?xml version="1.0" encoding="UTF-8"?>"""
+                '''<user xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'''
+                ''' xsi:schemaLocation="%s %s"'''
+                """ xmlns="%s">\n""" % (SCHEMA_ROOT, SCHEMA_XSD, SCHEMA_ROOT)
+            )
+
+        def xml_footer():
+            return "</user>\n"
+
+        def xml_account(user):
+            escaped_username = saxutils.quoteattr(user.username)
+            escaped_password = saxutils.quoteattr(user.password)
+            return "  <account username=%s password=%s/>\n" % (
+                escaped_username,
+                escaped_password,
+            )
+
+        def xml_email(user):
+            returnstring = "  <emails>\n"
+            for email in user.confirmedemail_set.all():
+                returnstring += (
+                    '    <email photo_id="'
+                    + str(email.photo_id)
+                    + '">'
+                    + str(email.email)
+                    + "</email>"
+                    + "\n"
+                )
+            returnstring += "  </emails>\n"
+            return returnstring
+
+        def xml_openid(user):
+            returnstring = "  <openids>\n"
+            for openid in user.confirmedopenid_set.all():
+                returnstring += (
+                    '    <openid photo_id="'
+                    + str(openid.photo_id)
+                    + '">'
+                    + str(openid.openid)
+                    + "</openid>"
+                    + "\n"
+                )
+            returnstring += "  </openids>\n"
+            return returnstring
+
+        def xml_photos(user):
+            s = "  <photos>\n"
+            for photo in user.photo_set.all():
+                encoded_photo = base64.b64encode(photo.data)
+                if encoded_photo:
+                    s += (
+                        """    <photo id="%s" encoding="base64" format=%s>"""
+                        """%s"""
+                        """</photo>\n"""
+                        % (photo.id, saxutils.quoteattr(photo.format), encoded_photo)
+                    )
+            s += "  </photos>\n"
+            return s
+
+        user = request.user
+
+        photos = []
+        for photo in user.photo_set.all():
+            photo_details = {"data": photo.data, "format": photo.format}
+            photos.append(photo_details)
+
+        bytesobj = BytesIO()
+        data = gzip.GzipFile(fileobj=bytesobj, mode="w")
+        data.write(bytes(xml_header(), "utf-8"))
+        data.write(bytes(xml_account(user), "utf-8"))
+        data.write(bytes(xml_email(user), "utf-8"))
+        data.write(bytes(xml_openid(user), "utf-8"))
+        data.write(bytes(xml_photos(user), "utf-8"))
+        data.write(bytes(xml_footer(), "utf-8"))
+        data.close()
+        bytesobj.seek(0)
+
+        response = HttpResponse(content_type="application/gzip")
+        response["Content-Disposition"] = (
+            'attachment; filename="libravatar-export_%s.xml.gz"' % user.username
+        )
+        response.write(bytesobj.read())
+        return response
