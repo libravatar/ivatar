@@ -62,6 +62,8 @@ OPENID_UPDATE_DETAILS_FROM_SREG = True
 SITE_NAME = os.environ.get("SITE_NAME", "libravatar")
 IVATAR_VERSION = "1.4"
 
+SCHEMAROOT = "https://www.libravatar.org/schemas/export/0.2"
+
 SECURE_BASE_URL = os.environ.get(
     "SECURE_BASE_URL", "https://avatars.linux-kernel.at/avatar/"
 )
