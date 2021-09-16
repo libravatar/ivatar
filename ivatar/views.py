@@ -196,8 +196,6 @@ class AvatarImageView(TemplateView):
                 # Ensure we do not convert None to string 'None'
                 if default:
                     url += "&default=%s" % default
-                else:
-                    url += "&default=404"
                 return HttpResponseRedirect(url)
 
             # Return the default URL, as specified, or 404 Not Found, if default=404
