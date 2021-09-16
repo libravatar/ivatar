@@ -1,4 +1,4 @@
-{% extends 'base.html' %}                                                                                                                      
+{% extends 'base.html' %}
 {% load i18n %}
 {% load static %}
 
@@ -23,7 +23,7 @@ input[type=checkbox].image:checked + label:before {letter-spacing: 3px}
         <h4>{% trans 'Email addresses we found in the export - existing ones will not be re-added' %}</h4>
         {% for email in emails %}
         <div class="checkbox">
-          <input type="checkbox" checked name="email_{{ forloop.counter }}" id="email_{{ forloop.counter }}" value="{{ email }}" class="text"><label for="email_{{ forloop.counter }}">{{ email }}</label>
+          <input type="checkbox" checked name="email_{{ forloop.counter }}" id="email_{{ forloop.counter }}" value="{{ email.email }}" class="text"><label for="email_{{ forloop.counter }}">{{ email.email }}</label>
           </div>
         {% endfor %}
       {% endif %}
