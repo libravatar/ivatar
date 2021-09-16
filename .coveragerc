@@ -7,9 +7,12 @@ omit =
     import_libravatar.py
     requirements.txt
     static/admin/*
-    static/humans.txt
-    static/img/robots.txt
+    **/static/humans.txt
+    **/static/img/robots.txt
     ivatar/ivataraccount/read_libravatar_export.py
+    templates/maintenance.html
+    encryption_test.py
+    libravatarproxy.py
 
 
 [html]
