@@ -212,7 +212,9 @@ CACHE_RESPONSE = True
 # Trusted URLs for default redirection
 TRUSTED_DEFAULT_URLS = [
     "https://ui-avatars.com/api/",
+    "http://gravatar.com/avatar/",
     "https://gravatar.com/avatar/",
+    "https://secure.gravatar.com/avatar/",
     "https://avatars.dicebear.com/api/",
 ]
 
