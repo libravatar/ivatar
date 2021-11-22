@@ -209,6 +209,13 @@ CACHE_IMAGES_MAX_AGE = 5 * 60
 
 CACHE_RESPONSE = True
 
+# Trusted URLs for default redirection
+TRUSTED_DEFAULT_URLS = [
+    "https://ui-avatars.com/api/",
+    "https://gravatar.com/avatar/",
+    "https://avatars.dicebear.com/api/",
+]
+
 # This MUST BE THE LAST!
 if os.path.isfile(os.path.join(BASE_DIR, "config_local.py")):
     from config_local import *  # noqa # flake8: noqa # NOQA # pragma: no cover
