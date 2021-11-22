@@ -1453,8 +1453,31 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
     def test_avatar_url_default_external(self):  # pylint: disable=invalid-name
         """
         Test fetching avatar for not existing mail with external default specified
+        This shall *not* redirect to the external site (CWE-601)!
         """
         default = "http://host.tld/img.png"
+        size = 80
+        urlobj = urlsplit(
+            libravatar_url(
+                "xxx@xxx.xxx",
+                size=size,
+                default=default,
+            )
+        )
+        url = "%s?%s" % (urlobj.path, urlobj.query)
+        response = self.client.get(url, follow=False)
+        self.assertRedirects(
+            response=response,
+            expected_url="/gravatarproxy/fb7a6d7f11365642d44ba66dc57df56f?s=%s" % size,
+            fetch_redirect_response=False,
+            msg_prefix="Why does this not redirect to the default img?",
+        )
+
+    def test_avatar_url_default_external_trusted(self):  # pylint: disable=invalid-name
+        """
+        Test fetching avatar for not existing mail with external default specified
+        """
+        default = "https://ui-avatars.com/api/blah"
         urlobj = urlsplit(
             libravatar_url(
                 "xxx@xxx.xxx",
@@ -1466,7 +1489,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         response = self.client.get(url, follow=False)
         self.assertRedirects(
             response=response,
-            expected_url="/gravatarproxy/fb7a6d7f11365642d44ba66dc57df56f?s=80&default=http://host.tld/img.png",
+            expected_url="/gravatarproxy/fb7a6d7f11365642d44ba66dc57df56f?s=80&default=https://ui-avatars.com/api/blah",
             fetch_redirect_response=False,
             msg_prefix="Why does this not redirect to the default img?",
         )
@@ -1476,6 +1499,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
     ):  # pylint: disable=invalid-name
         """
         Test fetching avatar for not existing mail with external default specified
+        This shall *not* redirect to the external site (CWE-601)!
         """
         default = "http://host.tld/img.png"
         urlobj = urlsplit(
@@ -1489,7 +1513,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         response = self.client.get(url, follow=False)
         self.assertRedirects(
             response=response,
-            expected_url=default,
+            expected_url="/static/img/nobody/80.png",
             fetch_redirect_response=False,
             msg_prefix="Why does this not redirect to the default img?",
         )
