@@ -216,6 +216,9 @@ TRUSTED_DEFAULT_URLS = [
     "https://gravatar.com/avatar/",
     "https://secure.gravatar.com/avatar/",
     "https://avatars.dicebear.com/api/",
+    "https://badges.fedoraproject.org/static/img/",
+    "http://www.planet-libre.org/themes/planetlibre/images/",
+    "https://www.azuracast.com/img/",
 ]
 
 # This MUST BE THE LAST!
