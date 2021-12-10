@@ -27,7 +27,7 @@ from django.contrib.auth.views import LoginView
 from django.contrib.auth.views import (
     PasswordResetView as PasswordResetViewOriginal,
 )
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse_lazy, reverse
 from django.shortcuts import render

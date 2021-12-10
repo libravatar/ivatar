@@ -19,7 +19,7 @@ from django.db import models
 from django.utils import timezone
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy, reverse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
