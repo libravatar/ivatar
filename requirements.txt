@@ -1,7 +1,7 @@
 autopep8
 bcrypt
 defusedxml
-Django
+Django < 4
 django-anymail[mailgun]
 django-auth-ldap
 django-bootstrap4
