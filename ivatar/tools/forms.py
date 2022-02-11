@@ -102,5 +102,4 @@ class CheckForm(forms.Form):
 
     def clean_mail(self):
         data = self.cleaned_data["mail"]
-        print(data)
         return data.lower()
