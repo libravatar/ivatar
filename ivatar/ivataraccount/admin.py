@@ -1,12 +1,13 @@
-'''
+# -*- coding: utf-8 -*-
+"""
 Register models in admin
-'''
+"""
 from django.contrib import admin
 
-from . models import Photo, ConfirmedEmail, UnconfirmedEmail
-from . models import ConfirmedOpenId, UnconfirmedOpenId
-from . models import OpenIDNonce, OpenIDAssociation
-from . models import UserPreference
+from .models import Photo, ConfirmedEmail, UnconfirmedEmail
+from .models import ConfirmedOpenId, UnconfirmedOpenId
+from .models import OpenIDNonce, OpenIDAssociation
+from .models import UserPreference
 
 # Register models in admin
 admin.site.register(Photo)
