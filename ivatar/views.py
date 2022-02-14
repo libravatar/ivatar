@@ -372,30 +372,28 @@ class GravatarProxyView(View):
             # Check if the image returned by Gravatar is their default image, if so,
             # redirect to our default instead.
             gravatar_test_url = (
-                "https://secure.gravatar.com/avatar/" + kwargs["digest"] + "?s=%i" % 50
+                "https://secure.gravatar.com/avatar/"
+                + kwargs["digest"]
+                + "?s=%i&d=%i" % (50, 404)
             )
             if cache.get(gravatar_test_url) == "default":
                 # DEBUG only
                 # print("Cached Gravatar response: Default.")
                 return redir_default(default)
             try:
-                testdata = urlopen(gravatar_test_url, timeout=URL_TIMEOUT)
-                data = BytesIO(testdata.read())
-                if (
-                    hashlib.md5(data.read()).hexdigest()
-                    == "71bc262d627971d13fe6f3180b93062a"
-                ):
+                urlopen(gravatar_test_url, timeout=URL_TIMEOUT)
+            except HTTPError as exc:
+                if exc.code == 404:
                     cache.set(gravatar_test_url, "default", 60)
-                    return redir_default(default)
-            except Exception as exc:  # pylint: disable=broad-except
-                print("Gravatar test url fetch failed: %s" % exc)
+                else:
+                    print("Gravatar test url fetch failed: %s" % exc)
+                return redir_default(default)
 
         gravatar_url = (
-            "https://secure.gravatar.com/avatar/"
-            + kwargs["digest"]
-            + "?s=%i" % size
-            + "&d=%s" % default
+            "https://secure.gravatar.com/avatar/" + kwargs["digest"] + "?s=%i" % size
         )
+        if default:
+            gravatar_url += "&d=%s" % default
 
         try:
             if cache.get(gravatar_url) == "err":
