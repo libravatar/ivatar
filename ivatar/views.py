@@ -444,9 +444,9 @@ class StatsView(TemplateView, JsonResponse):
         self, request, *args, **kwargs
     ):  # pylint: disable=too-many-branches,too-many-statements,too-many-locals,no-self-use,unused-argument,too-many-return-statements
         retval = {
-            "users": User.objects.all().count(),
-            "mails": ConfirmedEmail.objects.all().count(),
-            "openids": ConfirmedOpenId.objects.all().count(),  # pylint: disable=no-member
+            "users": User.objects.count(),
+            "mails": ConfirmedEmail.objects.count(),
+            "openids": ConfirmedOpenId.objects.count(),  # pylint: disable=no-member
         }
 
         return JsonResponse(retval)
