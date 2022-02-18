@@ -12,6 +12,10 @@ before_script:
   - pip install pycco
   - pip install django_coverage_plugin
 
+cache:
+  paths:
+    - ~/.cache/pip/
+
 test_and_coverage:
   stage: test
   script:
