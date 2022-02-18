@@ -13,7 +13,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.http import HttpResponseNotFound, JsonResponse
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.cache import cache, caches
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.urls import reverse_lazy
 from django.db.models import Q
 from django.contrib.auth.models import User
@@ -29,7 +29,10 @@ from robohash import Robohash
 from ivatar.settings import AVATAR_MAX_SIZE, JPEG_QUALITY, DEFAULT_AVATAR_SIZE
 from ivatar.settings import CACHE_RESPONSE
 from ivatar.settings import CACHE_IMAGES_MAX_AGE
+from ivatar.settings import TRUSTED_DEFAULT_URLS
 from .ivataraccount.models import ConfirmedEmail, ConfirmedOpenId
+from .ivataraccount.models import UnconfirmedEmail, UnconfirmedOpenId
+from .ivataraccount.models import Photo
 from .ivataraccount.models import pil_format, file_format
 from .utils import mm_ng
 
@@ -137,6 +140,17 @@ class AvatarImageView(TemplateView):
             default = request.GET["d"]
         if "default" in request.GET:
             default = request.GET["default"]
+
+        # Check if default starts with an URL scheme and if it does,
+        # check if it's trusted
+        # Check for :// (schema)
+        if default is not None and default.find("://") > 0:
+            # Check if it's trusted, if not, reset to None
+            if not any(x in default for x in TRUSTED_DEFAULT_URLS):
+                print(
+                    "Default URL is not in trusted URLs: '%s' ; Kicking it!" % default
+                )
+                default = None
 
         if "f" in request.GET:
             if request.GET["f"] == "y":
@@ -360,30 +374,28 @@ class GravatarProxyView(View):
             # Check if the image returned by Gravatar is their default image, if so,
             # redirect to our default instead.
             gravatar_test_url = (
-                "https://secure.gravatar.com/avatar/" + kwargs["digest"] + "?s=%i" % 50
+                "https://secure.gravatar.com/avatar/"
+                + kwargs["digest"]
+                + "?s=%i&d=%i" % (50, 404)
             )
             if cache.get(gravatar_test_url) == "default":
                 # DEBUG only
                 # print("Cached Gravatar response: Default.")
                 return redir_default(default)
             try:
-                testdata = urlopen(gravatar_test_url, timeout=URL_TIMEOUT)
-                data = BytesIO(testdata.read())
-                if (
-                    hashlib.md5(data.read()).hexdigest()
-                    == "71bc262d627971d13fe6f3180b93062a"
-                ):
+                urlopen(gravatar_test_url, timeout=URL_TIMEOUT)
+            except HTTPError as exc:
+                if exc.code == 404:
                     cache.set(gravatar_test_url, "default", 60)
-                    return redir_default(default)
-            except Exception as exc:  # pylint: disable=broad-except
-                print("Gravatar test url fetch failed: %s" % exc)
+                else:
+                    print("Gravatar test url fetch failed: %s" % exc)
+                return redir_default(default)
 
         gravatar_url = (
-            "https://secure.gravatar.com/avatar/"
-            + kwargs["digest"]
-            + "?s=%i" % size
-            + "&d=%s" % default
+            "https://secure.gravatar.com/avatar/" + kwargs["digest"] + "?s=%i" % size
         )
+        if default:
+            gravatar_url += "&d=%s" % default
 
         try:
             if cache.get(gravatar_url) == "err":
@@ -434,9 +446,12 @@ class StatsView(TemplateView, JsonResponse):
         self, request, *args, **kwargs
     ):  # pylint: disable=too-many-branches,too-many-statements,too-many-locals,no-self-use,unused-argument,too-many-return-statements
         retval = {
-            "users": User.objects.all().count(),
-            "mails": ConfirmedEmail.objects.all().count(),
-            "openids": ConfirmedOpenId.objects.all().count(),  # pylint: disable=no-member
+            "users": User.objects.count(),
+            "mails": ConfirmedEmail.objects.count(),
+            "openids": ConfirmedOpenId.objects.count(),  # pylint: disable=no-member
+            "unconfirmed_mails": UnconfirmedEmail.objects.count(),  # pylint: disable=no-member
+            "unconfirmed_openids": UnconfirmedOpenId.objects.count(),  # pylint: disable=no-member
+            "avatars": Photo.objects.count(),  # pylint: disable=no-member
         }
 
         return JsonResponse(retval)

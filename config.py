@@ -6,7 +6,7 @@ Configuration overrides for settings.py
 import os
 import sys
 from django.urls import reverse_lazy
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.contrib.messages import constants as message_constants
 from ivatar.settings import BASE_DIR
 
@@ -60,7 +60,7 @@ OPENID_CREATE_USERS = True
 OPENID_UPDATE_DETAILS_FROM_SREG = True
 
 SITE_NAME = os.environ.get("SITE_NAME", "libravatar")
-IVATAR_VERSION = "1.5"
+IVATAR_VERSION = "1.6"
 
 SCHEMAROOT = "https://www.libravatar.org/schemas/export/0.2"
 
@@ -208,6 +208,23 @@ CACHES = {
 CACHE_IMAGES_MAX_AGE = 5 * 60
 
 CACHE_RESPONSE = True
+
+# Trusted URLs for default redirection
+TRUSTED_DEFAULT_URLS = [
+    "https://ui-avatars.com/api/",
+    "http://gravatar.com/avatar/",
+    "https://gravatar.com/avatar/",
+    "http://www.gravatar.org/avatar/",
+    "https://www.gravatar.org/avatar/",
+    "https://secure.gravatar.com/avatar/",
+    "http://0.gravatar.com/avatar/",
+    "https://0.gravatar.com/avatar/",
+    "https://avatars.dicebear.com/api/",
+    "https://badges.fedoraproject.org/static/img/",
+    "http://www.planet-libre.org/themes/planetlibre/images/",
+    "https://www.azuracast.com/img/",
+    "https://reps.mozilla.org/static/base/img/remo/",
+]
 
 # This MUST BE THE LAST!
 if os.path.isfile(os.path.join(BASE_DIR, "config_local.py")):
