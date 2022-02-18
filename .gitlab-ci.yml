@@ -14,7 +14,7 @@ before_script:
 
 cache:
   paths:
-    - ~/.cache/pip/
+    - /root/.cache/pip/
 
 test_and_coverage:
   stage: test
