@@ -31,6 +31,8 @@ from ivatar.settings import CACHE_RESPONSE
 from ivatar.settings import CACHE_IMAGES_MAX_AGE
 from ivatar.settings import TRUSTED_DEFAULT_URLS
 from .ivataraccount.models import ConfirmedEmail, ConfirmedOpenId
+from .ivataraccount.models import UnconfirmedEmail, UnconfirmedOpenId
+from .ivataraccount.models import Photo
 from .ivataraccount.models import pil_format, file_format
 from .utils import mm_ng
 
@@ -444,9 +446,12 @@ class StatsView(TemplateView, JsonResponse):
         self, request, *args, **kwargs
     ):  # pylint: disable=too-many-branches,too-many-statements,too-many-locals,no-self-use,unused-argument,too-many-return-statements
         retval = {
-            "users": User.objects.all().count(),
-            "mails": ConfirmedEmail.objects.all().count(),
-            "openids": ConfirmedOpenId.objects.all().count(),  # pylint: disable=no-member
+            "users": User.objects.count(),
+            "mails": ConfirmedEmail.objects.count(),
+            "openids": ConfirmedOpenId.objects.count(),  # pylint: disable=no-member
+            "unconfirmed_mails": UnconfirmedEmail.objects.count(),  # pylint: disable=no-member
+            "unconfirmed_openids": UnconfirmedOpenId.objects.count(),  # pylint: disable=no-member
+            "avatars": Photo.objects.count(),  # pylint: disable=no-member
         }
 
         return JsonResponse(retval)
