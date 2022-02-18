@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Export your data' %}{% endblock title %}
+
+{% block content %}
+
+<h1>{% trans 'Export your data' %}</h1>
+
+<p>{% trans 'Libravatar will now export all of your personal data to a compressed XML file.' %}</p>
+
+<form action="{% url 'export' %}" method="post" name="export">{% csrf_token %}
+
+<p><button type="submit" class="button">{% trans 'Export' %}</button>&nbsp;
+<a href="{% url 'profile' %}" class="button">{% trans 'Cancel' %}</a>
+</p>
+
+</form>
+
+{% endblock content %}
