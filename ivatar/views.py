@@ -31,6 +31,8 @@ from ivatar.settings import CACHE_RESPONSE
 from ivatar.settings import CACHE_IMAGES_MAX_AGE
 from ivatar.settings import TRUSTED_DEFAULT_URLS
 from .ivataraccount.models import ConfirmedEmail, ConfirmedOpenId
+from .ivataraccount.models import UnconfirmedEmail, UnconfirmedOpenId
+from .ivataraccount.models import Photo
 from .ivataraccount.models import pil_format, file_format
 from .utils import mm_ng
 
@@ -447,6 +449,9 @@ class StatsView(TemplateView, JsonResponse):
             "users": User.objects.count(),
             "mails": ConfirmedEmail.objects.count(),
             "openids": ConfirmedOpenId.objects.count(),  # pylint: disable=no-member
+            "unconfirmed_mails": UnconfirmedEmail.objects.count(),  # pylint: disable=no-member
+            "unconfirmed_openids": UnconfirmedOpenId.objects.count(),  # pylint: disable=no-member
+            "avatars": Photo.objects.count(),  # pylint: disable=no-member
         }
 
         return JsonResponse(retval)
