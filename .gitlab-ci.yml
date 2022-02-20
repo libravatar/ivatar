@@ -14,7 +14,7 @@ before_script:
 
 cache:
   paths:
-    - /root/.cache/pip/
+    - '/tmp/.virtualenv'
 
 test_and_coverage:
   stage: test
