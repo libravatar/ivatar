@@ -12,10 +12,6 @@ before_script:
   - pip install pycco
   - pip install django_coverage_plugin
 
-cache:
-  paths:
-    - '/tmp/.virtualenv'
-
 test_and_coverage:
   stage: test
   script:
