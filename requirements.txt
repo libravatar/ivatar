@@ -23,6 +23,7 @@ pagan
 Pillow
 pip
 psycopg2-binary
+py-avataaars
 py3dns
 pydocstyle
 pyLibravatar
@@ -39,4 +40,3 @@ six
 social-auth-app-django
 wheel
 yapf
-py-avataaars
