@@ -1,6 +1,7 @@
-'''
+# -*- coding: utf-8 -*-
+"""
 Test our utils from ivatar.utils
-'''
+"""
 
 from django.test import TestCase
 
@@ -8,18 +9,18 @@ from ivatar.utils import openid_variations
 
 
 class Tester(TestCase):
-    '''
+    """
     Main test class
-    '''
+    """
 
     def test_openid_variations(self):
-        '''
+        """
         Test if the OpenID variation "generator" does the correct thing
-        '''
-        openid0 = 'http://user.url/'
-        openid1 = 'http://user.url'
-        openid2 = 'https://user.url/'
-        openid3 = 'https://user.url'
+        """
+        openid0 = "http://user.url/"
+        openid1 = "http://user.url"
+        openid2 = "https://user.url/"
+        openid3 = "https://user.url"
 
         # First variation
         self.assertEqual(openid_variations(openid0)[0], openid0)
