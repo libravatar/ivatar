@@ -1830,4 +1830,63 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         Test if uploading export works
         """
 
-        self.client.get(reverse("upload_export"))
+        # Ensure we have data in place
+        self.test_export()
+
+        self.login()
+        self.client.get(reverse("export"))
+        response = self.client.post(
+            reverse("export"),
+            {},
+            follow=False,
+        )
+        self.assertIsInstance(response.content, bytes)
+
+        fh_gzip = gzip.open(BytesIO(response.content), "rb")
+        fh = BytesIO(response.content)
+
+        response = self.client.post(
+            reverse("upload_export"),
+            data={"not_porn": "on", "can_distribute": "on", "export_file": fh_gzip},
+            follow=True,
+        )
+        fh_gzip.close()
+        self.assertEqual(response.status_code, 200, "Upload worked")
+        self.assertContains(
+            response,
+            "Unable to parse file: Not a gzipped file",
+            1,
+            200,
+            "Upload didn't work?",
+        )
+
+        # Second test - correctly gzipped content
+        response = self.client.post(
+            reverse("upload_export"),
+            data={"not_porn": "on", "can_distribute": "on", "export_file": fh},
+            follow=True,
+        )
+        fh.close()
+
+        self.assertEqual(response.status_code, 200, "Upload worked")
+        self.assertContains(
+            response,
+            "Choose items to be imported",
+            1,
+            200,
+            "Upload didn't work?",
+        )
+        self.assertContains(
+            response,
+            "asdf@asdf.local",
+            2,
+            200,
+            "Upload didn't work?",
+        )
+
+    def test_prefs_page(self):
+        """
+        Test if preferences page works
+        """
+
+        self.client.get(reverse("user_preference"))
