@@ -34,7 +34,7 @@ from .ivataraccount.models import ConfirmedEmail, ConfirmedOpenId
 from .ivataraccount.models import UnconfirmedEmail, UnconfirmedOpenId
 from .ivataraccount.models import Photo
 from .ivataraccount.models import pil_format, file_format
-from .utils import mm_ng
+from .utils import is_trusted_url, mm_ng
 
 URL_TIMEOUT = 5  # in seconds
 
@@ -146,7 +146,9 @@ class AvatarImageView(TemplateView):
         # Check for :// (schema)
         if default is not None and default.find("://") > 0:
             # Check if it's trusted, if not, reset to None
-            if not any(x in default for x in TRUSTED_DEFAULT_URLS):
+            trusted_url = is_trusted_url(default, TRUSTED_DEFAULT_URLS)
+
+            if not trusted_url:
                 print(
                     "Default URL is not in trusted URLs: '%s' ; Kicking it!" % default
                 )
