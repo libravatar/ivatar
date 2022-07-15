@@ -219,6 +219,8 @@ TRUSTED_DEFAULT_URLS = [
     "https://secure.gravatar.com/avatar/",
     "http://0.gravatar.com/avatar/",
     "https://0.gravatar.com/avatar/",
+    "http://www.gravatar.com/avatar/",
+    "https://www.gravatar.com/avatar/",
     "https://avatars.dicebear.com/api/",
     "https://badges.fedoraproject.org/static/img/",
     "http://www.planet-libre.org/themes/planetlibre/images/",
