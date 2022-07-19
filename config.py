@@ -211,21 +211,72 @@ CACHE_RESPONSE = True
 
 # Trusted URLs for default redirection
 TRUSTED_DEFAULT_URLS = [
-    "https://ui-avatars.com/api/",
-    "http://gravatar.com/avatar/",
-    "https://gravatar.com/avatar/",
-    "http://www.gravatar.org/avatar/",
-    "https://www.gravatar.org/avatar/",
-    "https://secure.gravatar.com/avatar/",
-    "http://0.gravatar.com/avatar/",
-    "https://0.gravatar.com/avatar/",
-    "http://www.gravatar.com/avatar/",
-    "https://www.gravatar.com/avatar/",
-    "https://avatars.dicebear.com/api/",
-    "https://badges.fedoraproject.org/static/img/",
-    "http://www.planet-libre.org/themes/planetlibre/images/",
-    "https://www.azuracast.com/img/",
-    "https://reps.mozilla.org/static/base/img/remo/",
+    {
+        "schemes": [
+            "https"
+        ],
+        "host_equals": "ui-avatars.com",
+        "path_prefix": "/api/"
+    },
+    {
+        "schemes": [
+            "http",
+            "https"
+        ],
+        "host_equals": "gravatar.com",
+        "path_prefix": "/avatar/"
+    },
+    {
+        "schemes": [
+            "http",
+            "https"
+        ],
+        "host_suffix": ".gravatar.com",
+        "path_prefix": "/avatar/"
+    },
+    {
+        "schemes": [
+            "http",
+            "https"
+        ],
+        "host_equals": "www.gravatar.org",
+        "path_prefix": "/avatar/"
+    },
+    {
+        "schemes": [
+            "https"
+        ],
+        "host_equals": "avatars.dicebear.com",
+        "path_prefix": "/api/"
+    },
+    {
+        "schemes": [
+            "https"
+        ],
+        "host_equals": "badges.fedoraproject.org",
+        "path_prefix": "/static/img/"
+    },
+    {
+        "schemes": [
+            "http",
+        ],
+        "host_equals": "www.planet-libre.org",
+        "path_prefix": "/themes/planetlibre/images/"
+    },
+    {
+        "schemes": [
+            "https"
+        ],
+        "host_equals": "www.azuracast.com",
+        "path_prefix": "/img/"
+    },
+    {
+        "schemes": [
+            "https"
+        ],
+        "host_equals": "reps.mozilla.org",
+        "path_prefix": "/static/base/img/remo/"
+    }
 ]
 
 # This MUST BE THE LAST!
