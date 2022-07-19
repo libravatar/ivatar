@@ -1,6 +1,6 @@
 # Installation
 
-## Prequisits
+## Prerequisites
 
 Python 3.x + virtualenv
 
@@ -8,6 +8,13 @@ Python 3.x + virtualenv
 
 ```bash
 yum install python34-virtualenv.noarch
+```
+
+### Debian 11
+
+```
+sudo apt-get update
+sudo apt-get install git python3-virtualenv libmariadb-dev libldap2-dev libsasl2-dev
 ```
 
 ## Checkout
@@ -22,8 +29,8 @@ cd ivatar
 ~~~~bash
 virtualenv -p python3 .virtualenv 
 source .virtualenv/bin/activate
-pip install -r requirements.txt
 pip install pillow
+pip install -r requirements.txt
 ~~~~
 
 ## (SQL) Migrations
