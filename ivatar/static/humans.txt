@@ -18,7 +18,6 @@ Identica: @fmarier
 Location: Wellington, New Zealand
 
 Developer: Jonathan Harker
-Site: https://www.ohloh.net/accounts/jonathanharker
 Identica: @jonathanharker
 
 Developer: Brett Wilkins
@@ -33,7 +32,6 @@ Site: http://blogs.ijw.co.nz/chris
 Twitter: @ijw_chrisf
 
 Library maintainer (PHP): Melissa Draper
-Site: http://www.meldraweb.com/
 Twitter: @elkbuntu
 Identica: @elkbuntu
 
@@ -69,7 +67,6 @@ Site: http://hendry.iki.fi/
 Twitter: @kaihendry
 
 Name: Lars Wirzenius
-Site: http://braawi.com/
 Identica: @liw
 
 Name: Olly Betts
