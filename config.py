@@ -60,7 +60,7 @@ OPENID_CREATE_USERS = True
 OPENID_UPDATE_DETAILS_FROM_SREG = True
 
 SITE_NAME = os.environ.get("SITE_NAME", "libravatar")
-IVATAR_VERSION = "1.6"
+IVATAR_VERSION = "1.6.1"
 
 SCHEMAROOT = "https://www.libravatar.org/schemas/export/0.2"
 
@@ -211,72 +211,45 @@ CACHE_RESPONSE = True
 
 # Trusted URLs for default redirection
 TRUSTED_DEFAULT_URLS = [
+    {"schemes": ["https"], "host_equals": "ui-avatars.com", "path_prefix": "/api/"},
     {
-        "schemes": [
-            "https"
-        ],
-        "host_equals": "ui-avatars.com",
-        "path_prefix": "/api/"
-    },
-    {
-        "schemes": [
-            "http",
-            "https"
-        ],
+        "schemes": ["http", "https"],
         "host_equals": "gravatar.com",
-        "path_prefix": "/avatar/"
+        "path_prefix": "/avatar/",
     },
     {
-        "schemes": [
-            "http",
-            "https"
-        ],
+        "schemes": ["http", "https"],
         "host_suffix": ".gravatar.com",
-        "path_prefix": "/avatar/"
+        "path_prefix": "/avatar/",
     },
     {
-        "schemes": [
-            "http",
-            "https"
-        ],
+        "schemes": ["http", "https"],
         "host_equals": "www.gravatar.org",
-        "path_prefix": "/avatar/"
+        "path_prefix": "/avatar/",
     },
     {
-        "schemes": [
-            "https"
-        ],
+        "schemes": ["https"],
         "host_equals": "avatars.dicebear.com",
-        "path_prefix": "/api/"
+        "path_prefix": "/api/",
     },
     {
-        "schemes": [
-            "https"
-        ],
+        "schemes": ["https"],
         "host_equals": "badges.fedoraproject.org",
-        "path_prefix": "/static/img/"
+        "path_prefix": "/static/img/",
     },
     {
         "schemes": [
             "http",
         ],
         "host_equals": "www.planet-libre.org",
-        "path_prefix": "/themes/planetlibre/images/"
+        "path_prefix": "/themes/planetlibre/images/",
     },
+    {"schemes": ["https"], "host_equals": "www.azuracast.com", "path_prefix": "/img/"},
     {
-        "schemes": [
-            "https"
-        ],
-        "host_equals": "www.azuracast.com",
-        "path_prefix": "/img/"
-    },
-    {
-        "schemes": [
-            "https"
-        ],
+        "schemes": ["https"],
         "host_equals": "reps.mozilla.org",
-        "path_prefix": "/static/base/img/remo/"
-    }
+        "path_prefix": "/static/base/img/remo/",
+    },
 ]
 
 # This MUST BE THE LAST!
