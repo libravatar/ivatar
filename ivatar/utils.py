@@ -149,6 +149,12 @@ def is_trusted_url(url, url_filters):
             if not path.startswith(path_prefix):
                 continue
 
+        if "url_prefix" in filter:
+            url_prefix = filter["url_prefix"]
+
+            if not url.startswith(url_prefix):
+                continue
+
         return True
 
     return False
