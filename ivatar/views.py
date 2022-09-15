@@ -141,18 +141,19 @@ class AvatarImageView(TemplateView):
         if "default" in request.GET:
             default = request.GET["default"]
 
-        # Check if default starts with an URL scheme and if it does,
-        # check if it's trusted
-        # Check for :// (schema)
-        if default is not None and default.find("://") > 0:
-            # Check if it's trusted, if not, reset to None
-            trusted_url = is_trusted_url(default, TRUSTED_DEFAULT_URLS)
-
-            if not trusted_url:
-                print(
-                    "Default URL is not in trusted URLs: '%s' ; Kicking it!" % default
-                )
+        if default is not None:
+            if TRUSTED_DEFAULT_URLS is None:
+                print("Query parameter `default` is disabled.")
                 default = None
+            elif default.find("://") > 0:
+                # Check if it's trusted, if not, reset to None
+                trusted_url = is_trusted_url(default, TRUSTED_DEFAULT_URLS)
+
+                if not trusted_url:
+                    print(
+                        "Default URL is not in trusted URLs: '%s' ; Kicking it!" % default
+                    )
+                    default = None
 
         if "f" in request.GET:
             if request.GET["f"] == "y":
