@@ -1,6 +1,6 @@
 __pycache__
 /db.sqlite3
-/static/
+/static/*
 **.*.swp
 .coverage
 htmlcov/
@@ -14,3 +14,6 @@ node_modules/
 config_local.py
 locale/*/LC_MESSAGES/django.mo
 .DS_Store
+.idea/
+contacts.csv
+falko_gravatar.jpg
