@@ -60,7 +60,7 @@ OPENID_CREATE_USERS = True
 OPENID_UPDATE_DETAILS_FROM_SREG = True
 
 SITE_NAME = os.environ.get("SITE_NAME", "libravatar")
-IVATAR_VERSION = "1.6.1"
+IVATAR_VERSION = "1.6.2"
 
 SCHEMAROOT = "https://www.libravatar.org/schemas/export/0.2"
 
@@ -256,17 +256,17 @@ TRUSTED_DEFAULT_URLS = [
 if os.path.isfile(os.path.join(BASE_DIR, "config_local.py")):
     from config_local import *  # noqa # flake8: noqa # NOQA # pragma: no cover
 
+
 def map_legacy_config(trusted_url):
     """
     For backward compability with the legacy configuration
     for trusting URLs. Adapts them to fit the new config.
     """
     if isinstance(trusted_url, str):
-        return {
-            "url_prefix": trusted_url
-        }
+        return {"url_prefix": trusted_url}
 
     return trusted_url
+
 
 # Backward compability for legacy behavior
 TRUSTED_DEFAULT_URLS = list(map(map_legacy_config, TRUSTED_DEFAULT_URLS))

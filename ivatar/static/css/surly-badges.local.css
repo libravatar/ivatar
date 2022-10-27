@@ -1,0 +1,586 @@
+#surly-badge {
+  font-family: sans-serif !important;
+  font-weight: 400 !important;
+  width: 134px !important;
+  height: 164px !important;
+  text-align: center !important;
+  display: -webkit-box !important;
+  display: -ms-flexbox !important;
+  display: flex !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-box-direction: normal !important;
+  -ms-flex-direction: column !important;
+  flex-direction: column !important;
+  -webkit-box-align: center !important;
+  -ms-flex-align: center !important;
+  align-items: center !important;
+  position: relative !important;
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+  background-position: top center !important;
+  -webkit-box-sizing: content-box !important;
+  box-sizing: content-box !important;
+  padding: 8px 15px 0 !important;
+}
+
+#surly-badge p {
+  margin: 0 !important;
+}
+
+#surly-badge.surly-badge_black-blue {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 164 150'%3E%3Cpath style='fill:none;stroke:%23fff;stroke-width:2;stroke-miterlimit:10;' d='M16.05,22.74c0-7.61,6.16-13.76,13.76-13.76 M16.05,22.74v127.15 M29.02,140.85l-12.52,8.2 M28.47,141.01 h105.78 M134.25,141.01c7.61,0,13.76-6.16,13.76-13.76 M148.01,21.03v106.22 M29.81,8.97h106.2'/%3E%3Cpath style='stroke:%233273f6;stroke-width:2;stroke-miterlimit:10;' d='M148.01,18.02V-0.02 M138.99,9h18.04'/%3E%3C/svg%3E");
+  color: #fff !important;
+}
+
+#surly-badge.surly-badge_black-blue .surly-badge__header-text {
+  color: #3273f6 !important;
+}
+
+#surly-badge.surly-badge_black-blue .surly-badge__header-title {
+  color: #fff !important;
+}
+
+#surly-badge.surly-badge_black-blue .surly-badge__tag {
+  background-color: #3273f6 !important;
+  border-bottom: 1px solid #707070 !important;
+}
+
+#surly-badge.surly-badge_black-blue .surly-badge__tag-text {
+  color: #fff !important;
+}
+
+#surly-badge.surly-badge_black-blue .surly-badge__tag::before {
+  border-color: transparent #7f8ca5 transparent transparent !important;
+}
+
+#surly-badge.surly-badge_black-blue .surly-badge__tag::after {
+  border-color: transparent transparent transparent #7f8ca5 !important;
+}
+
+#surly-badge.surly-badge_black-blue .surly-badge__footer-link {
+  color: #3273f6 !important;
+}
+
+#surly-badge.surly-badge_black-blue .surly-badge__footer-title {
+  color: #fff !important;
+}
+
+#surly-badge.surly-badge_black-blue .surly-badge__footer-text {
+  color: #fff !important;
+}
+
+#surly-badge.surly-badge_black-gradient {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 164 150'%3E%3Cpath style='fill:none;stroke:%23fff;stroke-width:2;stroke-miterlimit:10;' d='M16.05,22.74c0-7.61,6.16-13.76,13.76-13.76 M16.05,22.74v127.15 M29.02,140.85l-12.52,8.2 M28.47,141.01 h105.78 M134.25,141.01c7.61,0,13.76-6.16,13.76-13.76 M148.01,21.03v106.22 M29.81,8.97h106.2'/%3E%3Cpath style='stroke:%23ff715e;stroke-width:2;stroke-miterlimit:10;' d='M148.01,18.02V-0.02 M138.99,9h18.04'/%3E%3C/svg%3E");
+  color: #fff !important;
+}
+
+#surly-badge.surly-badge_black-gradient .surly-badge__header-text {
+  color: #3273f6 !important;
+  background: #ff715e !important;
+  background-image: -webkit-gradient(
+    linear,
+    left top,
+    right top,
+    from(#ff715e),
+    to(#00a8ff)
+  ) !important;
+  background-image: -o-linear-gradient(
+    left,
+    #ff715e 0%,
+    #00a8ff 100%
+  ) !important;
+  background-image: linear-gradient(90deg, #ff715e 0%, #00a8ff 100%) !important;
+  background-size: 100% !important;
+  -webkit-background-clip: text !important;
+  -moz-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  -moz-text-fill-color: transparent !important;
+}
+
+#surly-badge.surly-badge_black-gradient .surly-badge__header-title {
+  color: #fff !important;
+}
+
+#surly-badge.surly-badge_black-gradient .surly-badge__tag {
+  background: #ff715e !important;
+  background: -webkit-gradient(
+    linear,
+    left top,
+    right top,
+    from(#ff715e),
+    to(#00a8ff)
+  ) !important;
+  background: -o-linear-gradient(left, #ff715e 0%, #00a8ff 100%) !important;
+  background: linear-gradient(90deg, #ff715e 0%, #00a8ff 100%) !important;
+  border-bottom: 1px solid #707070 !important;
+}
+
+#surly-badge.surly-badge_black-gradient .surly-badge__tag-text {
+  color: #fff !important;
+}
+
+#surly-badge.surly-badge_black-gradient .surly-badge__tag::before {
+  border-color: transparent #914339 transparent transparent !important;
+}
+
+#surly-badge.surly-badge_black-gradient .surly-badge__tag::after {
+  border-color: transparent transparent transparent #3b7696 !important;
+}
+
+#surly-badge.surly-badge_black-gradient .surly-badge__footer-link {
+  color: #ff715e !important;
+}
+
+#surly-badge.surly-badge_black-gradient .surly-badge__footer-title {
+  color: #fff !important;
+}
+
+#surly-badge.surly-badge_black-gradient .surly-badge__footer-text {
+  color: #fff !important;
+}
+
+#surly-badge.surly-badge_black-red {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 164 150'%3E%3Cpath style='fill:none;stroke:%23fff;stroke-width:2;stroke-miterlimit:10;' d='M16.05,22.74c0-7.61,6.16-13.76,13.76-13.76 M16.05,22.74v127.15 M29.02,140.85l-12.52,8.2 M28.47,141.01 h105.78 M134.25,141.01c7.61,0,13.76-6.16,13.76-13.76 M148.01,21.03v106.22 M29.81,8.97h106.2'/%3E%3Cpath style='stroke:%23ff715e;stroke-width:2;stroke-miterlimit:10;' d='M148.01,18.02V-0.02 M138.99,9h18.04'/%3E%3C/svg%3E");
+  color: #fff !important;
+}
+
+#surly-badge.surly-badge_black-red .surly-badge__header-text {
+  color: #ff715e !important;
+}
+
+#surly-badge.surly-badge_black-red .surly-badge__header-title {
+  color: #fff !important;
+}
+
+#surly-badge.surly-badge_black-red .surly-badge__tag {
+  background-color: #ff715e !important;
+  border-bottom: 1px solid #707070 !important;
+}
+
+#surly-badge.surly-badge_black-red .surly-badge__tag-text {
+  color: #fff !important;
+}
+
+#surly-badge.surly-badge_black-red .surly-badge__tag::before {
+  border-color: transparent #914339 transparent transparent !important;
+}
+
+#surly-badge.surly-badge_black-red .surly-badge__tag::after {
+  border-color: transparent transparent transparent #914339 !important;
+}
+
+#surly-badge.surly-badge_black-red .surly-badge__footer-link {
+  color: #ff715e !important;
+}
+
+#surly-badge.surly-badge_black-red .surly-badge__footer-title {
+  color: #fff !important;
+}
+
+#surly-badge.surly-badge_black-red .surly-badge__footer-text {
+  color: #fff !important;
+}
+
+#surly-badge.surly-badge_black-white {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 164 150'%3E%3Cpath style='fill:none;stroke:%23fff;stroke-width:2;stroke-miterlimit:10;' d='M16.05,22.74c0-7.61,6.16-13.76,13.76-13.76 M16.05,22.74v127.15 M29.02,140.85l-12.52,8.2 M28.47,141.01 h105.78 M134.25,141.01c7.61,0,13.76-6.16,13.76-13.76 M148.01,21.03v106.22 M29.81,8.97h106.2'/%3E%3Cpath style='stroke:%23fff;stroke-width:2;stroke-miterlimit:10;' d='M148.01,18.02V-0.02 M138.99,9h18.04'/%3E%3C/svg%3E");
+  color: #fff !important;
+}
+
+#surly-badge.surly-badge_black-white .surly-badge__header-text {
+  color: #fff !important;
+}
+
+#surly-badge.surly-badge_black-white .surly-badge__header-title {
+  color: #fff !important;
+}
+
+#surly-badge.surly-badge_black-white .surly-badge__tag {
+  background-color: #fff !important;
+  border-bottom: 1px solid #707070 !important;
+}
+
+#surly-badge.surly-badge_black-white .surly-badge__tag-text {
+  color: #000 !important;
+}
+
+#surly-badge.surly-badge_black-white .surly-badge__tag::before {
+  border-color: transparent #707070 transparent transparent !important;
+}
+
+#surly-badge.surly-badge_black-white .surly-badge__tag::after {
+  border-color: transparent transparent transparent #707070 !important;
+}
+
+#surly-badge.surly-badge_black-white .surly-badge__footer-link {
+  color: #fff !important;
+}
+
+#surly-badge.surly-badge_black-white .surly-badge__footer-title {
+  color: #fff !important;
+}
+
+#surly-badge.surly-badge_black-white .surly-badge__footer-text {
+  color: #fff !important;
+}
+
+#surly-badge.surly-badge_white-blue {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 164 150'%3E%3Cpath style='fill:none;stroke:%232e2e2e;stroke-width:2;stroke-miterlimit:10;' d='M16.05,22.74c0-7.61,6.16-13.76,13.76-13.76 M16.05,22.74v127.15 M29.02,140.85l-12.52,8.2 M28.47,141.01 h105.78 M134.25,141.01c7.61,0,13.76-6.16,13.76-13.76 M148.01,21.03v106.22 M29.81,8.97h106.2'/%3E%3Cpath style='stroke:%2302a7fd;stroke-width:2;stroke-miterlimit:10;' d='M148.01,18.02V-0.02 M138.99,9h18.04'/%3E%3C/svg%3E");
+  color: #2e2e2e !important;
+}
+
+#surly-badge.surly-badge_white-blue .surly-badge__header-text {
+  color: #02a7fd !important;
+}
+
+#surly-badge.surly-badge_white-blue .surly-badge__header-title {
+  color: #2e2e2e !important;
+}
+
+#surly-badge.surly-badge_white-blue .surly-badge__tag {
+  background-color: #02a7fd !important;
+  border-bottom: 1px solid #707070 !important;
+}
+
+#surly-badge.surly-badge_white-blue .surly-badge__tag-text {
+  color: #fff !important;
+}
+
+#surly-badge.surly-badge_white-blue .surly-badge__tag::before {
+  border-color: transparent #3b7696 transparent transparent !important;
+}
+
+#surly-badge.surly-badge_white-blue .surly-badge__tag::after {
+  border-color: transparent transparent transparent #3b7696 !important;
+}
+
+#surly-badge.surly-badge_white-blue .surly-badge__footer-link {
+  color: #02a7fd !important;
+}
+
+#surly-badge.surly-badge_white-blue .surly-badge__footer-title {
+  color: #2e2e2e !important;
+}
+
+#surly-badge.surly-badge_white-blue .surly-badge__footer-text {
+  color: #2e2e2e !important;
+}
+
+#surly-badge.surly-badge_white-gradient {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 164 150'%3E%3Cpath style='fill:none;stroke:%232e2e2e;stroke-width:2;stroke-miterlimit:10;' d='M16.05,22.74c0-7.61,6.16-13.76,13.76-13.76 M16.05,22.74v127.15 M29.02,140.85l-12.52,8.2 M28.47,141.01 h105.78 M134.25,141.01c7.61,0,13.76-6.16,13.76-13.76 M148.01,21.03v106.22 M29.81,8.97h106.2'/%3E%3Cpath style='stroke:%23ff5741;stroke-width:2;stroke-miterlimit:10;' d='M148.01,18.02V-0.02 M138.99,9h18.04'/%3E%3C/svg%3E");
+  color: #2e2e2e !important;
+}
+
+#surly-badge.surly-badge_white-gradient .surly-badge__header-text {
+  color: #ff5741 !important;
+  background: #ff715e !important;
+  background-image: -webkit-gradient(
+    linear,
+    left top,
+    right top,
+    from(#ff715e),
+    to(#00a8ff)
+  ) !important;
+  background-image: -o-linear-gradient(
+    left,
+    #ff715e 0%,
+    #00a8ff 100%
+  ) !important;
+  background-image: linear-gradient(90deg, #ff715e 0%, #00a8ff 100%) !important;
+  background-size: 100% !important;
+  -webkit-background-clip: text !important;
+  -moz-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  -moz-text-fill-color: transparent !important;
+}
+
+#surly-badge.surly-badge_white-gradient .surly-badge__header-title {
+  color: #2e2e2e !important;
+}
+
+#surly-badge.surly-badge_white-gradient .surly-badge__tag {
+  background: #ff715e !important;
+  background: -webkit-gradient(
+    linear,
+    left top,
+    right top,
+    from(#ff715e),
+    to(#00a8ff)
+  ) !important;
+  background: -o-linear-gradient(left, #ff715e 0%, #00a8ff 100%) !important;
+  background: linear-gradient(90deg, #ff715e 0%, #00a8ff 100%) !important;
+  border-bottom: 1px solid #707070 !important;
+}
+
+#surly-badge.surly-badge_white-gradient .surly-badge__tag-text {
+  color: #fff !important;
+}
+
+#surly-badge.surly-badge_white-gradient .surly-badge__tag::before {
+  border-color: transparent #914339 transparent transparent !important;
+}
+
+#surly-badge.surly-badge_white-gradient .surly-badge__tag::after {
+  border-color: transparent transparent transparent #3b7696 !important;
+}
+
+#surly-badge.surly-badge_white-gradient .surly-badge__footer-link {
+  color: #ff5741 !important;
+}
+
+#surly-badge.surly-badge_white-gradient .surly-badge__footer-title {
+  color: #2e2e2e !important;
+}
+
+#surly-badge.surly-badge_white-gradient .surly-badge__footer-text {
+  color: #2e2e2e !important;
+}
+
+#surly-badge.surly-badge_white-red {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 164 150'%3E%3Cpath style='fill:none;stroke:%232e2e2e;stroke-width:2;stroke-miterlimit:10;' d='M16.05,22.74c0-7.61,6.16-13.76,13.76-13.76 M16.05,22.74v127.15 M29.02,140.85l-12.52,8.2 M28.47,141.01 h105.78 M134.25,141.01c7.61,0,13.76-6.16,13.76-13.76 M148.01,21.03v106.22 M29.81,8.97h106.2'/%3E%3Cpath style='stroke:%23ff715e;stroke-width:2;stroke-miterlimit:10;' d='M148.01,18.02V-0.02 M138.99,9h18.04'/%3E%3C/svg%3E");
+  color: #2e2e2e !important;
+}
+
+#surly-badge.surly-badge_white-red .surly-badge__header-text {
+  color: #ff715e !important;
+}
+
+#surly-badge.surly-badge_white-red .surly-badge__header-title {
+  color: #2e2e2e !important;
+}
+
+#surly-badge.surly-badge_white-red .surly-badge__tag {
+  background-color: #ff715e !important;
+  border-bottom: 1px solid #707070 !important;
+}
+
+#surly-badge.surly-badge_white-red .surly-badge__tag-text {
+  color: #fff !important;
+}
+
+#surly-badge.surly-badge_white-red .surly-badge__tag::before {
+  border-color: transparent #914339 transparent transparent !important;
+}
+
+#surly-badge.surly-badge_white-red .surly-badge__tag::after {
+  border-color: transparent transparent transparent #914339 !important;
+}
+
+#surly-badge.surly-badge_white-red .surly-badge__footer-link {
+  color: #ff715e !important;
+}
+
+#surly-badge.surly-badge_white-red .surly-badge__footer-title {
+  color: #2e2e2e !important;
+}
+
+#surly-badge.surly-badge_white-red .surly-badge__footer-text {
+  color: #2e2e2e !important;
+}
+
+#surly-badge.surly-badge_white-black {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 164 150'%3E%3Cpath style='fill:none;stroke:%232e2e2e;stroke-width:2;stroke-miterlimit:10;' d='M16.05,22.74c0-7.61,6.16-13.76,13.76-13.76 M16.05,22.74v127.15 M29.02,140.85l-12.52,8.2 M28.47,141.01 h105.78 M134.25,141.01c7.61,0,13.76-6.16,13.76-13.76 M148.01,21.03v106.22 M29.81,8.97h106.2'/%3E%3Cpath style='stroke:%23707070;stroke-width:2;stroke-miterlimit:10;' d='M148.01,18.02V-0.02 M138.99,9h18.04'/%3E%3C/svg%3E");
+  color: #2e2e2e !important;
+}
+
+#surly-badge.surly-badge_white-black .surly-badge__header-text {
+  color: #2e2e2e !important;
+}
+
+#surly-badge.surly-badge_white-black .surly-badge__header-title {
+  color: #2e2e2e !important;
+}
+
+#surly-badge.surly-badge_white-black .surly-badge__tag {
+  background-color: #2e2e2e !important;
+  border-bottom: 1px solid #707070 !important;
+}
+
+#surly-badge.surly-badge_white-black .surly-badge__tag-text {
+  color: #fff !important;
+}
+
+#surly-badge.surly-badge_white-black .surly-badge__tag::before {
+  border-color: transparent #707070 transparent transparent !important;
+}
+
+#surly-badge.surly-badge_white-black .surly-badge__tag::after {
+  border-color: transparent transparent transparent #707070 !important;
+}
+
+#surly-badge.surly-badge_white-black .surly-badge__footer-link {
+  color: #2e2e2e !important;
+}
+
+#surly-badge.surly-badge_white-black .surly-badge__footer-title {
+  color: #2e2e2e !important;
+}
+
+#surly-badge.surly-badge_white-black .surly-badge__footer-text {
+  color: #2e2e2e !important;
+}
+
+#surly-badge .surly-badge__header {
+  position: relative !important;
+  z-index: 10 !important;
+  padding: 12px 6px 0 !important;
+}
+
+#surly-badge .surly-badge__header-title {
+  font-family: sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  line-height: 1 !important;
+  float: none !important;
+  text-align: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  margin-bottom: 6px !important;
+}
+
+#surly-badge .surly-badge__header-text {
+  font-size: 40px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  line-height: 33px !important;
+  float: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  margin-bottom: 4px !important;
+}
+
+#surly-badge .surly-badge__tag {
+  height: 18px !important;
+  width: calc(100% + 26px) !important;
+  display: -webkit-box !important;
+  display: -ms-flexbox !important;
+  display: flex !important;
+  -webkit-box-align: center !important;
+  -ms-flex-align: center !important;
+  align-items: center !important;
+  position: relative !important;
+  z-index: 10 !important;
+  -ms-flex-negative: 0 !important;
+  flex-shrink: 0 !important;
+  padding: 0 2px !important;
+}
+
+#surly-badge .surly-badge__tag-text {
+  font-size: 10px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  width: 100% !important;
+  float: none !important;
+  -o-text-overflow: ellipsis !important;
+  text-overflow: ellipsis !important;
+  line-height: initial !important;
+  text-decoration: none !important;
+  padding: 0 0 !important;
+}
+
+#surly-badge .surly-badge__tag::before,
+#surly-badge .surly-badge__tag::after {
+  content: "" !important;
+  display: block !important;
+  position: absolute !important;
+  width: 0 !important;
+  height: 0 !important;
+  border-style: solid !important;
+}
+
+#surly-badge .surly-badge__tag::before {
+  border-width: 0 15px 15px 0 !important;
+  left: 0 !important;
+  bottom: -15px !important;
+}
+
+#surly-badge .surly-badge__tag::after {
+  border-width: 15px 0 0 15px !important;
+  right: 0 !important;
+  top: -15px !important;
+}
+
+#surly-badge .surly-badge__footer {
+  position: relative !important;
+  z-index: 10 !important;
+  white-space: nowrap !important;
+  width: 100% !important;
+  padding-top: 6px !important;
+}
+
+#surly-badge .surly-badge__footer-title {
+  font-family: sans-serif !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  overflow: hidden !important;
+  -o-text-overflow: ellipsis !important;
+  text-overflow: ellipsis !important;
+  letter-spacing: -0.5px !important;
+  line-height: 1 !important;
+  float: none !important;
+  text-align: center !important;
+  -webkit-box-sizing: border-box !important;
+  box-sizing: border-box !important;
+  padding: 0 12px !important;
+  margin: 0 !important;
+  margin-bottom: 5px !important;
+}
+
+#surly-badge .surly-badge__footer-text {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+  float: none !important;
+  text-align: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+#surly-badge .surly-badge__footer-link {
+  font-size: 13px !important;
+  cursor: pointer !important;
+  text-decoration: underline !important;
+  line-height: initial !important;
+  display: inline-block !important;
+  float: none !important;
+}
+
+#surly-badge .surly-badge__date {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  -webkit-box-flex: 1 !important;
+  -ms-flex-positive: 1 !important;
+  flex-grow: 1 !important;
+  display: -webkit-box !important;
+  display: -ms-flexbox !important;
+  display: flex !important;
+  -webkit-box-align: end !important;
+  -ms-flex-align: end !important;
+  align-items: flex-end !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  float: none !important;
+}
+
+#surly-badge br {
+  display: none !important;
+}
+
+.surly__id_56263329.surly-badge_white-blue {
+  margin: 0 auto !important;
+}
+
+.surly__id_135641946#surly-badge {
+  padding-top: 6px !important;
+}
+
+.surly__id_135641946#surly-badge .surly-badge__footer {
+  line-height: 1 !important;
+}
+
+.surly__id_135641946#surly-badge .surly-badge__footer-title {
+  margin-bottom: 2px !important;
+}

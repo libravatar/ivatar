@@ -1,5 +1,5 @@
 image:
-  name: quay.io/rhn_support_ofalk/fedora34-python3
+  name: quay.io/rhn_support_ofalk/fedora35-python3
   entrypoint: [ '/bin/sh', '-c' ]
 
 before_script:
