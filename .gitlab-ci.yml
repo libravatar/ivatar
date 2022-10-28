@@ -66,9 +66,6 @@ build-image:
 
   script:
      - ls -lah
-     - docker build . -t fedora36-python3
-     - docker run fedora36-python3 python -V
-     - docker run fedora36-python3 cat /etc/fedora-release
      - |
        if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
          tag=""
