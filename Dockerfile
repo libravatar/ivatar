@@ -1,5 +1,3 @@
-# Dockerfile for libravatar
-
 FROM quay.io/rhn_support_ofalk/fedora35-python3
 LABEL maintainer Oliver Falk <oliver@linux-kernel.at>
 EXPOSE 8081

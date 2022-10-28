@@ -1,6 +1,7 @@
-image:
-  name: quay.io/rhn_support_ofalk/fedora35-python3
-  entrypoint: [ '/bin/sh', '-c' ]
+default:
+  image:
+    name: quay.io/rhn_support_ofalk/fedora35-python3
+    entrypoint: [ '/bin/sh', '-c' ]
 
 before_script:
   - virtualenv -p python3 /tmp/.virtualenv
@@ -54,3 +55,27 @@ pages:
     expire_in: 14 days
   only:
     - master
+
+build-image:
+  image: docker
+  services:
+    - docker:dind
+  before_script:
+    - docker info
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+
+  script:
+     - ls -lah
+     - docker build . -t fedora36-python3
+     - docker run fedora36-python3 python -V
+     - docker run fedora36-python3 cat /etc/fedora-release
+     - |
+       if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
+         tag=""
+         echo "Running on default branch '$CI_DEFAULT_BRANCH': tag = 'latest'"
+       else
+         tag=":$CI_COMMIT_REF_SLUG"
+         echo "Running on branch '$CI_COMMIT_BRANCH': tag = $tag"
+       fi
+     - docker build --pull -t "$CI_REGISTRY_IMAGE${tag}" .
+     - docker push "$CI_REGISTRY_IMAGE${tag}"
