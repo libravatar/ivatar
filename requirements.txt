@@ -12,6 +12,7 @@ django-user-accounts
 email-validator
 fabric
 flake8-respect-noqa
+git+https://github.com/daboth/pagan.git
 git+https://github.com/ercpe/pydenticon5.git
 git+https://github.com/flavono123/identicon.git
 git+https://github.com/ofalk/django-openid-auth
@@ -19,7 +20,6 @@ git+https://github.com/ofalk/monsterid.git
 git+https://github.com/ofalk/Robohash.git@devel
 mysqlclient
 notsetuptools
-pagan
 Pillow
 pip
 psycopg2-binary
