@@ -1080,10 +1080,9 @@ class PasswordResetView(PasswordResetViewOriginal):
             user = None
 
             # Try to find the user via the normal user class
-            try:
-                user = User.objects.get(email=request.POST["email"])
-            except ObjectDoesNotExist:
-                pass
+            # TODO: How to handle the case that multiple user accounts
+            # could have the same password set?
+            user = User.objects.filter(email=request.POST["email"]).first()
 
             # If we didn't find the user in the previous step,
             # try the ConfirmedEmail class instead.
