@@ -17,3 +17,6 @@ locale/*/LC_MESSAGES/django.mo
 .idea/
 contacts.csv
 falko_gravatar.jpg
+*.egg-info
+dump_all*.sql
+dist/
