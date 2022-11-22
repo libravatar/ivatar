@@ -60,7 +60,7 @@ OPENID_CREATE_USERS = True
 OPENID_UPDATE_DETAILS_FROM_SREG = True
 
 SITE_NAME = os.environ.get("SITE_NAME", "libravatar")
-IVATAR_VERSION = "1.6.2"
+IVATAR_VERSION = "1.7.0"
 
 SCHEMAROOT = "https://www.libravatar.org/schemas/export/0.2"
 
@@ -191,7 +191,7 @@ MESSAGE_TAGS = {
 
 CACHES = {
     "default": {
-        "BACKEND": "django.core.cache.backends.memcached.MemcachedCache",
+        "BACKEND": "django.core.cache.backends.memcached.PyMemcacheCache",
         "LOCATION": [
             "127.0.0.1:11211",
         ],
@@ -238,9 +238,7 @@ TRUSTED_DEFAULT_URLS = [
         "path_prefix": "/static/img/",
     },
     {
-        "schemes": [
-            "http",
-        ],
+        "schemes": ["http"],
         "host_equals": "www.planet-libre.org",
         "path_prefix": "/themes/planetlibre/images/",
     },

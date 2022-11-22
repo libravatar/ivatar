@@ -1,7 +1,7 @@
 autopep8
 bcrypt
 defusedxml
-Django < 4.0
+Django
 django-anymail[mailgun]
 django-auth-ldap
 django-bootstrap4
@@ -27,10 +27,10 @@ py3dns
 pydocstyle
 pyLibravatar
 pylint
+pymemcache
 PyMySQL
 python-coveralls
 python-language-server
-python-memcached
 python3-openid
 pytz
 rope
