@@ -191,7 +191,7 @@ MESSAGE_TAGS = {
 
 CACHES = {
     "default": {
-        "BACKEND": "django.core.cache.backends.memcached.MemcachedCache",
+        "BACKEND": "django.core.cache.backends.memcached.PyMemcacheCache",
         "LOCATION": [
             "127.0.0.1:11211",
         ],
@@ -238,9 +238,7 @@ TRUSTED_DEFAULT_URLS = [
         "path_prefix": "/static/img/",
     },
     {
-        "schemes": [
-            "http",
-        ],
+        "schemes": ["http"],
         "host_equals": "www.planet-libre.org",
         "path_prefix": "/themes/planetlibre/images/",
     },

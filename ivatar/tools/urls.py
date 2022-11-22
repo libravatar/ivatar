@@ -3,11 +3,11 @@
 ivatar/tools URL configuration
 """
 
-from django.conf.urls import url
+from django.urls import path, re_path
 from .views import CheckView, CheckDomainView
 
 urlpatterns = [  # pylint: disable=invalid-name
-    url("check/", CheckView.as_view(), name="tools_check"),
-    url("check_domain/", CheckDomainView.as_view(), name="tools_check_domain"),
-    url("check_domain$", CheckDomainView.as_view(), name="tools_check_domain"),
+    path("check/", CheckView.as_view(), name="tools_check"),
+    path("check_domain/", CheckDomainView.as_view(), name="tools_check_domain"),
+    re_path("check_domain$", CheckDomainView.as_view(), name="tools_check_domain"),
 ]
