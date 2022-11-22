@@ -20,7 +20,8 @@ test_and_coverage:
     - echo 'from ivatar.settings import TEMPLATES' > config_local.py
     - echo 'TEMPLATES[0]["OPTIONS"]["debug"] = True' >> config_local.py
     - echo "DEBUG = True" >> config_local.py
-    - echo "CACHES = None" >> config_local.py
+    - echo "from config import CACHES" >> config_local.py
+    - echo "CACHES['default'] = CACHES['filesystem']" >> config_local.py
     - python manage.py collectstatic --noinput
     - coverage run --source . manage.py test -v3
     - coverage report --fail-under=70
