@@ -748,6 +748,47 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200, "unable to fetch avatar?")
 
+    def test_upload_webp_image(self):
+        """
+        Test if webp is correctly detected and can be viewed
+        """
+        self.login()
+        url = reverse("upload_photo")
+        # rb => Read binary
+        # Broken is _not_ broken - it's just an 'x' :-)
+        with open(
+            os.path.join(settings.STATIC_ROOT, "img", "broken.webp"), "rb"
+        ) as photo:
+            response = self.client.post(
+                url,
+                {
+                    "photo": photo,
+                    "not_porn": True,
+                    "can_distribute": True,
+                },
+                follow=True,
+            )
+        self.assertEqual(
+            str(list(response.context[0]["messages"])[0]),
+            "Successfully uploaded",
+            "WEBP upload failed?!",
+        )
+        self.assertEqual(
+            self.user.photo_set.first().format,
+            "webp",
+            "Format must be webp, since we uploaded a webp!",
+        )
+        self.test_confirm_email()
+        self.user.confirmedemail_set.first().photo = self.user.photo_set.first()
+        urlobj = urlsplit(
+            libravatar_url(
+                email=self.user.confirmedemail_set.first().email,
+            )
+        )
+        url = "%s?%s" % (urlobj.path, urlobj.query)
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200, "unable to fetch avatar?")
+
     def test_upload_unsupported_tif_image(self):  # pylint: disable=invalid-name
         """
         Test if unsupported format is correctly detected

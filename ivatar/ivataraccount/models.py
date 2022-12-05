@@ -47,6 +47,8 @@ def file_format(image_type):
         return "png"
     elif image_type == "GIF":
         return "gif"
+    elif image_type == "WEBP":
+        return "webp"
     return None
 
 
@@ -60,6 +62,8 @@ def pil_format(image_type):
         return "PNG"
     elif image_type == "gif":
         return "GIF"
+    elif image_type == "webp":
+        return "WEBP"
 
     logger.info("Unsupported file format: %s", image_type)
     return None
