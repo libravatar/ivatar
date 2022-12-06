@@ -4,7 +4,8 @@ Simple module providing reusable random_string function
 """
 import random
 import string
-from PIL import Image, ImageDraw
+from io import BytesIO
+from PIL import Image, ImageDraw, ImageSequence
 from urllib.parse import urlparse
 
 
@@ -158,3 +159,25 @@ def is_trusted_url(url, url_filters):
         return True
 
     return False
+
+
+def resize_animated_gif(input_pil: Image, size: list) -> BytesIO:
+    def _thumbnail_frames(image):
+        for frame in ImageSequence.Iterator(image):
+            new_frame = frame.copy()
+            new_frame.thumbnail(size)
+            yield new_frame
+
+    frames = list(_thumbnail_frames(input_pil))
+    output = BytesIO()
+    output_image = frames[0]
+    output_image.save(
+        output,
+        format="gif",
+        save_all=True,
+        optimize=False,
+        append_images=frames[1:],
+        disposal=input_pil.disposal_method,
+        **input_pil.info,
+    )
+    return output

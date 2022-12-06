@@ -34,7 +34,7 @@ from .ivataraccount.models import ConfirmedEmail, ConfirmedOpenId
 from .ivataraccount.models import UnconfirmedEmail, UnconfirmedOpenId
 from .ivataraccount.models import Photo
 from .ivataraccount.models import pil_format, file_format
-from .utils import is_trusted_url, mm_ng
+from .utils import is_trusted_url, mm_ng, resize_animated_gif
 
 URL_TIMEOUT = 5  # in seconds
 
@@ -151,7 +151,8 @@ class AvatarImageView(TemplateView):
 
                 if not trusted_url:
                     print(
-                        "Default URL is not in trusted URLs: '%s' ; Kicking it!" % default
+                        "Default URL is not in trusted URLs: '%s' ; Kicking it!"
+                        % default
                     )
                     default = None
 
@@ -318,14 +319,23 @@ class AvatarImageView(TemplateView):
 
         imgformat = obj.photo.format
         photodata = Image.open(BytesIO(obj.photo.data))
-        # If the image is smaller than what was requested, we need
-        # to use the function resize
-        if photodata.size[0] < size or photodata.size[1] < size:
-            photodata = photodata.resize((size, size), Image.ANTIALIAS)
-        else:
-            photodata.thumbnail((size, size), Image.ANTIALIAS)
+
         data = BytesIO()
-        photodata.save(data, pil_format(imgformat), quality=JPEG_QUALITY)
+
+        # Animated GIFs need additional handling
+        if imgformat == "gif" and photodata.is_animated:
+            # Debug only
+            # print("Object is animated and has %i frames" % photodata.n_frames)
+            data = resize_animated_gif(photodata, (size, size))
+        else:
+            # If the image is smaller than what was requested, we need
+            # to use the function resize
+            if photodata.size[0] < size or photodata.size[1] < size:
+                photodata = photodata.resize((size, size), Image.ANTIALIAS)
+            else:
+                photodata.thumbnail((size, size), Image.ANTIALIAS)
+            photodata.save(data, pil_format(imgformat), quality=JPEG_QUALITY)
+
         data.seek(0)
         obj.photo.access_count += 1
         obj.photo.save()
