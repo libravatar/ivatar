@@ -40,7 +40,7 @@ from ipware import get_client_ip
 
 from email_validator import validate_email
 
-from py_avataaars import PyAvataaar
+import py_avataaars as pa
 
 from libravatar import libravatar_url
 from ivatar.settings import (
@@ -1275,8 +1275,12 @@ class AvatarCreatorView(TemplateView):
         Provide additional context data
         """
         context = super().get_context_data(**kwargs)
-        context["SkinColor"] = list(PyAvataaar.SkinColor)
-        context["HairColor"] = list(PyAvataaar.HairColor)
+        context["SkinColor"] = list(pa.SkinColor)
+        context["HairColor"] = list(pa.HairColor)
+        context["FacialHairType"] = list(pa.FacialHairType)
+        context["TopType"] = list(pa.TopType)
+        context["HatColor"] = list(pa.Color)
+        context["MouthType"] = list(pa.MouthType)
         return context
 
 
@@ -1290,5 +1294,38 @@ class AvatarView(View):
         """
         Handle get for create view
         """
-        avatar = PyAvataaar.PyAvataaar()
+        skin_color = list(pa.SkinColor)[0]
+        hair_color = list(pa.HairColor)[0]
+        facial_hair_type = list(pa.FacialHairType)[0]
+        top_type = pa.TopType.SHORT_HAIR_SHORT_FLAT
+        hat_color = list(pa.Color)[0]
+        mouth_type = list(pa.MouthType)[0]
+        if "skin_color" in request.GET:
+            skin_color = list(pa.SkinColor)[int(request.GET["skin_color"])]
+        if "hair_color" in request.GET:
+            hair_color = list(pa.HairColor)[int(request.GET["hair_color"])]
+        if "facial_hair_type" in request.GET:
+            facial_hair_type = list(pa.FacialHairType)[
+                int(request.GET["facial_hair_type"])
+            ]
+        if "facial_hair_color" in request.GET:
+            facial_hair_color = list(pa.HairColor)[
+                int(request.GET["facial_hair_color"])
+            ]
+        if "top_type" in request.GET:
+            top_type = list(pa.TopType)[int(request.GET["top_type"])]
+        if "hat_color" in request.GET:
+            hat_color = list(pa.Color)[int(request.GET["hat_color"])]
+        if "mouth_type" in request.GET:
+            mouth_type = list(pa.MouthType)[int(request.GET["mouth_type"])]
+
+        avatar = pa.PyAvataaar(
+            skin_color=skin_color,
+            hair_color=hair_color,
+            facial_hair_type=facial_hair_type,
+            facial_hair_color=facial_hair_color,
+            top_type=top_type,
+            hat_color=hat_color,
+            mouth_type=mouth_type,
+        )
         return HttpResponse(avatar.render_png(), content_type="image/png")
