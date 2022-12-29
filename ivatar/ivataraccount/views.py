@@ -1281,6 +1281,13 @@ class AvatarCreatorView(TemplateView):
         context["TopType"] = list(pa.TopType)
         context["HatColor"] = list(pa.Color)
         context["MouthType"] = list(pa.MouthType)
+        context["EyesType"] = list(pa.EyesType)
+        context["EyebrowType"] = list(pa.EyebrowType)
+        context["NoseType"] = list(pa.NoseType)
+        context["AccessoriesType"] = list(pa.AccessoriesType)
+        context["ClotheType"] = list(pa.ClotheType)
+        context["ClotheColor"] = list(pa.Color)
+        context["ClotheGraphicType"] = list(pa.ClotheGraphicType)
         return context
 
 
@@ -1294,12 +1301,23 @@ class AvatarView(View):
         """
         Handle get for create view
         """
+        avatar_style = list(pa.AvatarStyle)[0]
         skin_color = list(pa.SkinColor)[0]
         hair_color = list(pa.HairColor)[0]
         facial_hair_type = list(pa.FacialHairType)[0]
         top_type = pa.TopType.SHORT_HAIR_SHORT_FLAT
         hat_color = list(pa.Color)[0]
         mouth_type = list(pa.MouthType)[0]
+        eyes_type = list(pa.EyesType)[0]
+        eyebrow_type = list(pa.EyebrowType)[0]
+        nose_type = list(pa.NoseType)[0]
+        accessories_type = list(pa.AccessoriesType)[0]
+        clothe_type = list(pa.ClotheType)[0]
+        clothe_color = list(pa.Color)[0]
+        clothe_graphic_type = list(pa.ClotheGraphicType)[0]
+
+        if "avatar_style" in request.GET:
+            avatar_style = list(pa.AvatarStyle)[int(request.GET["avatar_style"])]
         if "skin_color" in request.GET:
             skin_color = list(pa.SkinColor)[int(request.GET["skin_color"])]
         if "hair_color" in request.GET:
@@ -1318,8 +1336,27 @@ class AvatarView(View):
             hat_color = list(pa.Color)[int(request.GET["hat_color"])]
         if "mouth_type" in request.GET:
             mouth_type = list(pa.MouthType)[int(request.GET["mouth_type"])]
+        if "eyes_type" in request.GET:
+            eyes_type = list(pa.EyesType)[int(request.GET["eyes_type"])]
+        if "eyebrow_type" in request.GET:
+            eyebrow_type = list(pa.EyebrowType)[int(request.GET["eyebrow_type"])]
+        if "nose_type" in request.GET:
+            nose_type = list(pa.NoseType)[int(request.GET["nose_type"])]
+        if "accessories_type" in request.GET:
+            accessories_type = list(pa.AccessoriesType)[
+                int(request.GET["accessories_type"])
+            ]
+        if "clothe_type" in request.GET:
+            clothe_type = list(pa.ClotheType)[int(request.GET["clothe_type"])]
+        if "clothe_color" in request.GET:
+            clothe_color = list(pa.Color)[int(request.GET["clothe_color"])]
+        if "clothe_graphic_type" in request.GET:
+            clothe_graphic_type = list(pa.ClotheGraphicType)[
+                int(request.GET["clothe_graphic_type"])
+            ]
 
         avatar = pa.PyAvataaar(
+            style=avatar_style,
             skin_color=skin_color,
             hair_color=hair_color,
             facial_hair_type=facial_hair_type,
@@ -1327,5 +1364,12 @@ class AvatarView(View):
             top_type=top_type,
             hat_color=hat_color,
             mouth_type=mouth_type,
+            eye_type=eyes_type,
+            eyebrow_type=eyebrow_type,
+            nose_type=nose_type,
+            accessories_type=accessories_type,
+            clothe_type=clothe_type,
+            clothe_color=clothe_color,
+            clothe_graphic_type=clothe_graphic_type,
         )
         return HttpResponse(avatar.render_png(), content_type="image/png")

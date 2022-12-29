@@ -24,12 +24,26 @@
   var top_type = -1;
   var hat_color = 0;
   var mouth_type = 0;
+  var eyes_type = 0;
+  var eyebrow_type = 0;
+  var nose_type = 0;
+  var accessories_type = 0;
+  var clothe_type = 0;
+  var clothe_color = 0;
+  var clothe_graphic_type = 0;
+  var avatar_style = 0;
+  var size = 172;
 
   function update_image() {
-    var url = "{% url 'avataaar' %}?skin_color=" + skin_color + "&hair_color=" + hair_color +
+    var url = "{% url 'avataaar' %}?avatar_style=" + avatar_style + "&skin_color=" + skin_color + "&hair_color=" + hair_color +
       "&facial_hair_type=" + facial_hair_type + "&facial_hair_color=" + facial_hair_color +
-      "&top_type=" + top_type + "&hat_color=" + hat_color + "&mouth_type=" + mouth_type;
+      "&top_type=" + top_type + "&hat_color=" + hat_color + "&mouth_type=" + mouth_type +
+      "&eyes_type=" + eyes_type + "&eyebrow_type=" + eyebrow_type + "&nose_type=" + nose_type +
+      "&accessories_type=" + accessories_type + "&clothe_type=" + clothe_type +
+      "&clothe_color=" + clothe_color + "&clothe_graphic_type=" + clothe_graphic_type;
     $("#avatar_image").attr('src', url);
+    // TODO: Wire up manipulating size
+    $("#avatar_image").attr('width', size + "px");
   }
 </script>
 
@@ -49,14 +63,14 @@
       {% endfor %}
     </div>
     <br/>
-    <div>
+    <div class="btn-group form-group" role="group" style="float:none;">
       <h3>{% trans 'Hair color' %}</h3>
       {% for color in HairColor %}
       <a class="button achoose" style="background:{{ color.main_value }};" onclick='hair_color="{{ color.value }}"; update_image();'>&nbsp;</a>
       {% endfor %}
     </div>
     <br/>
-    <div>
+    <div class="btn-group form-group" role="group" style="float:none;">
       <h3>{% trans 'Facial hair type' %}</h3>
       {% for type in FacialHairType %}
       <a class="button" onclick='facial_hair_type="{{ type.value }}"; update_image();'>
@@ -77,31 +91,82 @@
       {% endfor %}
     </div>
     <br/>
-    <div>
+    <div class="btn-group form-group" role="group" style="float:none;">
       <h3>{% trans 'Facial hair color' %}</h3>
       {% for color in HairColor %}
       <a class="button achoose" style="background:{{ color.main_value }};" onclick='facial_hair_color="{{ color.value }}"; update_image();'>&nbsp;</a>
       {% endfor %}
     </div>
     <br/>
-    <div>
+    <div class="btn-group form-group" role="group" style="float:none;">
       <h3>{% trans 'Top Type' %}</h3>
       {% for type in TopType %}
       <a class="button" onclick='top_type="{{ type.value }}"; update_image();'>{{ type.name }}</a>
       {% endfor %}
     </div>
     <br/>
-    <div>
+    <div class="btn-group form-group" role="group" style="float:none;">
       <h3>{% trans 'Hat color' %}</h3>
       {% for color in HatColor %}
       <a class="button achoose" style="background:{{ color.main_value }};" onclick='hat_color="{{ color.value }}"; update_image();'>&nbsp;</a>
       {% endfor %}
     </div>
     <br/>
-    <div>
+    <div class="btn-group form-group" role="group" style="float:none;">
       <h3>{% trans 'Mouth type' %}</h3>
       {% for type in MouthType %}
       <a class="button" onclick='mouth_type="{{ type.value }}"; update_image();'>{{ type.name }}</a>
+      {% endfor %}
+    </div>
+    <br/>
+    <div class="btn-group form-group" role="group" style="float:none;">
+      <h3>{% trans 'Eyes type' %}</h3>
+      {% for type in EyesType %}
+      <a class="button" onclick='eyes_type="{{ type.value }}"; update_image();'>{{ type.name }}</a>
+      {% endfor %}
+    </div>
+    <br/>
+    <div class="btn-group form-group" role="group" style="float:none;">
+      <h3>{% trans 'Eyebrow type' %}</h3>
+      {% for type in EyebrowType %}
+      <a class="button" onclick='eyebrow_type="{{ type.value }}"; update_image();'>{{ type.name }}</a>
+      {% endfor %}
+    </div>
+    <!--
+    <br/>
+    <div class="btn-group form-group" role="group" style="float:none;">
+      <h3>{% trans 'Nose type' %}</h3>
+      {% for type in NoseType %}
+      <a class="button" onclick='nose_type="{{ type.value }}"; update_image();'>{{ type.name }}</a>
+      {% endfor %}
+    </div>
+    -->
+    <br/>
+    <div class="btn-group form-group" role="group" style="float:none;">
+      <h3>{% trans 'Glasses' %}</h3>
+      {% for type in AccessoriesType %}
+      <a class="button" onclick='accessories_type="{{ type.value }}"; update_image();'>{{ type.name }}</a>
+      {% endfor %}
+    </div>
+    <br/>
+    <div class="btn-group form-group" role="group" style="float:none;">
+      <h3>{% trans 'Clothe type' %}</h3>
+      {% for type in ClotheType %}
+      <a class="button" onclick='clothe_type="{{ type.value }}"; update_image();'>{{ type.name }}</a>
+      {% endfor %}
+    </div>
+    <br/>
+    <div class="btn-group form-group" role="group" style="float:none;">
+      <h3>{% trans 'Clothe color' %}</h3>
+      {% for color in ClotheColor %}
+      <a class="button achoose" style="background:{{ color.main_value }};" onclick='clothe_color="{{ color.value }}"; update_image();'>&nbsp;</a>
+      {% endfor %}
+    </div>
+    <br/>
+    <div class="btn-group form-group" role="group" style="float:none;">
+      <h3>{% trans 'Clothe graphic type' %}</h3>
+      {% for type in ClotheGraphicType %}
+      <a class="button" onclick='clothe_graphic_type="{{ type.value }}"; update_image();'>{{ type.name }}</a>
       {% endfor %}
     </div>
 
