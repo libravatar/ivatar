@@ -40,6 +40,8 @@ from ipware import get_client_ip
 
 from email_validator import validate_email
 
+from py_avataaars import PyAvataaar
+
 from libravatar import libravatar_url
 from ivatar.settings import (
     MAX_NUM_PHOTOS,
@@ -1080,10 +1082,9 @@ class PasswordResetView(PasswordResetViewOriginal):
             user = None
 
             # Try to find the user via the normal user class
-            try:
-                user = User.objects.get(email=request.POST["email"])
-            except ObjectDoesNotExist:
-                pass
+            # TODO: How to handle the case that multiple user accounts
+            # could have the same password set?
+            user = User.objects.filter(email=request.POST["email"]).first()
 
             # If we didn't find the user in the previous step,
             # try the ConfirmedEmail class instead.
@@ -1274,8 +1275,8 @@ class AvatarCreatorView(TemplateView):
         Provide additional context data
         """
         context = super().get_context_data(**kwargs)
-        context["SkinColor"] = list(PyAvataaars.SkinColor)
-        context["HairColor"] = list(PyAvataaars.HairColor)
+        context["SkinColor"] = list(PyAvataaar.SkinColor)
+        context["HairColor"] = list(PyAvataaar.HairColor)
         return context
 
 
@@ -1289,5 +1290,5 @@ class AvatarView(View):
         """
         Handle get for create view
         """
-        avatar = PyAvataaars.PyAvataaar()
+        avatar = PyAvataaar.PyAvataaar()
         return HttpResponse(avatar.render_png(), content_type="image/png")

@@ -2,8 +2,7 @@
 """
 URLs for ivatar.ivataraccount
 """
-from django.urls import path
-from django.conf.urls import url
+from django.urls import path, re_path
 
 from django.contrib.auth.views import LogoutView
 from django.contrib.auth.views import (
@@ -73,7 +72,7 @@ urlpatterns = [  # pylint: disable=invalid-name
     ),
     path("delete/", DeleteAccountView.as_view(), name="delete"),
     path("profile/", ProfileView.as_view(), name="profile"),
-    url(
+    re_path(
         "profile/(?P<profile_username>.+)",
         ProfileView.as_view(),
         name="profile_with_profile_username",
@@ -84,73 +83,77 @@ urlpatterns = [  # pylint: disable=invalid-name
     path("password_set/", PasswordSetView.as_view(), name="password_set"),
     path("avatar_creator/", AvatarCreatorView.as_view(), name="avatar_creator"),
     path("avatar_view/", AvatarView.as_view(), name="avataaar"),
-    url(
+    re_path(
         r"remove_unconfirmed_openid/(?P<openid_id>\d+)",
         RemoveUnconfirmedOpenIDView.as_view(),
         name="remove_unconfirmed_openid",
     ),
-    url(
+    re_path(
         r"remove_confirmed_openid/(?P<openid_id>\d+)",
         RemoveConfirmedOpenIDView.as_view(),
         name="remove_confirmed_openid",
     ),
-    url(
+    re_path(
         r"openid_redirection/(?P<openid_id>\d+)",
         RedirectOpenIDView.as_view(),
         name="openid_redirection",
     ),
-    url(
+    re_path(
         r"confirm_openid/(?P<openid_id>\w+)",
         ConfirmOpenIDView.as_view(),
         name="confirm_openid",
     ),
-    url(
+    re_path(
         r"confirm_email/(?P<verification_key>\w+)",
         ConfirmEmailView.as_view(),
         name="confirm_email",
     ),
-    url(
+    re_path(
         r"remove_unconfirmed_email/(?P<email_id>\d+)",
         RemoveUnconfirmedEmailView.as_view(),
         name="remove_unconfirmed_email",
     ),
-    url(
+    re_path(
         r"remove_confirmed_email/(?P<email_id>\d+)",
         RemoveConfirmedEmailView.as_view(),
         name="remove_confirmed_email",
     ),
-    url(
+    re_path(
         r"assign_photo_email/(?P<email_id>\d+)",
         AssignPhotoEmailView.as_view(),
         name="assign_photo_email",
     ),
-    url(
+    re_path(
         r"assign_photo_openid/(?P<openid_id>\d+)",
         AssignPhotoOpenIDView.as_view(),
         name="assign_photo_openid",
     ),
-    url(r"import_photo/$", ImportPhotoView.as_view(), name="import_photo"),
-    url(
+    re_path(r"import_photo/$", ImportPhotoView.as_view(), name="import_photo"),
+    re_path(
         r"import_photo/(?P<email_addr>[\w.+-]+@[\w.]+.[\w.]+)",
         ImportPhotoView.as_view(),
         name="import_photo",
     ),
-    url(
+    re_path(
         r"import_photo/(?P<email_id>\d+)",
         ImportPhotoView.as_view(),
         name="import_photo",
     ),
-    url(r"delete_photo/(?P<pk>\d+)", DeletePhotoView.as_view(), name="delete_photo"),
-    url(r"raw_image/(?P<pk>\d+)", RawImageView.as_view(), name="raw_image"),
-    url(r"crop_photo/(?P<pk>\d+)", CropPhotoView.as_view(), name="crop_photo"),
-    url(r"pref/$", UserPreferenceView.as_view(), name="user_preference"),
-    url(r"upload_export/$", UploadLibravatarExportView.as_view(), name="upload_export"),
-    url(
+    re_path(
+        r"delete_photo/(?P<pk>\d+)", DeletePhotoView.as_view(), name="delete_photo"
+    ),
+    re_path(r"raw_image/(?P<pk>\d+)", RawImageView.as_view(), name="raw_image"),
+    re_path(r"crop_photo/(?P<pk>\d+)", CropPhotoView.as_view(), name="crop_photo"),
+    re_path(r"pref/$", UserPreferenceView.as_view(), name="user_preference"),
+    re_path(
+        r"upload_export/$", UploadLibravatarExportView.as_view(), name="upload_export"
+    ),
+    re_path(
         r"upload_export/(?P<save>save)$",
         UploadLibravatarExportView.as_view(),
         name="upload_export",
     ),
-    url(
+    re_path(
         r"resend_confirmation_mail/(?P<email_id>\d+)",
         ResendConfirmationMailView.as_view(),
         name="resend_confirmation_mail",

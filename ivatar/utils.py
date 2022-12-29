@@ -4,7 +4,9 @@ Simple module providing reusable random_string function
 """
 import random
 import string
-from PIL import Image, ImageDraw
+from io import BytesIO
+from PIL import Image, ImageDraw, ImageSequence
+from urllib.parse import urlparse
 
 
 def random_string(length=10):
@@ -112,3 +114,70 @@ def mm_ng(
     )
 
     return image
+
+
+def is_trusted_url(url, url_filters):
+    """
+    Check if a URL is valid and considered a trusted URL.
+    If the URL is malformed, returns False.
+
+    Based on: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/events/UrlFilter
+    """
+    (scheme, netloc, path, params, query, fragment) = urlparse(url)
+
+    for filter in url_filters:
+        if "schemes" in filter:
+            schemes = filter["schemes"]
+
+            if scheme not in schemes:
+                continue
+
+        if "host_equals" in filter:
+            host_equals = filter["host_equals"]
+
+            if netloc != host_equals:
+                continue
+
+        if "host_suffix" in filter:
+            host_suffix = filter["host_suffix"]
+
+            if not netloc.endswith(host_suffix):
+                continue
+
+        if "path_prefix" in filter:
+            path_prefix = filter["path_prefix"]
+
+            if not path.startswith(path_prefix):
+                continue
+
+        if "url_prefix" in filter:
+            url_prefix = filter["url_prefix"]
+
+            if not url.startswith(url_prefix):
+                continue
+
+        return True
+
+    return False
+
+
+def resize_animated_gif(input_pil: Image, size: list) -> BytesIO:
+    def _thumbnail_frames(image):
+        for frame in ImageSequence.Iterator(image):
+            new_frame = frame.copy()
+            new_frame.thumbnail(size)
+            yield new_frame
+
+    frames = list(_thumbnail_frames(input_pil))
+    output = BytesIO()
+    output_image = frames[0]
+    output_image.save(
+        output,
+        format="gif",
+        save_all=True,
+        optimize=False,
+        append_images=frames[1:],
+        disposal=input_pil.disposal_method,
+        **input_pil.info,
+    )
+    return output

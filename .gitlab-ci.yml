@@ -1,6 +1,7 @@
-image:
-  name: quay.io/rhn_support_ofalk/fedora34-python3
-  entrypoint: [ '/bin/sh', '-c' ]
+default:
+  image:
+    name: quay.io/rhn_support_ofalk/fedora35-python3
+    entrypoint: [ '/bin/sh', '-c' ]
 
 before_script:
   - virtualenv -p python3 /tmp/.virtualenv
@@ -14,10 +15,13 @@ before_script:
 
 test_and_coverage:
   stage: test
+  coverage: '/^TOTAL.*\s+(\d+\%)$/'
   script:
     - echo 'from ivatar.settings import TEMPLATES' > config_local.py
     - echo 'TEMPLATES[0]["OPTIONS"]["debug"] = True' >> config_local.py
     - echo "DEBUG = True" >> config_local.py
+    - echo "from config import CACHES" >> config_local.py
+    - echo "CACHES['default'] = CACHES['filesystem']" >> config_local.py
     - python manage.py collectstatic --noinput
     - coverage run --source . manage.py test -v3
     - coverage report --fail-under=69
@@ -53,3 +57,24 @@ pages:
     expire_in: 14 days
   only:
     - master
+
+build-image:
+  image: docker
+  services:
+    - docker:dind
+  before_script:
+    - docker info
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+
+  script:
+     - ls -lah
+     - |
+       if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
+         tag=""
+         echo "Running on default branch '$CI_DEFAULT_BRANCH': tag = 'latest'"
+       else
+         tag=":$CI_COMMIT_REF_SLUG"
+         echo "Running on branch '$CI_COMMIT_BRANCH': tag = $tag"
+       fi
+     - docker build --pull -t "$CI_REGISTRY_IMAGE${tag}" .
+     - docker push "$CI_REGISTRY_IMAGE${tag}"

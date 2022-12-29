@@ -1,7 +1,7 @@
 autopep8
 bcrypt
 defusedxml
-Django < 4.0
+Django
 django-anymail[mailgun]
 django-auth-ldap
 django-bootstrap4
@@ -12,6 +12,7 @@ django-user-accounts
 email-validator
 fabric
 flake8-respect-noqa
+git+https://github.com/daboth/pagan.git
 git+https://github.com/ercpe/pydenticon5.git
 git+https://github.com/flavono123/identicon.git
 git+https://github.com/ofalk/django-openid-auth
@@ -19,7 +20,6 @@ git+https://github.com/ofalk/monsterid.git
 git+https://github.com/ofalk/Robohash.git@devel
 mysqlclient
 notsetuptools
-pagan
 Pillow
 pip
 psycopg2-binary
@@ -28,10 +28,10 @@ py3dns
 pydocstyle
 pyLibravatar
 pylint
+pymemcache
 PyMySQL
 python-coveralls
 python-language-server
-python-memcached
 python3-openid
 pytz
 rope

@@ -37,6 +37,7 @@ class Tester(TestCase):
         self.assertEqual(pil_format("jpeg"), "JPEG")
         self.assertEqual(pil_format("png"), "PNG")
         self.assertEqual(pil_format("gif"), "GIF")
+        self.assertEqual(pil_format("webp"), "WEBP")
         self.assertEqual(pil_format("abc"), None)
 
     def test_userprefs_str(self):
