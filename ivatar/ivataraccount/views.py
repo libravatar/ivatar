@@ -1301,6 +1301,8 @@ class AvatarView(View):
         """
         Handle get for create view
         """
+        format = "svg+xml"
+
         avatar_style = list(pa.AvatarStyle)[0]
         skin_color = list(pa.SkinColor)[0]
         hair_color = list(pa.HairColor)[0]
@@ -1354,6 +1356,11 @@ class AvatarView(View):
             clothe_graphic_type = list(pa.ClotheGraphicType)[
                 int(request.GET["clothe_graphic_type"])
             ]
+        if "format" in request.GET:
+            if request.GET["format"] == "png":
+                format = request.GET["format"]
+            else:
+                print("Format: '%s' isn't supported" % request.GET["format"])
 
         avatar = pa.PyAvataaar(
             style=avatar_style,
@@ -1372,4 +1379,7 @@ class AvatarView(View):
             clothe_color=clothe_color,
             clothe_graphic_type=clothe_graphic_type,
         )
-        return HttpResponse(avatar.render_png(), content_type="image/png")
+        if format == "png":
+            return HttpResponse(avatar.render_png(), content_type="image/png")
+
+        return HttpResponse(avatar.render_svg(), content_type="image/svg+xml")
