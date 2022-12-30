@@ -1359,6 +1359,8 @@ class AvatarView(View):
         if "format" in request.GET:
             if request.GET["format"] == "png":
                 format = request.GET["format"]
+            elif request.GET["format"] in ("svg", "svg+xml"):
+                format = "svg+xml"
             else:
                 print("Format: '%s' isn't supported" % request.GET["format"])
 
