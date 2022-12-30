@@ -42,132 +42,191 @@
       "&accessories_type=" + accessories_type + "&clothe_type=" + clothe_type +
       "&clothe_color=" + clothe_color + "&clothe_graphic_type=" + clothe_graphic_type;
     $("#avatar_image").attr('src', url);
-    // TODO: Wire up manipulating size
     $("#avatar_image").attr('width', size + "px");
   }
 </script>
 
 <h3>{% trans 'Adjust your avatar:' %}</h3>
 <div>
-  <div style="width:172px;margin-left:20px;float:left">
-    <img id="avatar_image" width="172px">
-    <script>
-      update_image();
-    </script>
-  </div>
   <div>
-    <div class="btn-group form-group" role="group" style="float:none;">
-      <h3>{% trans 'Skin color' %}</h3>
+    <div id="avatar_image_div">
+      <img id="avatar_image" width="172px" style="float:left;">
+      <script>
+        update_image();
+      </script>
+    </div>
+    <div id="options">
+      <div class="form-group" role="group" style="float:right;width:50%">
+        <label for="preview_size" class="form-label">{% trans 'Preview size'%}</label>
+        <input type="range" class="form-range" id="preview_size" min="16" max="500" step="1" value="172">
+        <script>
+          var preview_size = document.getElementById("preview_size");
+          preview_size.addEventListener("input", function() {
+            size = this.value;
+            update_image();
+          });
+        </script>
+      </div>
+    </div>
+    <hr style="clear:both;"/>
+
+    <div class="form-group" role="group" style="float:none;">
+      <label for="skincolor" class="form-label">{% trans 'Skin color'%}</label>
+      <div id="skincolor">
       {% for color in SkinColor %}
         <a class="button achoose" style="background:{{ color.main_value }};" onclick='skin_color="{{ color.value }}"; update_image();'>&nbsp;</a>
       {% endfor %}
+      </div>
     </div>
     <br/>
-    <div class="btn-group form-group" role="group" style="float:none;">
-      <h3>{% trans 'Hair color' %}</h3>
-      {% for color in HairColor %}
-      <a class="button achoose" style="background:{{ color.main_value }};" onclick='hair_color="{{ color.value }}"; update_image();'>&nbsp;</a>
-      {% endfor %}
+
+    <div class="form-group" role="group" style="float:none;">
+      <label for="haircolor" class="form-label">{% trans 'Hair color'%}</label>
+      <div id="haircolor">
+        {% for color in HairColor %}
+          <a class="button achoose" style="background:{{ color.main_value }};" onclick='hair_color="{{ color.value }}"; update_image();'>&nbsp;</a>
+        {% endfor %}
+      </div>
     </div>
     <br/>
-    <div class="btn-group form-group" role="group" style="float:none;">
-      <h3>{% trans 'Facial hair type' %}</h3>
-      {% for type in FacialHairType %}
-      <a class="button" onclick='facial_hair_type="{{ type.value }}"; update_image();'>
-        {% if type.name == 'BEARD_MEDIUM' %}
-          Medium
-        {% elif type.name == 'BEARD_LIGHT' %}
-          Light
-        {% elif type.name == 'BEARD_MAJESTIC' %}
-          Majestic
-        {% elif type.name == 'MOUSTACHE_FANCY' %}
-          Moustache fancy
-        {% elif type.name == 'MOUSTACHE_MAGNUM' %}
-          Moustache magnum
-        {% else %}
-          Default
-        {% endif %}
-      </a>
-      {% endfor %}
+
+    <div class="form-group" role="group" style="float:none;">
+      <label for="facialhairtype" class="form-label">{% trans 'Facial hair type' %}</label>
+      <input type="range" class="form-range" id="facialhairtype" min="0" max="5" step="1" value="0">
+      <script>
+        var elem = document.getElementById("facialhairtype");
+        facialhairtype.addEventListener("input", function() {
+          facial_hair_type = this.value;
+          var colordiv = document.getElementById("facialhaircolor").parentNode;
+          if(this.value != 0) {
+            colordiv.display = "block";
+            colordiv.removeAttribute("hidden");
+          } else {
+            colordiv.setAttribute("hidden", "hidden");
+          }
+          update_image();
+        });
+      </script>
+    </div>
+
+    <div hidden="hidden" class="form-group" style="float:none;">
+      <label for="facialhaircolor" class="form-label">{% trans 'Facial hair color'%}</label>
+      <div id="facialhaircolor">
+        {% for color in HairColor %}
+          <a class="button achoose" style="background:{{ color.main_value }};" onclick='facial_hair_color="{{ color.value }}"; update_image();'>&nbsp;</a>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="form-group" role="group" style="float:none;">
+      <label for="toptype" class="form-label">{% trans 'Top type' %}</label>
+      <input type="range" class="form-range" id="toptype" min="0" max="34" step="1" value="0">
+      <script>
+        var elem = document.getElementById("toptype");
+        elem.addEventListener("input", function() {
+          top_type = this.value;
+          update_image();
+        });
+      </script>
+    </div>
+
+    <div class="form-group" role="group" style="float:none;">
+      <label for="hatcolor" class="form-label">{% trans 'Hat color'%}</label>
+      <div id="hatcolor">
+        {% for color in HatColor %}
+        <a class="button achoose" style="background:{{ color.main_value }};" onclick='hat_color="{{ color.value }}"; update_image();'>&nbsp;</a>
+        {% endfor %}
+      </div>
     </div>
     <br/>
-    <div class="btn-group form-group" role="group" style="float:none;">
-      <h3>{% trans 'Facial hair color' %}</h3>
-      {% for color in HairColor %}
-      <a class="button achoose" style="background:{{ color.main_value }};" onclick='facial_hair_color="{{ color.value }}"; update_image();'>&nbsp;</a>
-      {% endfor %}
+
+    <div class="form-group" role="group" style="float:none;">
+      <label for="mouthtype" class="form-label">{% trans 'Mouth type' %}</label>
+      <input type="range" class="form-range" id="mouthtype" min="0" max="11" step="1" value="0">
+      <script>
+        var elem = document.getElementById("mouthtype");
+        elem.addEventListener("input", function() {
+          mouth_type = this.value;
+          update_image();
+        });
+      </script>
+    </div>
+
+    <div class="form-group" role="group" style="float:none;">
+      <label for="eyestype" class="form-label">{% trans 'Eyes type' %}</label>
+      <input type="range" class="form-range" id="eyestype" min="0" max="11" step="1" value="0">
+      <script>
+        var elem = document.getElementById("eyestype");
+        elem.addEventListener("input", function() {
+          eyes_type = this.value;
+          update_image();
+        });
+      </script>
+    </div>
+
+    <div class="form-group" role="group" style="float:none;">
+      <label for="eyebrowtype" class="form-label">{% trans 'Eyerbrow type' %}</label>
+      <input type="range" class="form-range" id="eyebrowtype" min="0" max="12" step="1" value="0">
+      <script>
+        var elem = document.getElementById("eyebrowtype");
+        elem.addEventListener("input", function() {
+          eyebrow_type = this.value;
+          update_image();
+        });
+      </script>
+    </div>
+
+    <div class="form-group" role="group" style="float:none;">
+      <label for="accessoriestype" class="form-label">{% trans 'Accessories type' %}</label>
+      <input type="range" class="form-range" id="accessoriestype" min="0" max="6" step="1" value="0">
+      <script>
+        var elem = document.getElementById("accessoriestype");
+        elem.addEventListener("input", function() {
+          accessories_type = this.value;
+          update_image();
+        });
+      </script>
+    </div>
+
+    <div class="form-group" role="group" style="float:none;">
+      <label for="clothetype" class="form-label">{% trans 'Clothe type' %}</label>
+      <input type="range" class="form-range" id="clothetype" min="0" max="8" step="1" value="0">
+      <script>
+        var elem = document.getElementById("clothetype");
+        elem.addEventListener("input", function() {
+          clothe_type = this.value;
+          var thediv = document.getElementById("clothegraphictype").parentNode;
+          if(this.value == 3) {
+            thediv.display = "block";
+            thediv.removeAttribute("hidden");
+          } else {
+            thediv.setAttribute("hidden", "hidden");
+          }
+          update_image();
+        });
+      </script>
+    </div>
+
+    <div class="form-group" role="group" style="float:none;">
+      <label for="clothegraphictype" class="form-label">{% trans 'Clothe color' %}</label>
+      <div id"=clothegraphictype">
+        {% for color in ClotheColor %}
+          <a class="button achoose" style="background:{{ color.main_value }};" onclick='clothe_color="{{ color.value }}"; update_image();'>&nbsp;</a>
+        {% endfor %}
+      </div>
     </div>
     <br/>
-    <div class="btn-group form-group" role="group" style="float:none;">
-      <h3>{% trans 'Top Type' %}</h3>
-      {% for type in TopType %}
-      <a class="button" onclick='top_type="{{ type.value }}"; update_image();'>{{ type.name }}</a>
-      {% endfor %}
-    </div>
-    <br/>
-    <div class="btn-group form-group" role="group" style="float:none;">
-      <h3>{% trans 'Hat color' %}</h3>
-      {% for color in HatColor %}
-      <a class="button achoose" style="background:{{ color.main_value }};" onclick='hat_color="{{ color.value }}"; update_image();'>&nbsp;</a>
-      {% endfor %}
-    </div>
-    <br/>
-    <div class="btn-group form-group" role="group" style="float:none;">
-      <h3>{% trans 'Mouth type' %}</h3>
-      {% for type in MouthType %}
-      <a class="button" onclick='mouth_type="{{ type.value }}"; update_image();'>{{ type.name }}</a>
-      {% endfor %}
-    </div>
-    <br/>
-    <div class="btn-group form-group" role="group" style="float:none;">
-      <h3>{% trans 'Eyes type' %}</h3>
-      {% for type in EyesType %}
-      <a class="button" onclick='eyes_type="{{ type.value }}"; update_image();'>{{ type.name }}</a>
-      {% endfor %}
-    </div>
-    <br/>
-    <div class="btn-group form-group" role="group" style="float:none;">
-      <h3>{% trans 'Eyebrow type' %}</h3>
-      {% for type in EyebrowType %}
-      <a class="button" onclick='eyebrow_type="{{ type.value }}"; update_image();'>{{ type.name }}</a>
-      {% endfor %}
-    </div>
-    <!--
-    <br/>
-    <div class="btn-group form-group" role="group" style="float:none;">
-      <h3>{% trans 'Nose type' %}</h3>
-      {% for type in NoseType %}
-      <a class="button" onclick='nose_type="{{ type.value }}"; update_image();'>{{ type.name }}</a>
-      {% endfor %}
-    </div>
-    -->
-    <br/>
-    <div class="btn-group form-group" role="group" style="float:none;">
-      <h3>{% trans 'Glasses' %}</h3>
-      {% for type in AccessoriesType %}
-      <a class="button" onclick='accessories_type="{{ type.value }}"; update_image();'>{{ type.name }}</a>
-      {% endfor %}
-    </div>
-    <br/>
-    <div class="btn-group form-group" role="group" style="float:none;">
-      <h3>{% trans 'Clothe type' %}</h3>
-      {% for type in ClotheType %}
-      <a class="button" onclick='clothe_type="{{ type.value }}"; update_image();'>{{ type.name }}</a>
-      {% endfor %}
-    </div>
-    <br/>
-    <div class="btn-group form-group" role="group" style="float:none;">
-      <h3>{% trans 'Clothe color' %}</h3>
-      {% for color in ClotheColor %}
-      <a class="button achoose" style="background:{{ color.main_value }};" onclick='clothe_color="{{ color.value }}"; update_image();'>&nbsp;</a>
-      {% endfor %}
-    </div>
-    <br/>
-    <div class="btn-group form-group" role="group" style="float:none;">
-      <h3>{% trans 'Clothe graphic type' %}</h3>
-      {% for type in ClotheGraphicType %}
-      <a class="button" onclick='clothe_graphic_type="{{ type.value }}"; update_image();'>{{ type.name }}</a>
-      {% endfor %}
+
+    <div hidden="hidden" class="form-group" role="group" style="float:none;">
+      <label for="clothegraphictype" class="form-label">{% trans 'Clothe graphic type' %}</label>
+      <input type="range" class="form-range" id="clothegraphictype" min="0" max="10" step="1" value="0">
+      <script>
+        var elem = document.getElementById("clothegraphictype");
+        elem.addEventListener("input", function() {
+          clothe_graphic_type = this.value;
+          update_image();
+        });
+      </script>
     </div>
 
   </div>
