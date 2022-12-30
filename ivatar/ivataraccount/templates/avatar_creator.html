@@ -97,12 +97,12 @@
         var elem = document.getElementById("facialhairtype");
         facialhairtype.addEventListener("input", function() {
           facial_hair_type = this.value;
-          var colordiv = document.getElementById("facialhaircolor").parentNode;
+          var thediv = document.getElementById("facialhaircolor").parentNode;
           if(this.value != 0) {
-            colordiv.display = "block";
-            colordiv.removeAttribute("hidden");
+            thediv.display = "block";
+            thediv.removeAttribute("hidden");
           } else {
-            colordiv.setAttribute("hidden", "hidden");
+            thediv.setAttribute("hidden", "hidden");
           }
           update_image();
         });
