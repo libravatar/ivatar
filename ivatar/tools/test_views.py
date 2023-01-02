@@ -48,12 +48,84 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
             password=self.password,
         )
 
-    def test_check(self):
+    def test_check_mail(self):
         """
         Test check page
         """
+        self.login()
         response = self.client.get(reverse("tools_check"))
         self.assertEqual(response.status_code, 200, "no 200 ok?")
+        response = self.client.post(
+            reverse("tools_check"),
+            data={"mail": "test@test.com", "size": "85"},
+            follow=True,
+        )
+
+        self.assertContains(
+            response,
+            'value="test@test.com"',
+            1,
+            200,
+            "Value not set again!?",
+        )
+
+        self.assertContains(
+            response,
+            "b642b4217b34b1e8d3bd915fc65c4452",
+            3,
+            200,
+            "Wrong md5 hash!?",
+        )
+        self.assertContains(
+            response,
+            "f660ab912ec121d1b1e928a0bb4bc61b15f5ad44d5efdc4e1c92a25e99b8e44a",
+            3,
+            200,
+            "Wrong sha256 hash!?",
+        )
+        self.assertContains(
+            response,
+            'value="85"',
+            1,
+            200,
+            "Size should be set based on post params!?",
+        )
+
+    def test_check_openid(self):
+        """
+        Test check page
+        """
+        self.login()
+        response = self.client.get(reverse("tools_check"))
+        self.assertEqual(response.status_code, 200, "no 200 ok?")
+        response = self.client.post(
+            reverse("tools_check"),
+            data={"openid": "https://test.com", "size": "85"},
+            follow=True,
+        )
+
+        self.assertContains(
+            response,
+            'value="https://test.com"',
+            1,
+            200,
+            "Value not set again!?",
+        )
+
+        self.assertContains(
+            response,
+            "396936bd0bf0603d6784b65d03e96dae90566c36b62661f28d4116c516524bcc",
+            3,
+            200,
+            "Wrong sha256 hash!?",
+        )
+        self.assertContains(
+            response,
+            'value="85"',
+            1,
+            200,
+            "Size should be set based on post params!?",
+        )
 
     def test_check_domain(self):
         """
