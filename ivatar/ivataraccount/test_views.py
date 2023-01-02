@@ -1999,3 +1999,18 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         """
 
         self.client.get(reverse("user_preference"))
+
+    def test_delete_user(self):
+        """
+        Test if deleting user profile works
+        """
+
+        self.login()
+        self.client.get(reverse("delete"))
+        response = self.client.post(
+            reverse("delete"),
+            data={"password": self.password},
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200, "Deletion worked")
+        self.assertEqual(User.objects.count(), 0, "No user there any more")
