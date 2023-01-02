@@ -59,5 +59,26 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         """
         Test check domain page
         """
+        self.login()
         response = self.client.get(reverse("tools_check_domain"))
         self.assertEqual(response.status_code, 200, "no 200 ok?")
+        response = self.client.post(
+            reverse("tools_check_domain"),
+            data={"domain": "linux-kernel.at"},
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200, "no 200 ok?")
+        self.assertContains(
+            response,
+            "http://avatars.linux-kernel.at",
+            2,
+            200,
+            "Not responing with right URL!?",
+        )
+        self.assertContains(
+            response,
+            "https://avatars.linux-kernel.at",
+            2,
+            200,
+            "Not responing with right URL!?",
+        )
