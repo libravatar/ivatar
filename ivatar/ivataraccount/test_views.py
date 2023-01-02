@@ -1998,6 +1998,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         Test if preferences page works
         """
 
+        self.login()
         self.client.get(reverse("user_preference"))
 
     def test_delete_user(self):
