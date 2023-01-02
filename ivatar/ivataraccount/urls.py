@@ -26,7 +26,9 @@ from .views import ResendConfirmationMailView
 from .views import IvatarLoginView
 from .views import DeleteAccountView
 from .views import ExportView
-from .views import AvatarCreatorView, AvatarView
+from .avatar_creator_views import AvatarCreatorView, AvatarView
+
+# from .avatar_creator_views import AvatarItemView
 
 # Define URL patterns, self documenting
 # To see the fancy, colorful evaluation of these use:
@@ -83,6 +85,8 @@ urlpatterns = [  # pylint: disable=invalid-name
     path("password_set/", PasswordSetView.as_view(), name="password_set"),
     path("avatar_creator/", AvatarCreatorView.as_view(), name="avatar_creator"),
     path("avatar_view/", AvatarView.as_view(), name="avataaar"),
+    # This is for testing purpose only and shall not be used in production at all
+    # path("avatar_item_view/", AvatarItemView.as_view(), name="avataaar_item"),
     re_path(
         r"remove_unconfirmed_openid/(?P<openid_id>\d+)",
         RemoveUnconfirmedOpenIDView.as_view(),
