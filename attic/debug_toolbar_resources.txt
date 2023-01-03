@@ -1,0 +1,2 @@
+https://django-debug-toolbar.readthedocs.io/en/latest/installation.html
+https://stackoverflow.com/questions/6548947/how-can-django-debug-toolbar-be-set-to-work-for-just-some-users/6549317#6549317
