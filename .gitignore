@@ -20,3 +20,4 @@ falko_gravatar.jpg
 *.egg-info
 dump_all*.sql
 dist/
+.env.local
