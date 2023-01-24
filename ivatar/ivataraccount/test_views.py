@@ -2015,3 +2015,44 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         )
         self.assertEqual(response.status_code, 200, "Deletion worked")
         self.assertEqual(User.objects.count(), 0, "No user there any more")
+
+    def test_confirm_already_confirmed(self):
+        """
+        Try to confirm a mail address that has been confirmed (by another user)
+        """
+
+        # Add mail address (stays unconfirmed)
+        self.test_add_email()
+
+        # Create a second user that will conflict
+        user2 = User.objects.create_user(
+            username=self.username + "1",
+            password=self.password,
+            first_name=self.first_name,
+            last_name=self.last_name,
+        )
+        ConfirmedEmail.objects.create(
+            email=self.email,
+            user=user2,
+        )
+
+        # Just to be sure
+        self.assertEqual(
+            self.user.unconfirmedemail_set.first().email,
+            user2.confirmedemail_set.first().email,
+            "Mail not the same?",
+        )
+
+        # This needs to be cought
+        try:
+            self.test_confirm_email()
+        except AssertionError:
+            pass
+
+        # Request a random page, so we can access the messages
+        response = self.client.get(reverse("profile"))
+        self.assertEqual(
+            str(list(response.context[0]["messages"])[0]),
+            "This mail address has been taken already and cannot be confirmed",
+            "This should return an error message!",
+        )
