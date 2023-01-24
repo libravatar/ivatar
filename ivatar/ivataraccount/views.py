@@ -207,6 +207,13 @@ class ConfirmEmailView(SuccessMessageMixin, TemplateView):
             messages.error(request, _("Verification key does not exist"))
             return HttpResponseRedirect(reverse_lazy("profile"))
 
+        if ConfirmedEmail.objects.filter(email=unconfirmed.email).count() > 0:
+            messages.error(
+                request,
+                _("This mail address has been taken already and cannot be confirmed"),
+            )
+            return HttpResponseRedirect(reverse_lazy("profile"))
+
         # TODO: Check for a reasonable expiration time in unconfirmed email
 
         (confirmed_id, external_photos) = ConfirmedEmail.objects.create_confirmed_email(
