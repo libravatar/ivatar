@@ -234,6 +234,11 @@ TRUSTED_DEFAULT_URLS = [
     },
     {
         "schemes": ["https"],
+        "host_equals": "api.dicebear.com",
+        "path_prefix": "/",
+    },
+    {
+        "schemes": ["https"],
         "host_equals": "badges.fedoraproject.org",
         "path_prefix": "/static/img/",
     },
