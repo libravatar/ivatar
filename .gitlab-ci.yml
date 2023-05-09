@@ -1,8 +1,3 @@
-default:
-  image:
-    name: quay.io/rhn_support_ofalk/fedora35-python3
-    entrypoint: [ '/bin/sh', '-c' ]
-
 before_script:
   - virtualenv -p python3 /tmp/.virtualenv
   - source /tmp/.virtualenv/bin/activate
@@ -14,6 +9,9 @@ before_script:
   - pip install django_coverage_plugin
 
 test_and_coverage:
+  image:
+    name: quay.io/rhn_support_ofalk/fedora35-python3
+    entrypoint: [ '/bin/sh', '-c' ]
   stage: test
   coverage: '/^TOTAL.*\s+(\d+\%)$/'
   script:
@@ -31,6 +29,9 @@ test_and_coverage:
       - htmlcov/
 
 pycco:
+  image:
+    name: quay.io/rhn_support_ofalk/fedora35-python3
+    entrypoint: [ '/bin/sh', '-c' ]
   stage: test
   script:
     - /bin/true
@@ -41,6 +42,9 @@ pycco:
     expire_in: 14 days
 
 pages:
+  image:
+    name: quay.io/rhn_support_ofalk/fedora35-python3
+    entrypoint: [ '/bin/sh', '-c' ]
   before_script:
     - /bin/true
     - /bin/true
