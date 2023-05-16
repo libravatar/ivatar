@@ -89,12 +89,10 @@ build-image:
   - docker build --pull -t "$CI_REGISTRY_IMAGE${tag}" .
   - docker push "$CI_REGISTRY_IMAGE${tag}"
 semgrep:
+  extends: semgrep-sast
   stage: test
   allow_failure: true
   image: registry.gitlab.com/gitlab-org/security-products/analyzers/semgrep:latest
-  only:
-    - master
-    - devel
   variables:
     CI_PROJECT_DIR: "/tmp/app"
     SECURE_LOG_LEVEL: "debug"
