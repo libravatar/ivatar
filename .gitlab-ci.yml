@@ -1,6 +1,16 @@
-before_script:
+image:
+  name: quay.io/rhn_support_ofalk/fedora35-python3
+  entrypoint:
+  - "/bin/sh"
+  - "-c"
+
+test_and_coverage:
+  stage: build
+  coverage: "/^TOTAL.*\\s+(\\d+\\%)$/"
+  before_script:
   - virtualenv -p python3 /tmp/.virtualenv
   - source /tmp/.virtualenv/bin/activate
+  - pip install -U pip
   - pip install Pillow
   - pip install -r requirements.txt
   - pip install python-coveralls
@@ -8,77 +18,95 @@ before_script:
   - pip install pycco
   - pip install django_coverage_plugin
 
-test_and_coverage:
-  image:
-    name: quay.io/rhn_support_ofalk/fedora35-python3
-    entrypoint: [ '/bin/sh', '-c' ]
-  stage: test
-  coverage: '/^TOTAL.*\s+(\d+\%)$/'
   script:
-    - echo 'from ivatar.settings import TEMPLATES' > config_local.py
-    - echo 'TEMPLATES[0]["OPTIONS"]["debug"] = True' >> config_local.py
-    - echo "DEBUG = True" >> config_local.py
-    - echo "from config import CACHES" >> config_local.py
-    - echo "CACHES['default'] = CACHES['filesystem']" >> config_local.py
-    - python manage.py collectstatic --noinput
-    - coverage run --source . manage.py test -v3
-    - coverage report --fail-under=70
-    - coverage html
+  - echo 'from ivatar.settings import TEMPLATES' > config_local.py
+  - echo 'TEMPLATES[0]["OPTIONS"]["debug"] = True' >> config_local.py
+  - echo "DEBUG = True" >> config_local.py
+  - echo "from config import CACHES" >> config_local.py
+  - echo "CACHES['default'] = CACHES['filesystem']" >> config_local.py
+  - python manage.py collectstatic --noinput
+  - coverage run --source . manage.py test -v3
+  - coverage report --fail-under=70
+  - coverage html
   artifacts:
     paths:
-      - htmlcov/
-
+    - htmlcov/
 pycco:
-  image:
-    name: quay.io/rhn_support_ofalk/fedora35-python3
-    entrypoint: [ '/bin/sh', '-c' ]
   stage: test
+  before_script:
+  - virtualenv -p python3 /tmp/.virtualenv
+  - source /tmp/.virtualenv/bin/activate
+  - pip install -U pip
+  - pip install Pillow
+  - pip install -r requirements.txt
+  - pip install python-coveralls
+  - pip install coverage
+  - pip install pycco
+  - pip install django_coverage_plugin
+
   script:
-    - /bin/true
-    - find ivatar/ -type f -name "*.py"|grep -v __pycache__|grep -v __init__.py|grep -v /migrations/ | xargs pycco -p -d pycco -i -s
+  - "/bin/true"
+  - find ivatar/ -type f -name "*.py"|grep -v __pycache__|grep -v __init__.py|grep
+    -v /migrations/ | xargs pycco -p -d pycco -i -s
   artifacts:
     paths:
-      - pycco/
+    - pycco/
     expire_in: 14 days
-
 pages:
-  image:
-    name: quay.io/rhn_support_ofalk/fedora35-python3
-    entrypoint: [ '/bin/sh', '-c' ]
-  before_script:
-    - /bin/true
-    - /bin/true
   stage: deploy
   dependencies:
-    - test_and_coverage
-    - pycco
+  - test_and_coverage
+  - pycco
   script:
-    - mv htmlcov/ public/
-    - mv pycco/ public/
+  - mv htmlcov/ public/
+  - mv pycco/ public/
   artifacts:
     paths:
-      - public
+    - public
     expire_in: 14 days
   only:
-    - master
-
+  - master
 build-image:
   image: docker
+  only:
+    - master
+    - devel
   services:
-    - docker:dind
+  - docker:dind
   before_script:
-    - docker info
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
-
+  - docker info
+  - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
   script:
-     - ls -lah
-     - |
-       if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
-         tag=""
-         echo "Running on default branch '$CI_DEFAULT_BRANCH': tag = 'latest'"
-       else
-         tag=":$CI_COMMIT_REF_SLUG"
-         echo "Running on branch '$CI_COMMIT_BRANCH': tag = $tag"
-       fi
-     - docker build --pull -t "$CI_REGISTRY_IMAGE${tag}" .
-     - docker push "$CI_REGISTRY_IMAGE${tag}"
+  - ls -lah
+  - |
+    if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
+      tag=""
+      echo "Running on default branch '$CI_DEFAULT_BRANCH': tag = 'latest'"
+    else
+      tag=":$CI_COMMIT_REF_SLUG"
+      echo "Running on branch '$CI_COMMIT_BRANCH': tag = $tag"
+    fi
+  - docker build --pull -t "$CI_REGISTRY_IMAGE${tag}" .
+  - docker push "$CI_REGISTRY_IMAGE${tag}"
+semgrep:
+  stage: test
+  allow_failure: true
+  image: registry.gitlab.com/gitlab-org/security-products/analyzers/semgrep:latest
+  only:
+    - master
+    - devel
+  variables:
+    CI_PROJECT_DIR: "/tmp/app"
+    SECURE_LOG_LEVEL: "debug"
+  script:
+    - rm -rf .virtualenv
+    - /analyzer run
+  artifacts:
+    paths:
+    - gl-sast-report.json
+    - semgrep.sarif
+
+include:
+  - template: Jobs/SAST.gitlab-ci.yml
+  - template: Jobs/Dependency-Scanning.gitlab-ci.yml
+  - template: Jobs/Secret-Detection.gitlab-ci.yml
