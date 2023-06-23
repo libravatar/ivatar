@@ -1,4 +1,4 @@
-FROM quay.io/rhn_support_ofalk/fedora36-python3
+FROM quay.io/rhn_support_ofalk/fedora37-python3
 LABEL maintainer Oliver Falk <oliver@linux-kernel.at>
 EXPOSE 8081
 
