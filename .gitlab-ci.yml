@@ -66,28 +66,28 @@ pages:
     expire_in: 14 days
   only:
   - master
-build-image:
-  image: docker
-  only:
-    - master
-    - devel
-  services:
-  - docker:dind
-  before_script:
-  - docker info
-  - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
-  script:
-  - ls -lah
-  - |
-    if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
-      tag=""
-      echo "Running on default branch '$CI_DEFAULT_BRANCH': tag = 'latest'"
-    else
-      tag=":$CI_COMMIT_REF_SLUG"
-      echo "Running on branch '$CI_COMMIT_BRANCH': tag = $tag"
-    fi
-  - docker build --pull -t "$CI_REGISTRY_IMAGE${tag}" .
-  - docker push "$CI_REGISTRY_IMAGE${tag}"
+#build-image:
+#  image: docker
+#  only:
+#    - master
+#    - devel
+#  services:
+#  - docker:dind
+#  before_script:
+#  - docker info
+#  - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+#  script:
+#  - ls -lah
+#  - |
+#    if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
+#      tag=""
+#      echo "Running on default branch '$CI_DEFAULT_BRANCH': tag = 'latest'"
+#    else
+#      tag=":$CI_COMMIT_REF_SLUG"
+#      echo "Running on branch '$CI_COMMIT_BRANCH': tag = $tag"
+#    fi
+#  - docker build --pull -t "$CI_REGISTRY_IMAGE${tag}" .
+#  - docker push "$CI_REGISTRY_IMAGE${tag}"
 semgrep:
   stage: test
   allow_failure: true
