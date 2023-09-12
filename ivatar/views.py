@@ -256,7 +256,7 @@ class AvatarImageView(TemplateView):
                     identicon = Identicon.render(kwargs["digest"])
                     data = BytesIO()
                     img = Image.open(BytesIO(identicon))
-                    img = img.resize((size, size), Image.ANTIALIAS)
+                    img = img.resize((size, size), Image.LANCZOS)
                     img.save(data, "PNG", quality=JPEG_QUALITY)
                     data.seek(0)
                     response = CachingHttpResponse(uri, data, content_type="image/png")
@@ -266,7 +266,7 @@ class AvatarImageView(TemplateView):
                 if str(default) == "pagan":
                     paganobj = pagan.Avatar(kwargs["digest"])
                     data = BytesIO()
-                    img = paganobj.img.resize((size, size), Image.ANTIALIAS)
+                    img = paganobj.img.resize((size, size), Image.LANCZOS)
                     img.save(data, "PNG", quality=JPEG_QUALITY)
                     data.seek(0)
                     response = CachingHttpResponse(uri, data, content_type="image/png")
@@ -331,9 +331,9 @@ class AvatarImageView(TemplateView):
             # If the image is smaller than what was requested, we need
             # to use the function resize
             if photodata.size[0] < size or photodata.size[1] < size:
-                photodata = photodata.resize((size, size), Image.ANTIALIAS)
+                photodata = photodata.resize((size, size), Image.LANCZOS)
             else:
-                photodata.thumbnail((size, size), Image.ANTIALIAS)
+                photodata.thumbnail((size, size), Image.LANCZOS)
             photodata.save(data, pil_format(imgformat), quality=JPEG_QUALITY)
 
         data.seek(0)
