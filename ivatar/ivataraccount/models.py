@@ -266,7 +266,7 @@ class Photo(BaseAccountModel):
         cropped_w, cropped_h = cropped.size
         max_w = AVATAR_MAX_SIZE
         if cropped_w > max_w or cropped_h > max_w:
-            cropped = cropped.resize((max_w, max_w), Image.ANTIALIAS)
+            cropped = cropped.resize((max_w, max_w), Image.LANCZOS)
 
         data = BytesIO()
         cropped.save(data, pil_format(self.format), quality=JPEG_QUALITY)
