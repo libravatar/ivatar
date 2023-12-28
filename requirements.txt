@@ -9,6 +9,7 @@ django-coverage-plugin
 django-extensions
 django-ipware
 django-user-accounts
+dnspython==2.2.0
 email-validator
 fabric
 flake8-respect-noqa

@@ -153,7 +153,7 @@ if "POSTGRESQL_DATABASE" in os.environ:
         "HOST": "postgresql",
     }
 
-SESSION_SERIALIZER = "django.contrib.sessions.serializers.PickleSerializer"
+SESSION_SERIALIZER = "django.contrib.sessions.serializers.JSONSerializer"
 
 USE_X_FORWARDED_HOST = True
 ALLOWED_EXTERNAL_OPENID_REDIRECT_DOMAINS = [
