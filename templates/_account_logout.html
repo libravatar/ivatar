@@ -1,0 +1,6 @@
+{% load i18n %}
+<form id="logoutform" method="POST" action="{% url 'logout' %}">
+  {% csrf_token %}
+  <input type="hidden"/>
+</form>
+<a href="#" onClick="document.getElementById('logoutform').submit()"><i class="fa fa-fw fa-sign-out" aria-hidden="true"></i> {% trans 'Logout' %}</a>
