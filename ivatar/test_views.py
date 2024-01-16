@@ -6,6 +6,7 @@ Test our views in ivatar.ivataraccount.views and ivatar.views
 import os
 import json
 import django
+from django.urls import reverse
 from django.test import TestCase
 from django.test import Client
 from django.contrib.auth.models import User
@@ -76,3 +77,15 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
             j["unconfirmed_openids"], 0, "unconfirmed openids count incorrect"
         )
         self.assertEqual(j["avatars"], 0, "avatars count incorrect")
+
+    def test_logout(self):
+        """
+        Test if logout works correctly
+        """
+        self.login()
+        response = self.client.get(reverse("logout"), follow=True)
+        self.assertEqual(
+            response.status_code, 405, "logout with get should lead to http error 405"
+        )
+        response = self.client.post(reverse("logout"), follow=True)
+        self.assertEqual(response.status_code, 200, "logout with post should logout")
