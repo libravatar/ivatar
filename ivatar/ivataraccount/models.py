@@ -124,7 +124,7 @@ class Photo(BaseAccountModel):
 
     ip_address = models.GenericIPAddressField(unpack_ipv4=True)
     data = models.BinaryField()
-    format = models.CharField(max_length=3)
+    format = models.CharField(max_length=4)
     access_count = models.BigIntegerField(default=0, editable=False)
 
     class Meta:  # pylint: disable=too-few-public-methods
