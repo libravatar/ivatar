@@ -12,6 +12,15 @@ cache:
 test_and_coverage:
   stage: build
   coverage: "/^TOTAL.*\\s+(\\d+\\%)$/"
+  services:
+    - postgres:latest
+  variables:
+    POSTRES_DB: django_db
+    POSTGRES_USER: django_user
+    POSTGRES_PASSWORD: django_password
+    POSTGRES_HOST: postgres
+    DATABASE_URL: "postgres://django_user:django_password@postgres/django_db"
+    PYTHONUNBUFFERED: 1
   before_script:
   - virtualenv -p python3 /tmp/.virtualenv
   - source /tmp/.virtualenv/bin/activate

@@ -153,6 +153,16 @@ if "POSTGRESQL_DATABASE" in os.environ:
         "HOST": "postgresql",
     }
 
+# CI/CD config has different naming
+if "POSTGRESQL_DB" in os.environ:
+    DATABASES["default"] = {  # pragma: no cover
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ["POSTGRES_DB"],
+        "USER": os.environ["POSTGRES_USER"],
+        "PASSWORD": os.environ["POSTGRES_PASSWORD"],
+        "HOST": os.environ["POSTGRES_HOST"],
+    }
+
 SESSION_SERIALIZER = "django.contrib.sessions.serializers.JSONSerializer"
 
 USE_X_FORWARDED_HOST = True
