@@ -38,6 +38,7 @@ test_and_coverage:
   - echo "DEBUG = True" >> config_local.py
   - echo "from config import CACHES" >> config_local.py
   - echo "CACHES['default'] = CACHES['filesystem']" >> config_local.py
+  - python manage.py sqldsn
   - python manage.py collectstatic --noinput
   - coverage run --source . manage.py test -v3
   - coverage report --fail-under=70
