@@ -154,7 +154,7 @@ if "POSTGRESQL_DATABASE" in os.environ:
     }
 
 # CI/CD config has different naming
-if "POSTGRESQL_DB" in os.environ:
+if "POSTGRES_DB" in os.environ:
     DATABASES["default"] = {  # pragma: no cover
         "ENGINE": "django.db.backends.postgresql",
         "NAME": os.environ["POSTGRES_DB"],
