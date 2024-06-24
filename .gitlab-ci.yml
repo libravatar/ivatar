@@ -4,6 +4,11 @@ image:
   - "/bin/sh"
   - "-c"
 
+# Cache pip deps to speed up builds
+cache:
+  paths:
+    - .cache/pip
+
 test_and_coverage:
   stage: build
   coverage: "/^TOTAL.*\\s+(\\d+\\%)$/"
