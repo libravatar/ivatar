@@ -7,7 +7,9 @@ image:
 # Cache pip deps to speed up builds
 cache:
   paths:
-    - .cache/pip
+    - .pipcache
+variables:
+  PIP_CACHE_DIR: .pipcache
 
 test_and_coverage:
   stage: build
