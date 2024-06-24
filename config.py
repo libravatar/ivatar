@@ -161,6 +161,7 @@ if "POSTGRESQL_DB" in os.environ:
         "USER": os.environ["POSTGRES_USER"],
         "PASSWORD": os.environ["POSTGRES_PASSWORD"],
         "HOST": os.environ["POSTGRES_HOST"],
+        "TEST": os.environ["POSTGRES_DB"],
     }
 
 SESSION_SERIALIZER = "django.contrib.sessions.serializers.JSONSerializer"
