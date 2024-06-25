@@ -394,8 +394,6 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         # Probably not the best way to access the content type
         self.assertEqual(response["Content-Type"], "image/jpg", "Content type wrong!?")
 
-        print("XXX: %s", type(response.content))
-        print("XXX: %s", type(self.user.photo_set.first().data))
         self.assertEqual(
             bytes(response.content),
             bytes(self.user.photo_set.first().data),
