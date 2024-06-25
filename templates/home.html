@@ -28,7 +28,7 @@
           <li><a href="{% url 'upload_export' %}"><i class="fa fa-fw fa-file-archive-o" aria-hidden="true"></i> {% trans 'Import libravatar XML export' %}</a></li>
           <li><a href="{% url 'password_change' %}"><i class="fa fa-fw fa-key" aria-hidden="true"></i> {% trans 'Change password' %}</a></li>
           <li><a href="{% url 'password_reset' %}"><i class="fa fa-fw fa-unlock-alt" aria-hidden="true"></i> {% trans 'Reset password' %}</a></li>
-          <li><a href="{% url 'logout' %}"><i class="fa fa-fw fa-sign-out" aria-hidden="true"></i> {% trans 'Logout' %}</a></li>
+          <li>{% include '_account_logout.html' %}</li>
           {% if user.is_staff %}
           <li>
             <a href="{% url 'admin:index' %}" target="_new"><i class="fa fa-fw fa-user-secret" aria-hidden="true"></i> {% trans 'Admin' %}</a>
