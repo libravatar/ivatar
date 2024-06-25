@@ -14,6 +14,15 @@ variables:
 test_and_coverage:
   stage: build
   coverage: "/^TOTAL.*\\s+(\\d+\\%)$/"
+  services:
+    - postgres:latest
+  variables:
+    POSTGRES_DB: django_db
+    POSTGRES_USER: django_user
+    POSTGRES_PASSWORD: django_password
+    POSTGRES_HOST: postgres
+    DATABASE_URL: "postgres://django_user:django_password@postgres/django_db"
+    PYTHONUNBUFFERED: 1
   before_script:
   - virtualenv -p python3 /tmp/.virtualenv
   - source /tmp/.virtualenv/bin/activate
@@ -31,8 +40,9 @@ test_and_coverage:
   - echo "DEBUG = True" >> config_local.py
   - echo "from config import CACHES" >> config_local.py
   - echo "CACHES['default'] = CACHES['filesystem']" >> config_local.py
+  - python manage.py sqldsn
   - python manage.py collectstatic --noinput
-  - coverage run --source . manage.py test -v3
+  - coverage run --source . manage.py test -v3 --noinput
   - coverage report --fail-under=70
   - coverage html
   artifacts:
