@@ -395,8 +395,8 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         self.assertEqual(response["Content-Type"], "image/jpg", "Content type wrong!?")
 
         self.assertEqual(
-            response.content,
-            self.user.photo_set.first().data,
+            str(response.content),
+            str(self.user.photo_set.first().data),
             "raw_image should return the same content as if we\
             read it directly from the DB",
         )
