@@ -21,3 +21,4 @@ falko_gravatar.jpg
 dump_all*.sql
 dist/
 .env.local
+tmp/
