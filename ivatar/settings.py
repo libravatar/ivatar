@@ -103,7 +103,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Password Hashing (more secure)
 PASSWORD_HASHERS = [
-    "django.contrib.auth.hashers.Argon2PasswordHasher",
+    # This isn't working in older Python environments
+    # "django.contrib.auth.hashers.Argon2PasswordHasher",
     "django.contrib.auth.hashers.PBKDF2PasswordHasher",
     "django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher",
 ]
