@@ -1,3 +1,4 @@
+argon2
 autopep8
 bcrypt
 defusedxml
