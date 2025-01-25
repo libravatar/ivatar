@@ -286,3 +286,5 @@ def map_legacy_config(trusted_url):
 
 # Backward compability for legacy behavior
 TRUSTED_DEFAULT_URLS = list(map(map_legacy_config, TRUSTED_DEFAULT_URLS))
+
+URL_TIMEOUT = 10

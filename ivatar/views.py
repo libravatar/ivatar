@@ -5,7 +5,7 @@ views under /
 from io import BytesIO
 from os import path
 import hashlib
-from urllib.request import urlopen
+from ivatar.utils import urlopen
 from urllib.error import HTTPError, URLError
 from ssl import SSLError
 from django.views.generic.base import TemplateView, View
@@ -35,8 +35,6 @@ from .ivataraccount.models import UnconfirmedEmail, UnconfirmedOpenId
 from .ivataraccount.models import Photo
 from .ivataraccount.models import pil_format, file_format
 from .utils import is_trusted_url, mm_ng, resize_animated_gif
-
-URL_TIMEOUT = 5  # in seconds
 
 
 def get_size(request, size=DEFAULT_AVATAR_SIZE):
@@ -396,7 +394,7 @@ class GravatarProxyView(View):
                 # print("Cached Gravatar response: Default.")
                 return redir_default(default)
             try:
-                urlopen(gravatar_test_url, timeout=URL_TIMEOUT)
+                urlopen(gravatar_test_url)
             except HTTPError as exc:
                 if exc.code == 404:
                     cache.set(gravatar_test_url, "default", 60)
@@ -415,7 +413,7 @@ class GravatarProxyView(View):
                 print("Cached Gravatar fetch failed with URL error: %s" % gravatar_url)
                 return redir_default(default)
 
-            gravatarimagedata = urlopen(gravatar_url, timeout=URL_TIMEOUT)
+            gravatarimagedata = urlopen(gravatar_url)
         except HTTPError as exc:
             if exc.code != 404 and exc.code != 503:
                 print(

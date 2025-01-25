@@ -3,7 +3,7 @@
 View classes for ivatar/ivataraccount/
 """
 from io import BytesIO
-from urllib.request import urlopen
+from ivatar.utils import urlopen
 import base64
 import binascii
 from xml.sax import saxutils

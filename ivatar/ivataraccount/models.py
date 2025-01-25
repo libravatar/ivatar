@@ -9,7 +9,7 @@ import time
 from io import BytesIO
 from os import urandom
 from urllib.error import HTTPError, URLError
-from urllib.request import urlopen
+from ivatar.utils import urlopen
 from urllib.parse import urlsplit, urlunsplit
 
 from PIL import Image
