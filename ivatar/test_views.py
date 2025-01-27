@@ -10,8 +10,14 @@ from django.urls import reverse
 from django.test import TestCase
 from django.test import Client
 from django.contrib.auth.models import User
+from ivatar.utils import random_string, Bluesky
 
-from ivatar.utils import random_string
+BLUESKY_APP_PASSWORD = None
+BLUESKY_IDENTIFIER = None
+try:
+    from settings import BLUESKY_APP_PASSWORD, BLUESKY_IDENTIFIER
+except Exception:  # pylint: disable=broad-except
+    pass
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "ivatar.settings"
 django.setup()
@@ -89,3 +95,18 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         )
         response = self.client.post(reverse("logout"), follow=True)
         self.assertEqual(response.status_code, 200, "logout with post should logout")
+
+    def test_Bluesky_client(self):
+        """
+        Bluesky client needs credentials, so it's limited with testing here now
+        """
+        if BLUESKY_APP_PASSWORD and BLUESKY_IDENTIFIER:
+            b = Bluesky()
+            profile = b.get_profile("ofalk.bsky.social")
+            self.assertEqual(profile["handle"], "ofalk.bsky.social")
+            # As long as I don't change my avatar, this should stay the same
+            self.assertEqual(
+                profile["avatar"],
+                "https://cdn.bsky.app/img/avatar/plain/did:plc:35jdu26cjgsc5vdbsaqiuw4a/bafkreidgtubihcdwcr72s5nag2ohcnwhhbg2zabw4jtxlhmtekrm6t5f4y@jpeg",
+            )
+        self.assertEqual(True, True)

@@ -8,8 +8,15 @@ from io import BytesIO
 from PIL import Image, ImageDraw, ImageSequence
 from urllib.parse import urlparse
 import requests
-from ivatar.settings import DEBUG, URL_TIMEOUT, BLUESKY_IDENTIFIER, BLUESKY_APP_PASSWORD
+from ivatar.settings import DEBUG, URL_TIMEOUT
 from urllib.request import urlopen as urlopen_orig
+
+BLUESKY_IDENTIFIER = None
+BLUESKY_APP_PASSWORD = None
+try:
+    from ivatar.settings import BLUESKY_IDENTIFIER, BLUESKY_APP_PASSWORD
+except Exception:  # pylint: disable=broad-except
+    pass
 
 
 def urlopen(url, timeout=URL_TIMEOUT):
