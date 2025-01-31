@@ -1583,11 +1583,13 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
             )
         )
         url = "%s?%s" % (urlobj.path, urlobj.query)
+        url += "&gravatarproxy=n"
         response = self.client.get(url, follow=False)
-        self.assertRedirects(
-            response=response,
-            expected_url="/static/img/nobody.png",
-            msg_prefix="Why does this not redirect to nobody img?",
+        self.assertEqual(response.status_code, 302, "Doesn't redirect with 302?")
+        self.assertEqual(
+            response["Location"],
+            "/static/img/nobody.png",
+            "Doesn't redirect to static img?",
         )
 
     def test_avatar_url_default_gravatarproxy_disabled(
