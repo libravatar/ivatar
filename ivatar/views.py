@@ -5,7 +5,7 @@ views under /
 from io import BytesIO
 from os import path
 import hashlib
-from ivatar.utils import urlopen
+from ivatar.utils import urlopen, Bluesky
 from urllib.error import HTTPError, URLError
 from ssl import SSLError
 from django.views.generic.base import TemplateView, View
@@ -121,7 +121,8 @@ class AvatarImageView(TemplateView):
         if CACHE_RESPONSE:
             centry = caches["filesystem"].get(uri)
             if centry:
-                # For DEBUG purpose only print('Cached entry for %s' % uri)
+                # For DEBUG purpose only
+                # print('Cached entry for %s' % uri)
                 return HttpResponse(
                     centry["content"],
                     content_type=centry["content_type"],
@@ -190,6 +191,12 @@ class AvatarImageView(TemplateView):
                 except Exception:  # pylint: disable=bare-except
                     pass
 
+        # Handle the special case of Bluesky
+        if obj:
+            if obj.bluesky_handle:
+                return HttpResponseRedirect(
+                    reverse_lazy("blueskyproxy", args=[kwargs["digest"]])
+                )
         # If that mail/openid doesn't exist, or has no photo linked to it
         if not obj or not obj.photo or forcedefault:
             gravatar_url = (
@@ -440,6 +447,131 @@ class GravatarProxyView(View):
             response["Cache-Control"] = "max-age=%i" % CACHE_IMAGES_MAX_AGE
             return response
 
+        except ValueError as exc:
+            print("Value error: %s" % exc)
+            return redir_default(default)
+
+        # We shouldn't reach this point... But make sure we do something
+        return redir_default(default)
+
+
+class BlueskyProxyView(View):
+    """
+    Proxy request to Bluesky and return the image from there
+    """
+
+    def get(
+        self, request, *args, **kwargs
+    ):  # pylint: disable=too-many-branches,too-many-statements,too-many-locals,no-self-use,unused-argument,too-many-return-statements
+        """
+        Override get from parent class
+        """
+
+        def redir_default(default=None):
+            url = (
+                reverse_lazy("avatar_view", args=[kwargs["digest"]])
+                + "?s=%i" % size
+                + "&forcedefault=y"
+            )
+            if default is not None:
+                url += "&default=%s" % default
+            return HttpResponseRedirect(url)
+
+        size = get_size(request)
+        print(size)
+        blueskyimagedata = None
+        default = None
+
+        try:
+            if str(request.GET["default"]) != "None":
+                default = request.GET["default"]
+        except Exception:  # pylint: disable=bare-except
+            pass
+
+        identity = None
+
+        # First check for email, as this is the most common
+        try:
+            identity = ConfirmedEmail.objects.filter(
+                Q(digest=kwargs["digest"]) | Q(digest_sha256=kwargs["digest"])
+            ).first()
+        except Exception as exc:
+            print(exc)
+
+        # If no identity is found in the email table, try the openid table
+        if not identity:
+            try:
+                identity = ConfirmedOpenId.objects.filter(
+                    Q(digest=kwargs["digest"])
+                    | Q(alt_digest1=kwargs["digest"])
+                    | Q(alt_digest2=kwargs["digest"])
+                    | Q(alt_digest3=kwargs["digest"])
+                ).first()
+            except Exception as exc:
+                print(exc)
+
+        # If still no identity is found, redirect to the default
+        if not identity:
+            return redir_default(default)
+
+        bs = Bluesky()
+        bluesky_url = None
+        # Try with the cache first
+        try:
+            if cache.get(identity.bluesky_handle):
+                bluesky_url = cache.get(identity.bluesky_handle)
+        except Exception:  # pylint: disable=bare-except
+            pass
+
+        if not bluesky_url:
+            try:
+                bluesky_url = bs.get_avatar(identity.bluesky_handle)
+                cache.set(identity.bluesky_handle, bluesky_url)
+            except Exception:  # pylint: disable=bare-except
+                return redir_default(default)
+
+        try:
+            if cache.get(bluesky_url) == "err":
+                print("Cached Bluesky fetch failed with URL error: %s" % bluesky_url)
+                return redir_default(default)
+
+            blueskyimagedata = urlopen(bluesky_url)
+        except HTTPError as exc:
+            if exc.code != 404 and exc.code != 503:
+                print(
+                    "Bluesky fetch failed with an unexpected %s HTTP error: %s"
+                    % (exc.code, bluesky_url)
+                )
+            cache.set(bluesky_url, "err", 30)
+            return redir_default(default)
+        except URLError as exc:
+            print("Bluesky fetch failed with URL error: %s" % exc.reason)
+            cache.set(bluesky_url, "err", 30)
+            return redir_default(default)
+        except SSLError as exc:
+            print("Bluesky fetch failed with SSL error: %s" % exc.reason)
+            cache.set(bluesky_url, "err", 30)
+            return redir_default(default)
+        try:
+            data = BytesIO(blueskyimagedata.read())
+            img = Image.open(data)
+            format = img.format
+            if max(img.size) > size:
+                aspect = img.size[0] / float(img.size[1])
+                if aspect > 1:
+                    new_size = (size, int(size / aspect))
+                else:
+                    new_size = (int(size * aspect), size)
+                img = img.resize(new_size)
+            data = BytesIO()
+            img.save(data, format=format)
+
+            data.seek(0)
+            response = HttpResponse(
+                data.read(), content_type="image/%s" % file_format(format)
+            )
+            response["Cache-Control"] = "max-age=%i" % CACHE_IMAGES_MAX_AGE
+            return response
         except ValueError as exc:
             print("Value error: %s" % exc)
             return redir_default(default)
