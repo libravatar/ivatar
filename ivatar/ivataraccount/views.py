@@ -3,7 +3,7 @@
 View classes for ivatar/ivataraccount/
 """
 from io import BytesIO
-from ivatar.utils import urlopen
+from ivatar.utils import urlopen, Bluesky
 import base64
 import binascii
 from xml.sax import saxutils
@@ -288,6 +288,7 @@ class AssignPhotoEmailView(SuccessMessageMixin, TemplateView):
                 messages.error(request, _("Photo does not exist"))
                 return HttpResponseRedirect(reverse_lazy("profile"))
             email.photo = photo
+        email.bluesky_handle = None
         email.save()
 
         messages.success(request, _("Successfully changed photo"))
@@ -337,6 +338,7 @@ class AssignPhotoOpenIDView(SuccessMessageMixin, TemplateView):
                 messages.error(request, _("Photo does not exist"))
                 return HttpResponseRedirect(reverse_lazy("profile"))
             openid.photo = photo
+        openid.bluesky_handle = None
         openid.save()
 
         messages.success(request, _("Successfully changed photo"))
@@ -347,6 +349,96 @@ class AssignPhotoOpenIDView(SuccessMessageMixin, TemplateView):
         data["openid"] = ConfirmedOpenId.objects.get(
             pk=kwargs["openid_id"]
         )  # pylint: disable=no-member
+        return data
+
+
+@method_decorator(login_required, name="dispatch")
+class AssignBlueskyHandleToEmailView(SuccessMessageMixin, TemplateView):
+    """
+    View class for assigning a Bluesky handle to an email address
+    """
+
+    def post(self, request, *args, **kwargs):  # pylint: disable=unused-argument
+        """
+        Handle post request - assign bluesky handle to email
+        """
+
+        try:
+            email = ConfirmedEmail.objects.get(user=request.user, id=kwargs["email_id"])
+        except ConfirmedEmail.DoesNotExist:  # pylint: disable=no-member
+            messages.error(request, _("Invalid request"))
+            return HttpResponseRedirect(reverse_lazy("profile"))
+
+        if "bluesky_handle" not in request.POST:
+            messages.error(request, _("Invalid request [bluesky_handle] missing"))
+            return HttpResponseRedirect(reverse_lazy("profile"))
+        bluesky_handle = request.POST["bluesky_handle"]
+
+        try:
+            bs = Bluesky()
+
+            bs.get_avatar(bluesky_handle)
+        except Exception as e:
+            messages.error(
+                request, _("Handle '%s' not found: %s" % (bluesky_handle, e))
+            )
+            return HttpResponseRedirect(reverse_lazy("profile"))
+        email.set_bluesky_handle(bluesky_handle)
+        email.photo = None
+        email.save()
+
+        messages.success(request, _("Successfully assigned Bluesky handle"))
+        return HttpResponseRedirect(reverse_lazy("profile"))
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data["email"] = ConfirmedEmail.objects.get(pk=kwargs["email_id"])
+        return data
+
+
+@method_decorator(login_required, name="dispatch")
+class AssignBlueskyHandleToOpenIdView(SuccessMessageMixin, TemplateView):
+    """
+    View class for assigning a Bluesky handle to an email address
+    """
+
+    def post(self, request, *args, **kwargs):  # pylint: disable=unused-argument
+        """
+        Handle post request - assign bluesky handle to email
+        """
+
+        try:
+            openid = ConfirmedOpenId.objects.get(
+                user=request.user, id=kwargs["open_id"]
+            )
+        except ConfirmedOpenId.DoesNotExist:  # pylint: disable=no-member
+            messages.error(request, _("Invalid request"))
+            return HttpResponseRedirect(reverse_lazy("profile"))
+
+        if "bluesky_handle" not in request.POST:
+            messages.error(request, _("Invalid request [bluesky_handle] missing"))
+            return HttpResponseRedirect(reverse_lazy("profile"))
+        bluesky_handle = request.POST["bluesky_handle"]
+
+        try:
+            bs = Bluesky()
+
+            bs.get_avatar(bluesky_handle)
+        except Exception as e:
+            messages.error(
+                request, _("Handle '%s' not found: %s" % (bluesky_handle, e))
+            )
+            return HttpResponseRedirect(reverse_lazy("profile"))
+        openid.set_bluesky_handle(bluesky_handle)
+        openid.photo = None
+        openid.save()
+
+        messages.success(request, _("Successfully assigned Bluesky handle"))
+        return HttpResponseRedirect(reverse_lazy("profile"))
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data["openid"] = ConfirmedOpenId.objects.get(pk=kwargs["open_id"])
         return data
 
 

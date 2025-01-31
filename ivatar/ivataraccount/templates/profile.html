@@ -101,7 +101,15 @@
     <form action="{% url 'remove_confirmed_email' email.id %}" method="post">
       {% csrf_token %}
         <div id="email-conf-{{ forloop.counter }}" class="profile-container active">
-            <img title="{% trans 'Access count' %}: {{ email.access_count }}" src="{% if email.photo %}{% url 'raw_image' email.photo.id %}{% else %}{% static '/img/nobody/120.png' %}{% endif %}">
+            <img title="{% trans 'Access count' %}: {{ email.access_count }}"
+              src="
+              {% if email.photo %}
+                {% url 'raw_image' email.photo.id %}
+              {% elif email.bluesky_handle %}
+                {% url 'blueskyproxy' email.digest %}
+              {% else %}
+                {% static '/img/nobody/120.png' %}
+              {% endif %}">
             <h3 class="panel-title email-profile" title="{{ email.email }}">
                {{ email.email }}
             </h3>
@@ -123,7 +131,15 @@
     <form action="{% url 'remove_confirmed_email' email.id %}" method="post">
       {% csrf_token %}
         <div id="email-conf-{{ forloop.counter }}" class="profile-container" onclick="add_active('email-conf-{{ forloop.counter }}')">
-            <img title="{% trans 'Access count' %}: {{ email.access_count }}" src="{% if email.photo %}{% url 'raw_image' email.photo.id %}{% else %}{% static '/img/nobody/120.png' %}{% endif %}">
+            <img title="{% trans 'Access count' %}: {{ email.access_count }}"
+              src="
+              {% if email.photo %}
+                {% url 'raw_image' email.photo.id %}
+              {% elif email.bluesky_handle %}
+                {% url 'blueskyproxy' email.digest %}
+              {% else %}
+                {% static '/img/nobody/120.png' %}
+              {% endif %}">
             <h3 class="panel-title email-profile" title="{{ email.email }}">
                {{ email.email }}
             </h3>
@@ -148,7 +164,15 @@
     <form action="{% url 'remove_confirmed_openid' openid.id %}" method="post">{% csrf_token %}
       <div>
         <div id="id-conf-{{ forloop.counter }}" class="profile-container active">
-          <img title="{% trans 'Access count' %}: {{ openid.access_count }}" src="{% if openid.photo %}{% url 'raw_image' openid.photo.id %}{% else %}{% static '/img/nobody/120.png' %}{% endif %}">
+          <img title="{% trans 'Access count' %}: {{ openid.access_count }}"
+            src="
+            {% if openid.photo %}
+              {% url 'raw_image' openid.photo.id %}
+            {% elif openid.bluesky_handle %}
+              {% url 'blueskyproxy' openid.digest %}
+            {% else %}
+              {% static '/img/nobody/120.png' %}
+            {% endif %}">
           <h3 class="panel-title email-profile" title="{{ openid.openid }}">
             {{ openid.openid }}
           </h3>
