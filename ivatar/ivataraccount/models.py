@@ -9,7 +9,7 @@ import time
 from io import BytesIO
 from os import urandom
 from urllib.error import HTTPError, URLError
-from ivatar.utils import urlopen
+from ivatar.utils import urlopen, Bluesky
 from urllib.parse import urlsplit, urlunsplit
 
 from PIL import Image
@@ -322,6 +322,8 @@ class ConfirmedEmail(BaseAccountModel):
         null=True,
         on_delete=models.deletion.SET_NULL,
     )
+    # Alternative assignment - use Bluesky handle
+    bluesky_handle = models.CharField(max_length=256, null=True, blank=True)
     digest = models.CharField(max_length=32)
     digest_sha256 = models.CharField(max_length=64)
     objects = ConfirmedEmailManager()
@@ -340,6 +342,18 @@ class ConfirmedEmail(BaseAccountModel):
         Helper method to set photo
         """
         self.photo = photo
+        self.save()
+
+    def set_bluesky_handle(self, handle):
+        """
+        Helper method to set Bluesky handle
+        """
+        bs = Bluesky()
+        avatar = bs.get_profile(handle)
+        if not avatar:
+            raise Exception("Invalid Bluesky handle")
+            return
+        self.bluesky_handle = handle
         self.save()
 
     def save(
@@ -463,6 +477,8 @@ class ConfirmedOpenId(BaseAccountModel):
     alt_digest2 = models.CharField(max_length=64, null=True, blank=True, default=None)
     # https://<id> - https w/o trailing slash
     alt_digest3 = models.CharField(max_length=64, null=True, blank=True, default=None)
+    # Alternative assignment - use Bluesky handle
+    bluesky_handle = models.CharField(max_length=256, null=True, blank=True)
 
     access_count = models.BigIntegerField(default=0, editable=False)
 
@@ -479,6 +495,18 @@ class ConfirmedOpenId(BaseAccountModel):
         Helper method to save photo
         """
         self.photo = photo
+        self.save()
+
+    def set_bluesky_handle(self, handle):
+        """
+        Helper method to set Bluesky handle
+        """
+        bs = Bluesky()
+        avatar = bs.get_profile(handle)
+        if not avatar:
+            raise Exception("Invalid Bluesky handle")
+            return
+        self.bluesky_handle = handle
         self.save()
 
     def save(
