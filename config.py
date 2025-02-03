@@ -268,9 +268,7 @@ TRUSTED_DEFAULT_URLS = [
     },
 ]
 
-# This MUST BE THE LAST!
-if os.path.isfile(os.path.join(BASE_DIR, "config_local.py")):
-    from config_local import *  # noqa # flake8: noqa # NOQA # pragma: no cover
+URL_TIMEOUT = 10
 
 
 def map_legacy_config(trusted_url):
@@ -287,4 +285,10 @@ def map_legacy_config(trusted_url):
 # Backward compability for legacy behavior
 TRUSTED_DEFAULT_URLS = list(map(map_legacy_config, TRUSTED_DEFAULT_URLS))
 
-URL_TIMEOUT = 10
+# Bluesky settings
+BLUESKY_IDENTIFIER = os.environ.get("BLUESKY_IDENTIFIER", None)
+BLUESKY_APP_PASSWORD = os.environ.get("BLUESKY_APP_PASSWORD", None)
+
+# This MUST BE THE LAST!
+if os.path.isfile(os.path.join(BASE_DIR, "config_local.py")):
+    from config_local import *  # noqa # flake8: noqa # NOQA # pragma: no cover
