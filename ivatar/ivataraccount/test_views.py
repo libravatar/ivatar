@@ -456,11 +456,18 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
                 },
                 follow=True,
             )  # Create test addresses + 1 too much
-        # TODO: This test isn't super criticial, but needs to be fixed
-        # Currently issues an error with an unbound form
-        # self.assertFormError(
-        #    response, "form", None, "Too many unconfirmed mail addresses!"
-        # )
+        # Check the response context for form errors
+        self.assertTrue(
+            hasattr(response, "context"), "Response does not have a context"
+        )
+        form = response.context.get("form")
+        self.assertIsNotNone(form, "No form found in response context")
+
+        # Verify form errors
+        self.assertFalse(form.is_valid(), "Form should not be valid")
+        self.assertIn(
+            "Too many unconfirmed mail addresses!", form.errors.get("__all__", [])
+        )
 
     def test_add_mail_address_twice(self):
         """
@@ -479,11 +486,18 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
                 },
                 follow=True,
             )
-        # TODO: This test isn't super criticial, but needs to be fixed
-        # Currently issues an error with an unbound form
-        # self.assertFormError(
-        #    response, "form", "email", "Address already added, currently unconfirmed"
-        # )
+        # Check the response context for form errors
+        self.assertTrue(
+            hasattr(response, "context"), "Response does not have a context"
+        )
+        form = response.context.get("form")
+        self.assertIsNotNone(form, "No form found in response context")
+
+        # Verify form errors
+        self.assertFalse(form.is_valid(), "Form should not be valid")
+        self.assertIn(
+            "Address already added, currently unconfirmed", form.errors.get("email", [])
+        )
 
     def test_add_already_confirmed_email_self(self):  # pylint: disable=invalid-name
         """
@@ -500,11 +514,19 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
             },
             follow=True,
         )
-        # TODO: This test isn't super criticial, but needs to be fixed
-        # Currently issues an error with an unbound form
-        # self.assertFormError(
-        #    response, "form", "email", "Address already confirmed (by you)"
-        # )
+
+        # Check the response context for form errors
+        self.assertTrue(
+            hasattr(response, "context"), "Response does not have a context"
+        )
+        form = response.context.get("form")
+        self.assertIsNotNone(form, "No form found in response context")
+
+        # Verify form errors
+        self.assertFalse(form.is_valid(), "Form should not be valid")
+        self.assertIn(
+            "Address already confirmed (by you)", form.errors.get("email", [])
+        )
 
     def test_add_already_confirmed_email_other(self):  # pylint: disable=invalid-name
         """
@@ -528,11 +550,19 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
             },
             follow=True,
         )
-        # TODO: This test isn't super criticial, but needs to be fixed
-        # Currently issues an error with an unbound form
-        # self.assertFormError(
-        #    response, "form", "email", "Address already confirmed (by someone)"
-        # )
+
+        # Check the response context for form errors
+        self.assertTrue(
+            hasattr(response, "context"), "Response does not have a context"
+        )
+        form = response.context.get("form")
+        self.assertIsNotNone(form, "No form found in response context")
+
+        # Verify form errors
+        self.assertFalse(form.is_valid(), "Form should not be valid")
+        self.assertIn(
+            "Address already confirmed (by someone else)", form.errors.get("email", [])
+        )
 
     def test_remove_unconfirmed_non_existing_email(
         self,
@@ -1052,11 +1082,19 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
             "There must only be one unconfirmed ID!",
         )
 
-        # TODO: This test isn't super criticial, but needs to be fixed
-        # Currently issues an error with an unbound form
-        # self.assertFormError(
-        #    response, "form", "openid", "OpenID already added, but not confirmed yet!"
-        # )
+        # Check the response context for form errors
+        self.assertTrue(
+            hasattr(response, "context"), "Response does not have a context"
+        )
+        form = response.context.get("form")
+        self.assertIsNotNone(form, "No form found in response context")
+
+        # Verify form errors
+        self.assertFalse(form.is_valid(), "Form should not be valid")
+        self.assertIn(
+            "OpenID already added, but not confirmed yet!",
+            form.errors.get("openid", []),
+        )
 
         # Manual confirm, since testing is _really_ hard!
         unconfirmed = self.user.unconfirmedopenid_set.first()
@@ -1075,11 +1113,19 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
             },
             follow=True,
         )
-        # TODO: This test isn't super criticial, but needs to be fixed
-        # Currently issues an error with an unbound form
-        # self.assertFormError(
-        #    response, "form", "openid", "OpenID already added and confirmed!"
-        # )
+
+        # Check the response context for form errors
+        self.assertTrue(
+            hasattr(response, "context"), "Response does not have a context"
+        )
+        form = response.context.get("form")
+        self.assertIsNotNone(form, "No form found in response context")
+
+        # Verify form errors
+        self.assertFalse(form.is_valid(), "Form should not be valid")
+        self.assertIn(
+            "OpenID already added and confirmed!", form.errors.get("openid", [])
+        )
 
     def test_assign_photo_to_openid(self):
         """
@@ -1529,9 +1575,6 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         """
         Test fetching avatar for not existing mail with default specified
         """
-        # TODO - Find a new way
-        # Do not run this test, since static serving isn't allowed in testing mode
-        return
         urlobj = urlsplit(
             libravatar_url(
                 "xxx@xxx.xxx",
@@ -1540,11 +1583,13 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
             )
         )
         url = "%s?%s" % (urlobj.path, urlobj.query)
+        url += "&gravatarproxy=n"
         response = self.client.get(url, follow=False)
-        self.assertRedirects(
-            response=response,
-            expected_url="/static/img/nobody.png",
-            msg_prefix="Why does this not redirect to nobody img?",
+        self.assertEqual(response.status_code, 302, "Doesn't redirect with 302?")
+        self.assertEqual(
+            response["Location"],
+            "/static/img/nobody.png",
+            "Doesn't redirect to static img?",
         )
 
     def test_avatar_url_default_gravatarproxy_disabled(
@@ -1553,9 +1598,6 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         """
         Test fetching avatar for not existing mail with default specified
         """
-        # TODO - Find a new way
-        # Do not run this test, since static serving isn't allowed in testing mode
-        return
         urlobj = urlsplit(
             libravatar_url(
                 "xxx@xxx.xxx",
@@ -1565,10 +1607,10 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         )
         url = "%s?%s&gravatarproxy=n" % (urlobj.path, urlobj.query)
         response = self.client.get(url, follow=True)
-        self.assertRedirects(
-            response=response,
-            expected_url="/static/img/nobody.png",
-            msg_prefix="Why does this not redirect to the default img?",
+        self.assertEqual(
+            response.redirect_chain[0][0],
+            "/static/img/nobody.png",
+            "Doesn't redirect to static?",
         )
 
     def test_avatar_url_default_external(self):  # pylint: disable=invalid-name

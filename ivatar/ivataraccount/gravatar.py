@@ -3,12 +3,11 @@
 Helper method to fetch Gravatar image
 """
 from ssl import SSLError
-from urllib.request import urlopen, HTTPError, URLError
+from urllib.request import HTTPError, URLError
+from ivatar.utils import urlopen
 import hashlib
 
 from ..settings import AVATAR_MAX_SIZE
-
-URL_TIMEOUT = 5  # in seconds
 
 
 def get_photo(email):
@@ -30,7 +29,7 @@ def get_photo(email):
     service_url = "http://www.gravatar.com/" + hash_object.hexdigest()
 
     try:
-        urlopen(image_url, timeout=URL_TIMEOUT)
+        urlopen(image_url)
     except HTTPError as exc:
         if exc.code != 404 and exc.code != 503:
             print(  # pragma: no cover
