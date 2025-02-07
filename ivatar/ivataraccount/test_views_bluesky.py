@@ -8,7 +8,7 @@ import django
 from django.test import TestCase
 from django.test import Client
 
-# from django.urls import reverse
+from django.urls import reverse
 from django.contrib.auth.models import User
 
 # from django.contrib.auth import authenticate
@@ -20,6 +20,8 @@ django.setup()
 from ivatar import settings
 from ivatar.ivataraccount.models import ConfirmedOpenId, ConfirmedEmail
 from ivatar.utils import random_string
+
+from libravatar import libravatar_url
 
 
 class Tester(TestCase):  # pylint: disable=too-many-public-methods
@@ -144,4 +146,139 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
             confirmed.bluesky_handle,
             self.bsky_test_account,
             "Setting Bluesky handle doesn't work?",
+        )
+
+    def test_bluesky_fetch_mail(self):
+        """
+        Check if we can successfully fetch a Bluesky avatar via email
+        """
+        self.login()
+        confirmed = self.create_confirmed_email()
+        confirmed.set_bluesky_handle(self.bsky_test_account)
+        lu = libravatar_url(confirmed.email, https=True)
+        lu = lu.replace("https://seccdn.libravatar.org/", reverse("home"))
+
+        response = self.client.get(lu)
+        # This is supposed to redirect to the Bluesky proxy
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], "/blueskyproxy/%s" % confirmed.digest)
+
+    def test_bluesky_fetch_openid(self):
+        """
+        Check if we can successfully fetch a Bluesky avatar via OpenID
+        """
+        self.login()
+        confirmed = self.create_confirmed_openid()
+        confirmed.set_bluesky_handle(self.bsky_test_account)
+        lu = libravatar_url(openid=confirmed.openid, https=True)
+        lu = lu.replace("https://seccdn.libravatar.org/", reverse("home"))
+
+        response = self.client.get(lu)
+        # This is supposed to redirect to the Bluesky proxy
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], "/blueskyproxy/%s" % confirmed.digest)
+
+    def test_assign_bluesky_handle_to_openid(self):
+        """
+        Assign a Bluesky handle to an OpenID
+        """
+        self.login()
+        confirmed = self.create_confirmed_openid()
+        url = reverse("assign_bluesky_handle_to_openid", args=[confirmed.id])
+        response = self.client.post(
+            url,
+            {
+                "bluesky_handle": self.bsky_test_account,
+            },
+            follow=True,
+        )
+        self.assertEqual(
+            response.status_code, 200, "Adding Bluesky handle to OpenID fails?"
+        )
+        # Fetch object again, as it has changed because of the request
+        confirmed.refresh_from_db(fields=["bluesky_handle"])
+        self.assertEqual(
+            confirmed.bluesky_handle,
+            self.bsky_test_account,
+            "Setting Bluesky handle doesn't work?",
+        )
+
+    def test_assign_bluesky_handle_to_email(self):
+        """
+        Assign a Bluesky handle to an email
+
+        """
+        self.login()
+        confirmed = self.create_confirmed_email()
+        url = reverse("assign_bluesky_handle_to_email", args=[confirmed.id])
+        response = self.client.post(
+            url,
+            {
+                "bluesky_handle": self.bsky_test_account,
+            },
+            follow=True,
+        )
+        self.assertEqual(
+            response.status_code, 200, "Adding Bluesky handle to Email fails?"
+        )
+        # Fetch object again, as it has changed because of the request
+        confirmed.refresh_from_db(fields=["bluesky_handle"])
+        self.assertEqual(
+            confirmed.bluesky_handle,
+            self.bsky_test_account,
+            "Setting Bluesky handle doesn't work?",
+        )
+
+    def test_assign_photo_to_mail_removes_bluesky_handle(self):
+        """
+        Assign a Photo to a mail, removes Bluesky handle
+        """
+        self.login()
+        confirmed = self.create_confirmed_email()
+        confirmed.bluesky_handle = self.bsky_test_account
+        confirmed.save()
+
+        url = reverse("assign_photo_email", args=[confirmed.id])
+        response = self.client.post(
+            url,
+            {
+                "photoNone": True,
+            },
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200, "Unassigning Photo doesn't work?")
+        # Fetch object again, as it has changed because of the request
+        confirmed.refresh_from_db(fields=["bluesky_handle"])
+        self.assertEqual(
+            confirmed.bluesky_handle,
+            None,
+            "Removing Bluesky handle doesn't work?",
+        )
+
+    def test_assign_photo_to_openid_removes_bluesky_handle(self):
+        """
+        Assign a Photo to a OpenID, removes Bluesky handle
+        """
+        self.login()
+        confirmed = self.create_confirmed_openid()
+        confirmed.bluesky_handle = self.bsky_test_account
+        confirmed.save()
+
+        url = reverse("assign_photo_openid", args=[confirmed.id])
+        response = self.client.post(
+            url,
+            {
+                "photoNone": True,
+            },
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200, "Unassigning Photo doesn't work?")
+        # Fetch object again, as it has changed because of the request
+        confirmed.refresh_from_db(fields=["bluesky_handle"])
+        self.assertEqual(
+            confirmed.bluesky_handle,
+            None,
+            "Removing Bluesky handle doesn't work?",
         )
