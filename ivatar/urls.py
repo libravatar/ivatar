@@ -7,7 +7,8 @@ from django.urls import path, include, re_path
 from django.conf.urls.static import static
 from django.views.generic import TemplateView, RedirectView
 from ivatar import settings
-from .views import AvatarImageView, GravatarProxyView, StatsView
+from .views import AvatarImageView, StatsView
+from .views import GravatarProxyView, BlueskyProxyView
 
 urlpatterns = [  # pylint: disable=invalid-name
     path("admin/", admin.site.urls),
@@ -30,6 +31,11 @@ urlpatterns = [  # pylint: disable=invalid-name
         r"gravatarproxy/(?P<digest>\w*)",
         GravatarProxyView.as_view(),
         name="gravatarproxy",
+    ),
+    re_path(
+        r"blueskyproxy/(?P<digest>\w*)",
+        BlueskyProxyView.as_view(),
+        name="blueskyproxy",
     ),
     path(
         "description/",

@@ -63,6 +63,19 @@ outline: inherit;
 <div style="height:8px"></div>
 <a href="{% url 'upload_photo' %}" class="button">{% blocktrans %}upload a new one{% endblocktrans %}</a>
 
+<div style="height:8px"></div>
+<form action="{% url 'assign_bluesky_handle_to_openid' view.kwargs.openid_id %}" method="post" style="float:left;margin-left:20px">{% csrf_token %}
+  <div class="form-group">
+    <label for="id_bluesky_handle">{% trans "Bluesky handle" %}:</label>
+    {% if openid.bluesky_handle %}
+    <input type="text" name="bluesky_handle" required value="{{ openid.bluesky_handle }}" class="form-control" id="id_bluesky_handle">
+    {% else %}
+    <input type="text" name="bluesky_handle" required value="" placeholder="{% trans 'Bluesky handle' %}" class="form-control" id="id_bluesky_handle">
+    {% endif %}
+  </div>
+  <button type="submit" class="button">{% trans 'Assign Bluesky handle' %}</button>
+</form>
+
 {% endif %}
 <div style="height:40px"></div>
 {% endblock content %}

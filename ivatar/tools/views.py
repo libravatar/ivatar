@@ -16,7 +16,7 @@ from libravatar import libravatar_url, parse_user_identity
 from libravatar import SECURE_BASE_URL as LIBRAVATAR_SECURE_BASE_URL
 from libravatar import BASE_URL as LIBRAVATAR_BASE_URL
 
-from ivatar.settings import SECURE_BASE_URL, BASE_URL
+from ivatar.settings import SECURE_BASE_URL, BASE_URL, SITE_NAME, DEBUG
 from .forms import (
     CheckDomainForm,
     CheckForm,
@@ -138,6 +138,36 @@ class CheckView(FormView):
             openid_hash = parse_user_identity(
                 openid=form.cleaned_data["openid"], email=None
             )[0]
+
+        if "DEVELOPMENT" in SITE_NAME:
+            if DEBUG:
+                if mailurl:
+                    mailurl = mailurl.replace(
+                        "https://avatars.linux-kernel.at",
+                        "http://" + self.request.get_host(),
+                    )
+                if mailurl_secure:
+                    mailurl_secure = mailurl_secure.replace(
+                        "https://avatars.linux-kernel.at",
+                        "http://" + self.request.get_host(),
+                    )
+                if mailurl_secure_256:
+                    mailurl_secure_256 = mailurl_secure_256.replace(
+                        "https://avatars.linux-kernel.at",
+                        "http://" + self.request.get_host(),
+                    )
+
+                if openidurl:
+                    openidurl = openidurl.replace(
+                        "https://avatars.linux-kernel.at",
+                        "http://" + self.request.get_host(),
+                    )
+                if openidurl_secure:
+                    openidurl_secure = openidurl_secure.replace(
+                        "https://avatars.linux-kernel.at",
+                        "http://" + self.request.get_host(),
+                    )
+        print(mailurl, openidurl, mailurl_secure, mailurl_secure_256, openidurl_secure)
 
         return render(
             self.request,

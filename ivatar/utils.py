@@ -7,6 +7,82 @@ import string
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageSequence
 from urllib.parse import urlparse
+import requests
+from ivatar.settings import DEBUG, URL_TIMEOUT
+from urllib.request import urlopen as urlopen_orig
+
+BLUESKY_IDENTIFIER = None
+BLUESKY_APP_PASSWORD = None
+try:
+    from ivatar.settings import BLUESKY_IDENTIFIER, BLUESKY_APP_PASSWORD
+except Exception:  # pylint: disable=broad-except
+    pass
+
+
+def urlopen(url, timeout=URL_TIMEOUT):
+    ctx = None
+    if DEBUG:
+        import ssl
+
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+    return urlopen_orig(url, timeout=timeout, context=ctx)
+
+
+class Bluesky:
+    """
+    Handle Bluesky client access
+    """
+
+    identifier = ""
+    app_password = ""
+    service = "https://bsky.social"
+    session = None
+
+    def __init__(
+        self,
+        identifier: str = BLUESKY_IDENTIFIER,
+        app_password: str = BLUESKY_APP_PASSWORD,
+        service: str = "https://bsky.social",
+    ):
+        self.identifier = identifier
+        self.app_password = app_password
+        self.service = service
+
+    def login(self):
+        """
+        Login to Bluesky
+        """
+        auth_response = requests.post(
+            f"{self.service}/xrpc/com.atproto.server.createSession",
+            json={"identifier": self.identifier, "password": self.app_password},
+        )
+        auth_response.raise_for_status()
+        self.session = auth_response.json()
+
+    def get_profile(self, handle: str):
+        if not self.session:
+            self.login()
+        profile_response = None
+        try:
+            profile_response = requests.get(
+                f"{self.service}/xrpc/app.bsky.actor.getProfile",
+                headers={"Authorization": f'Bearer {self.session["accessJwt"]}'},
+                params={"actor": handle},
+            )
+            profile_response.raise_for_status()
+        except Exception as exc:
+            print(
+                "Bluesky profile fetch failed with HTTP error: %s" % exc
+            )  # pragma: no cover
+            return None
+
+        return profile_response.json()
+
+    def get_avatar(self, handle: str):
+        profile = self.get_profile(handle)
+        return profile["avatar"] if profile else None
 
 
 def random_string(length=10):

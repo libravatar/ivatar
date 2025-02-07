@@ -20,6 +20,7 @@ from .views import RemoveUnconfirmedOpenIDView, RemoveConfirmedOpenIDView
 from .views import ImportPhotoView, RawImageView, DeletePhotoView
 from .views import UploadPhotoView, AssignPhotoOpenIDView
 from .views import AddOpenIDView, RedirectOpenIDView, ConfirmOpenIDView
+from .views import AssignBlueskyHandleToEmailView, AssignBlueskyHandleToOpenIdView
 from .views import CropPhotoView
 from .views import UserPreferenceView, UploadLibravatarExportView
 from .views import ResendConfirmationMailView
@@ -124,6 +125,16 @@ urlpatterns = [  # pylint: disable=invalid-name
         r"assign_photo_openid/(?P<openid_id>\d+)",
         AssignPhotoOpenIDView.as_view(),
         name="assign_photo_openid",
+    ),
+    re_path(
+        r"assign_bluesky_handle_to_email/(?P<email_id>\d+)",
+        AssignBlueskyHandleToEmailView.as_view(),
+        name="assign_bluesky_handle_to_email",
+    ),
+    re_path(
+        r"assign_bluesky_handle_to_openid/(?P<open_id>\d+)",
+        AssignBlueskyHandleToOpenIdView.as_view(),
+        name="assign_bluesky_handle_to_openid",
     ),
     re_path(r"import_photo/$", ImportPhotoView.as_view(), name="import_photo"),
     re_path(
