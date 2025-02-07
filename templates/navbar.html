@@ -1,6 +1,6 @@
 {% load i18n %}
 {% block topbar_base %}
-    <nav class="navbar navbarlibravatar">
+<nav class="navbar navbarlibravatar" {% if site_name == 'Libravatar DEVELOPMENT' %}style="background: linear-gradient(135deg, #aa0f1d 0%, #fd002e 100%);"{% endif %}>
       <div class="container-fluid">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
