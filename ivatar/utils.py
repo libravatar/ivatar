@@ -61,10 +61,25 @@ class Bluesky:
         auth_response.raise_for_status()
         self.session = auth_response.json()
 
-    def get_profile(self, handle: str):
+    def normalize_handle(self, handle: str) -> str:
+        """
+        Return the normalized handle for given handle
+        """
+        # Normalize Bluesky handle in case someone enters an '@' at the beginning
+        if handle.startswith("@"):
+            handle = handle[1:]
+        # Remove trailing spaces or spaces at the beginning
+        while handle.startswith(" "):
+            handle = handle[1:]
+        while handle.endswith(" "):
+            handle = handle[:-1]
+        return handle
+
+    def get_profile(self, handle: str) -> str:
         if not self.session:
             self.login()
         profile_response = None
+
         try:
             profile_response = requests.get(
                 f"{self.service}/xrpc/app.bsky.actor.getProfile",
@@ -81,6 +96,9 @@ class Bluesky:
         return profile_response.json()
 
     def get_avatar(self, handle: str):
+        """
+        Get avatar URL for a handle
+        """
         profile = self.get_profile(handle)
         return profile["avatar"] if profile else None
 

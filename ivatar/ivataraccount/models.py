@@ -348,7 +348,9 @@ class ConfirmedEmail(BaseAccountModel):
         """
         Helper method to set Bluesky handle
         """
+
         bs = Bluesky()
+        handle = bs.normalize_handle(handle)
         avatar = bs.get_profile(handle)
         if not avatar:
             raise Exception("Invalid Bluesky handle")
@@ -502,6 +504,7 @@ class ConfirmedOpenId(BaseAccountModel):
         Helper method to set Bluesky handle
         """
         bs = Bluesky()
+        handle = bs.normalize_handle(handle)
         avatar = bs.get_profile(handle)
         if not avatar:
             raise Exception("Invalid Bluesky handle")

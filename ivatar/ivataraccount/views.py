@@ -428,8 +428,20 @@ class AssignBlueskyHandleToOpenIdView(SuccessMessageMixin, TemplateView):
             messages.error(
                 request, _("Handle '%s' not found: %s" % (bluesky_handle, e))
             )
-            return HttpResponseRedirect(reverse_lazy("profile"))
-        openid.set_bluesky_handle(bluesky_handle)
+            return HttpResponseRedirect(
+                reverse_lazy(
+                    "assign_photo_openid", kwargs={"openid_id": int(kwargs["open_id"])}
+                )
+            )
+        try:
+            openid.set_bluesky_handle(bluesky_handle)
+        except Exception as e:
+            messages.error(request, _("Error: %s" % (e)))
+            return HttpResponseRedirect(
+                reverse_lazy(
+                    "assign_photo_openid", kwargs={"openid_id": int(kwargs["open_id"])}
+                )
+            )
         openid.photo = None
         openid.save()
 
