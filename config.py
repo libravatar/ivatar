@@ -60,7 +60,7 @@ OPENID_CREATE_USERS = True
 OPENID_UPDATE_DETAILS_FROM_SREG = True
 
 SITE_NAME = os.environ.get("SITE_NAME", "libravatar")
-IVATAR_VERSION = "1.7.0"
+IVATAR_VERSION = "1.8.0"
 
 SCHEMAROOT = "https://www.libravatar.org/schemas/export/0.2"
 
