@@ -461,17 +461,8 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
                 },
                 follow=True,
             )  # Create test addresses + 1 too much
-        # Check the response context for form errors
-        self.assertTrue(
-            hasattr(response, "context"), "Response does not have a context"
-        )
-        form = response.context.get("form")
-        self.assertIsNotNone(form, "No form found in response context")
-
-        # Verify form errors
-        self.assertFalse(form.is_valid(), "Form should not be valid")
-        self.assertIn(
-            "Too many unconfirmed mail addresses!", form.errors.get("__all__", [])
+        return self._check_form_validity(
+            response, "Too many unconfirmed mail addresses!", "__all__"
         )
 
     def test_add_mail_address_twice(self):
@@ -491,17 +482,8 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
                 },
                 follow=True,
             )
-        # Check the response context for form errors
-        self.assertTrue(
-            hasattr(response, "context"), "Response does not have a context"
-        )
-        form = response.context.get("form")
-        self.assertIsNotNone(form, "No form found in response context")
-
-        # Verify form errors
-        self.assertFalse(form.is_valid(), "Form should not be valid")
-        self.assertIn(
-            "Address already added, currently unconfirmed", form.errors.get("email", [])
+        return self._check_form_validity(
+            response, "Address already added, currently unconfirmed", "email"
         )
 
     def test_add_already_confirmed_email_self(self):  # pylint: disable=invalid-name
@@ -520,17 +502,8 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
             follow=True,
         )
 
-        # Check the response context for form errors
-        self.assertTrue(
-            hasattr(response, "context"), "Response does not have a context"
-        )
-        form = response.context.get("form")
-        self.assertIsNotNone(form, "No form found in response context")
-
-        # Verify form errors
-        self.assertFalse(form.is_valid(), "Form should not be valid")
-        self.assertIn(
-            "Address already confirmed (by you)", form.errors.get("email", [])
+        return self._check_form_validity(
+            response, "Address already confirmed (by you)", "email"
         )
 
     def test_add_already_confirmed_email_other(self):  # pylint: disable=invalid-name
@@ -556,17 +529,8 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
             follow=True,
         )
 
-        # Check the response context for form errors
-        self.assertTrue(
-            hasattr(response, "context"), "Response does not have a context"
-        )
-        form = response.context.get("form")
-        self.assertIsNotNone(form, "No form found in response context")
-
-        # Verify form errors
-        self.assertFalse(form.is_valid(), "Form should not be valid")
-        self.assertIn(
-            "Address already confirmed (by someone else)", form.errors.get("email", [])
+        return self._check_form_validity(
+            response, "Address already confirmed (by someone else)", "email"
         )
 
     def test_remove_unconfirmed_non_existing_email(
@@ -712,120 +676,59 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         """
         Test if gif is correctly detected and can be viewed
         """
-        self.login()
-        url = reverse("upload_photo")
-        # rb => Read binary
-        # Broken is _not_ broken - it's just an 'x' :-)
-        with open(
-            os.path.join(settings.STATIC_ROOT, "img", "broken.gif"), "rb"
-        ) as photo:
-            response = self.client.post(
-                url,
-                {
-                    "photo": photo,
-                    "not_porn": True,
-                    "can_distribute": True,
-                },
-                follow=True,
-            )
-        self.assertEqual(
-            str(list(response.context[0]["messages"])[0]),
-            "Successfully uploaded",
+        self._extracted_from_test_upload_webp_image_5(
+            "broken.gif",
             "GIF upload failed?!",
-        )
-        self.assertEqual(
-            self.user.photo_set.first().format,
             "gif",
             "Format must be gif, since we uploaded a GIF!",
         )
-        self.test_confirm_email()
-        self.user.confirmedemail_set.first().photo = self.user.photo_set.first()
-        urlobj = urlsplit(
-            libravatar_url(
-                email=self.user.confirmedemail_set.first().email,
-            )
-        )
-        url = f"{urlobj.path}?{urlobj.query}"
-        response = self.client.get(url, follow=True)
-        self.assertEqual(response.status_code, 200, "unable to fetch avatar?")
 
     def test_upload_jpg_image(self):
         """
         Test if jpg is correctly detected and can be viewed
         """
-        self.login()
-        url = reverse("upload_photo")
-        # rb => Read binary
-        # Broken is _not_ broken - it's just an 'x' :-)
-        with open(
-            os.path.join(settings.STATIC_ROOT, "img", "broken.jpg"), "rb"
-        ) as photo:
-            response = self.client.post(
-                url,
-                {
-                    "photo": photo,
-                    "not_porn": True,
-                    "can_distribute": True,
-                },
-                follow=True,
-            )
-        self.assertEqual(
-            str(list(response.context[0]["messages"])[0]),
-            "Successfully uploaded",
+        self._extracted_from_test_upload_webp_image_5(
+            "broken.jpg",
             "JPEG upload failed?!",
-        )
-        self.assertEqual(
-            self.user.photo_set.first().format,
             "jpg",
             "Format must be jpeg, since we uploaded a jpeg!",
         )
-        self.test_confirm_email()
-        self.user.confirmedemail_set.first().photo = self.user.photo_set.first()
-        urlobj = urlsplit(
-            libravatar_url(
-                email=self.user.confirmedemail_set.first().email,
-            )
-        )
-        url = f"{urlobj.path}?{urlobj.query}"
-        response = self.client.get(url, follow=True)
-        self.assertEqual(response.status_code, 200, "unable to fetch avatar?")
 
     def test_upload_webp_image(self):
         """
         Test if webp is correctly detected and can be viewed
         """
+        self._extracted_from_test_upload_webp_image_5(
+            "broken.webp",
+            "WEBP upload failed?!",
+            "webp",
+            "Format must be webp, since we uploaded a webp!",
+        )
+
+    def _extracted_from_test_upload_webp_image_5(
+        self, filename, message1, format, message2
+    ):
+        """
+        Helper function for common checks for gif, jpg, webp
+        """
         self.login()
         url = reverse("upload_photo")
-        # rb => Read binary
-        # Broken is _not_ broken - it's just an 'x' :-)
-        with open(
-            os.path.join(settings.STATIC_ROOT, "img", "broken.webp"), "rb"
-        ) as photo:
+        with open(os.path.join(settings.STATIC_ROOT, "img", filename), "rb") as photo:
             response = self.client.post(
                 url,
-                {
-                    "photo": photo,
-                    "not_porn": True,
-                    "can_distribute": True,
-                },
+                {"photo": photo, "not_porn": True, "can_distribute": True},
                 follow=True,
             )
         self.assertEqual(
             str(list(response.context[0]["messages"])[0]),
             "Successfully uploaded",
-            "WEBP upload failed?!",
+            message1,
         )
-        self.assertEqual(
-            self.user.photo_set.first().format,
-            "webp",
-            "Format must be webp, since we uploaded a webp!",
-        )
+        self.assertEqual(self.user.photo_set.first().format, format, message2)
         self.test_confirm_email()
         self.user.confirmedemail_set.first().photo = self.user.photo_set.first()
         urlobj = urlsplit(
-            libravatar_url(
-                email=self.user.confirmedemail_set.first().email,
-            )
+            libravatar_url(email=self.user.confirmedemail_set.first().email)
         )
         url = f"{urlobj.path}?{urlobj.query}"
         response = self.client.get(url, follow=True)
@@ -839,7 +742,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         url = reverse("upload_photo")
         # rb => Read binary
         with open(
-            os.path.join(settings.STATIC_ROOT, "img", "hackergotchi_test.tif"), "rb"
+            os.path.join(settings.STATIC_ROOT, "img", "broken.tif"), "rb"
         ) as photo:
             response = self.client.post(
                 url,
@@ -1062,8 +965,6 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         if confirm:
             self._manual_confirm()
 
-    # TODO Rename this here and in `test_add_openid`
-
     def test_add_openid_twice(self):
         """
         Test if adding OpenID a second time works - it shouldn't
@@ -1095,20 +996,9 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
             "There must only be one unconfirmed ID!",
         )
 
-        # Check the response context for form errors
-        self.assertTrue(
-            hasattr(response, "context"), "Response does not have a context"
+        self._check_form_validity(
+            response, "OpenID already added, but not confirmed yet!", "openid"
         )
-        form = response.context.get("form")
-        self.assertIsNotNone(form, "No form found in response context")
-
-        # Verify form errors
-        self.assertFalse(form.is_valid(), "Form should not be valid")
-        self.assertIn(
-            "OpenID already added, but not confirmed yet!",
-            form.errors.get("openid", []),
-        )
-
         # Manual confirm, since testing is _really_ hard!
         unconfirmed = self.user.unconfirmedopenid_set.first()
         confirmed = ConfirmedOpenId()
@@ -1127,18 +1017,24 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
             follow=True,
         )
 
-        # Check the response context for form errors
+        return self._check_form_validity(
+            response, "OpenID already added and confirmed!", "openid"
+        )
+
+    def _check_form_validity(self, response, message, field):
+        """
+        Helper method to check form, used in several test functions,
+        deduplicating code
+        """
+
         self.assertTrue(
             hasattr(response, "context"), "Response does not have a context"
         )
-        form = response.context.get("form")
-        self.assertIsNotNone(form, "No form found in response context")
-
-        # Verify form errors
-        self.assertFalse(form.is_valid(), "Form should not be valid")
-        self.assertIn(
-            "OpenID already added and confirmed!", form.errors.get("openid", [])
-        )
+        result = response.context.get("form")
+        self.assertIsNotNone(result, "No form found in response context")
+        self.assertFalse(result.is_valid(), "Form should not be valid")
+        self.assertIn(message, result.errors.get(field, []))
+        return result
 
     def test_assign_photo_to_openid(self):
         """
@@ -2023,37 +1919,10 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         fh_gzip = gzip.open(BytesIO(response.content), "rb")
         fh = BytesIO(response.content)
 
-        response = self.client.post(
-            reverse("upload_export"),
-            data={"not_porn": "on", "can_distribute": "on", "export_file": fh_gzip},
-            follow=True,
+        response = self._uploading_export_check(
+            fh_gzip, "Unable to parse file: Not a gzipped file"
         )
-        fh_gzip.close()
-        self.assertEqual(response.status_code, 200, "Upload worked")
-        self.assertContains(
-            response,
-            "Unable to parse file: Not a gzipped file",
-            1,
-            200,
-            "Upload didn't work?",
-        )
-
-        # Second test - correctly gzipped content
-        response = self.client.post(
-            reverse("upload_export"),
-            data={"not_porn": "on", "can_distribute": "on", "export_file": fh},
-            follow=True,
-        )
-        fh.close()
-
-        self.assertEqual(response.status_code, 200, "Upload worked")
-        self.assertContains(
-            response,
-            "Choose items to be imported",
-            1,
-            200,
-            "Upload didn't work?",
-        )
+        response = self._uploading_export_check(fh, "Choose items to be imported")
         self.assertContains(
             response,
             "asdf@asdf.local",
@@ -2061,6 +1930,21 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
             200,
             "Upload didn't work?",
         )
+
+    def _uploading_export_check(self, fh, message):
+        """
+        Helper function to upload an export
+        """
+        result = self.client.post(
+            reverse("upload_export"),
+            data={"not_porn": "on", "can_distribute": "on", "export_file": fh},
+            follow=True,
+        )
+        fh.close()
+        self.assertEqual(result.status_code, 200, "Upload worked")
+        self.assertContains(result, message, 1, 200, "Upload didn't work?")
+
+        return result
 
     def test_preferences_page(self):
         """

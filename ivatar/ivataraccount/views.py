@@ -2,10 +2,12 @@
 """
 View classes for ivatar/ivataraccount/
 """
+
 from io import BytesIO
 from ivatar.utils import urlopen, Bluesky
 import base64
 import binascii
+import contextlib
 from xml.sax import saxutils
 import gzip
 
@@ -87,23 +89,8 @@ class CreateView(SuccessMessageMixin, FormView):
             # If the username looks like a mail address, automagically
             # add it as unconfirmed mail and set it also as user's
             # email address
-            try:
-                # This will error out if it's not a valid address
-                valid = validate_email(form.cleaned_data["username"])
-                user.email = valid.email
-                user.save()
-                # The following will also error out if it already exists
-                unconfirmed = UnconfirmedEmail()
-                unconfirmed.email = valid.email
-                unconfirmed.user = user
-                unconfirmed.save()
-                unconfirmed.send_confirmation_mail(
-                    url=self.request.build_absolute_uri("/")[:-1]
-                )
-            # In any exception cases, we just skip it
-            except Exception:  # pylint: disable=broad-except
-                pass
-
+            with contextlib.suppress(Exception):
+                self._extracted_from_form_valid_(form, user)
             login(self.request, user)
             pref = UserPreference.objects.create(
                 user_id=user.pk
@@ -112,13 +99,26 @@ class CreateView(SuccessMessageMixin, FormView):
             return HttpResponseRedirect(reverse_lazy("profile"))
         return HttpResponseRedirect(reverse_lazy("login"))  # pragma: no cover
 
+    def _extracted_from_form_valid_(self, form, user):
+        # This will error out if it's not a valid address
+        valid = validate_email(form.cleaned_data["username"])
+        user.email = valid.email
+        user.save()
+        # The following will also error out if it already exists
+        unconfirmed = UnconfirmedEmail()
+        unconfirmed.email = valid.email
+        unconfirmed.user = user
+        unconfirmed.save()
+        unconfirmed.send_confirmation_mail(
+            url=self.request.build_absolute_uri("/")[:-1]
+        )
+
     def get(self, request, *args, **kwargs):
         """
         Handle get for create view
         """
-        if request.user:
-            if request.user.is_authenticated:
-                return HttpResponseRedirect(reverse_lazy("profile"))
+        if request.user and request.user.is_authenticated:
+            return HttpResponseRedirect(reverse_lazy("profile"))
         return super().get(self, request, args, kwargs)
 
 
@@ -379,9 +379,7 @@ class AssignBlueskyHandleToEmailView(SuccessMessageMixin, TemplateView):
 
             bs.get_avatar(bluesky_handle)
         except Exception as e:
-            messages.error(
-                request, _("Handle '%s' not found: %s" % (bluesky_handle, e))
-            )
+            messages.error(request, _(f"Handle '{bluesky_handle}' not found: {e}"))
             return HttpResponseRedirect(reverse_lazy("profile"))
         email.set_bluesky_handle(bluesky_handle)
         email.photo = None
@@ -425,9 +423,7 @@ class AssignBlueskyHandleToOpenIdView(SuccessMessageMixin, TemplateView):
 
             bs.get_avatar(bluesky_handle)
         except Exception as e:
-            messages.error(
-                request, _("Handle '%s' not found: %s" % (bluesky_handle, e))
-            )
+            messages.error(request, _(f"Handle '{bluesky_handle}' not found: {e}"))
             return HttpResponseRedirect(
                 reverse_lazy(
                     "assign_photo_openid", kwargs={"openid_id": int(kwargs["open_id"])}
@@ -436,7 +432,7 @@ class AssignBlueskyHandleToOpenIdView(SuccessMessageMixin, TemplateView):
         try:
             openid.set_bluesky_handle(bluesky_handle)
         except Exception as e:
-            messages.error(request, _("Error: %s" % (e)))
+            messages.error(request, _(f"Error: {e}"))
             return HttpResponseRedirect(
                 reverse_lazy(
                     "assign_photo_openid", kwargs={"openid_id": int(kwargs["open_id"])}
@@ -474,29 +470,25 @@ class ImportPhotoView(SuccessMessageMixin, TemplateView):
                 messages.error(self.request, _("Address does not exist"))
                 return context
 
-        addr = kwargs.get("email_addr", None)
-
-        if addr:
-            gravatar = get_gravatar_photo(addr)
-            if gravatar:
+        if addr := kwargs.get("email_addr", None):
+            if gravatar := get_gravatar_photo(addr):
                 context["photos"].append(gravatar)
 
-            libravatar_service_url = libravatar_url(
+            if libravatar_service_url := libravatar_url(
                 email=addr,
                 default=404,
                 size=AVATAR_MAX_SIZE,
-            )
-            if libravatar_service_url:
+            ):
                 try:
                     urlopen(libravatar_service_url)
                 except OSError as exc:
-                    print("Exception caught during photo import: {}".format(exc))
+                    print(f"Exception caught during photo import: {exc}")
                 else:
                     context["photos"].append(
                         {
                             "service_url": libravatar_service_url,
-                            "thumbnail_url": libravatar_service_url + "&s=80",
-                            "image_url": libravatar_service_url + "&s=512",
+                            "thumbnail_url": f"{libravatar_service_url}&s=80",
+                            "image_url": f"{libravatar_service_url}&s=512",
                             "width": 80,
                             "height": 80,
                             "service_name": "Libravatar",
@@ -515,7 +507,7 @@ class ImportPhotoView(SuccessMessageMixin, TemplateView):
         imported = None
 
         email_id = kwargs.get("email_id", request.POST.get("email_id", None))
-        addr = kwargs.get("emali_addr", request.POST.get("email_addr", None))
+        addr = kwargs.get("email", request.POST.get("email_addr", None))
 
         if email_id:
             email = ConfirmedEmail.objects.filter(id=email_id, user=request.user)
@@ -565,9 +557,9 @@ class RawImageView(DetailView):
 
     def get(self, request, *args, **kwargs):
         photo = self.model.objects.get(pk=kwargs["pk"])  # pylint: disable=no-member
-        if not photo.user.id == request.user.id and not request.user.is_staff:
+        if photo.user.id != request.user.id and not request.user.is_staff:
             return HttpResponseRedirect(reverse_lazy("home"))
-        return HttpResponse(BytesIO(photo.data), content_type="image/%s" % photo.format)
+        return HttpResponse(BytesIO(photo.data), content_type=f"image/{photo.format}")
 
 
 @method_decorator(login_required, name="dispatch")
@@ -643,16 +635,15 @@ class AddOpenIDView(SuccessMessageMixin, FormView):
     success_url = reverse_lazy("profile")
 
     def form_valid(self, form):
-        openid_id = form.save(self.request.user)
-        if not openid_id:
+        if openid_id := form.save(self.request.user):
+            # At this point we have an unconfirmed OpenID, but
+            # we do not add the message, that we successfully added it,
+            # since this is misleading
+            return HttpResponseRedirect(
+                reverse_lazy("openid_redirection", args=[openid_id])
+            )
+        else:
             return render(self.request, self.template_name, {"form": form})
-
-        # At this point we have an unconfirmed OpenID, but
-        # we do not add the message, that we successfully added it,
-        # since this is misleading
-        return HttpResponseRedirect(
-            reverse_lazy("openid_redirection", args=[openid_id])
-        )
 
 
 @method_decorator(login_required, name="dispatch")
@@ -703,7 +694,7 @@ class RemoveConfirmedOpenIDView(View):
                 openidobj.delete()
             except Exception as exc:  # pylint: disable=broad-except
                 # Why it is not there?
-                print("How did we get here: %s" % exc)
+                print(f"How did we get here: {exc}")
             openid.delete()
             messages.success(request, _("ID removed"))
         except self.model.DoesNotExist:  # pylint: disable=no-member
@@ -740,7 +731,7 @@ class RedirectOpenIDView(View):
         try:
             auth_request = openid_consumer.begin(user_url)
         except consumer.DiscoveryFailure as exc:
-            messages.error(request, _("OpenID discovery failed: %s" % exc))
+            messages.error(request, _(f"OpenID discovery failed: {exc}"))
             return HttpResponseRedirect(reverse_lazy("profile"))
         except UnicodeDecodeError as exc:  # pragma: no cover
             msg = _(
@@ -752,7 +743,7 @@ class RedirectOpenIDView(View):
                     "message": exc,
                 }
             )
-            print("message: %s" % msg)
+            print(f"message: {msg}")
             messages.error(request, msg)
 
         if auth_request is None:  # pragma: no cover
@@ -886,19 +877,13 @@ class CropPhotoView(TemplateView):
         }
         email = openid = None
         if "email" in request.POST:
-            try:
+            with contextlib.suppress(ConfirmedEmail.DoesNotExist):
                 email = ConfirmedEmail.objects.get(email=request.POST["email"])
-            except ConfirmedEmail.DoesNotExist:  # pylint: disable=no-member
-                pass  # Ignore automatic assignment
-
         if "openid" in request.POST:
-            try:
+            with contextlib.suppress(ConfirmedOpenId.DoesNotExist):
                 openid = ConfirmedOpenId.objects.get(  # pylint: disable=no-member
                     openid=request.POST["openid"]
                 )
-            except ConfirmedOpenId.DoesNotExist:  # pylint: disable=no-member
-                pass  # Ignore automatic assignment
-
         return photo.perform_crop(request, dimensions, email, openid)
 
 
@@ -934,14 +919,14 @@ class UserPreferenceView(FormView, UpdateView):
                 if request.POST["email"] not in addresses:
                     messages.error(
                         self.request,
-                        _("Mail address not allowed: %s" % request.POST["email"]),
+                        _(f'Mail address not allowed: {request.POST["email"]}'),
                     )
                 else:
                     self.request.user.email = request.POST["email"]
                     self.request.user.save()
                     messages.info(self.request, _("Mail address changed."))
         except Exception as e:  # pylint: disable=broad-except
-            messages.error(self.request, _("Error setting new mail address: %s" % e))
+            messages.error(self.request, _(f"Error setting new mail address: {e}"))
 
         try:
             if request.POST["first_name"] or request.POST["last_name"]:
@@ -953,7 +938,7 @@ class UserPreferenceView(FormView, UpdateView):
                     messages.info(self.request, _("Last name changed."))
                 self.request.user.save()
         except Exception as e:  # pylint: disable=broad-except
-            messages.error(self.request, _("Error setting names: %s" % e))
+            messages.error(self.request, _(f"Error setting names: {e}"))
 
         return HttpResponseRedirect(reverse_lazy("user_preference"))
 
@@ -1021,15 +1006,14 @@ class UploadLibravatarExportView(SuccessMessageMixin, FormView):
                             except Exception as exc:  # pylint: disable=broad-except
                                 # DEBUG
                                 print(
-                                    "Exception during adding mail address (%s): %s"
-                                    % (email, exc)
+                                    f"Exception during adding mail address ({email}): {exc}"
                                 )
 
                     if arg.startswith("photo"):
                         try:
                             data = base64.decodebytes(bytes(request.POST[arg], "utf-8"))
                         except binascii.Error as exc:
-                            print("Cannot decode photo: %s" % exc)
+                            print(f"Cannot decode photo: {exc}")
                             continue
                         try:
                             pilobj = Image.open(BytesIO(data))
@@ -1043,7 +1027,7 @@ class UploadLibravatarExportView(SuccessMessageMixin, FormView):
                             photo.data = out.read()
                             photo.save()
                         except Exception as exc:  # pylint: disable=broad-except
-                            print("Exception during save: %s" % exc)
+                            print(f"Exception during save: {exc}")
                             continue
 
                 return HttpResponseRedirect(reverse_lazy("profile"))
@@ -1063,7 +1047,7 @@ class UploadLibravatarExportView(SuccessMessageMixin, FormView):
                 },
             )
         except Exception as e:
-            messages.error(self.request, _("Unable to parse file: %s" % e))
+            messages.error(self.request, _(f"Unable to parse file: {e}"))
             return HttpResponseRedirect(reverse_lazy("upload_export"))
 
 
@@ -1089,13 +1073,12 @@ class ResendConfirmationMailView(View):
             try:
                 email.send_confirmation_mail(url=request.build_absolute_uri("/")[:-1])
                 messages.success(
-                    request, "%s: %s" % (_("Confirmation mail sent to"), email.email)
+                    request, f'{_("Confirmation mail sent to")}: {email.email}'
                 )
             except Exception as exc:  # pylint: disable=broad-except
                 messages.error(
                     request,
-                    "%s %s: %s"
-                    % (_("Unable to send confirmation email for"), email.email, exc),
+                    f'{_("Unable to send confirmation email for")} {email.email}: {exc}',
                 )
         return HttpResponseRedirect(reverse_lazy("profile"))
 
@@ -1129,12 +1112,9 @@ class ProfileView(TemplateView):
         if "profile_username" in kwargs:
             if not request.user.is_staff:
                 return HttpResponseRedirect(reverse_lazy("profile"))
-            try:
+            with contextlib.suppress(Exception):
                 u = User.objects.get(username=kwargs["profile_username"])
                 request.user = u
-            except Exception:  # pylint: disable=broad-except
-                pass
-
         self._confirm_claimed_openid()
         return super().get(self, request, args, kwargs)
 
@@ -1165,7 +1145,7 @@ class ProfileView(TemplateView):
                 openid=openids.first().claimed_id
             ).exists():
                 return
-            print("need to confirm: %s" % openids.first())
+            print(f"need to confirm: {openids.first()}")
             confirmed = ConfirmedOpenId()
             confirmed.user = self.request.user
             confirmed.ip_address = get_client_ip(self.request)[0]
@@ -1183,7 +1163,7 @@ class PasswordResetView(PasswordResetViewOriginal):
         Since we have the mail addresses in ConfirmedEmail model,
         we need to set the email on the user object in order for the
         PasswordResetView class to pick up the correct user.
-        In case we have the mail address in the User objecct, we still
+        In case we have the mail address in the User object, we still
         need to assign a random password in order for PasswordResetView
         class to pick up the user - else it will silently do nothing.
         """
@@ -1200,16 +1180,13 @@ class PasswordResetView(PasswordResetViewOriginal):
             # If we find the user there, we need to set the mail
             # attribute on the user object accordingly
             if not user:
-                try:
+                with contextlib.suppress(ObjectDoesNotExist):
                     confirmed_email = ConfirmedEmail.objects.get(
                         email=request.POST["email"]
                     )
                     user = confirmed_email.user
                     user.email = confirmed_email.email
                     user.save()
-                except ObjectDoesNotExist:
-                    pass
-
             # If we found the user, set a random password. Else, the
             # ResetPasswordView class will silently ignore the password
             # reset request
@@ -1249,7 +1226,6 @@ class DeleteAccountView(SuccessMessageMixin, FormView):
                 messages.error(request, _("No password given"))
                 return HttpResponseRedirect(reverse_lazy("delete"))
 
-                raise _("No password given")
         # should delete all confirmed/unconfirmed/photo objects
         request.user.delete()
         return super().post(self, request, args, kwargs)
@@ -1272,7 +1248,7 @@ class ExportView(SuccessMessageMixin, TemplateView):
         Handle real export
         """
         SCHEMA_ROOT = "https://www.libravatar.org/schemas/export/0.2"
-        SCHEMA_XSD = "%s/export.xsd" % SCHEMA_ROOT
+        SCHEMA_XSD = f"{SCHEMA_ROOT}/export.xsd"
 
         def xml_header():
             return (
@@ -1354,8 +1330,8 @@ class ExportView(SuccessMessageMixin, TemplateView):
         bytesobj.seek(0)
 
         response = HttpResponse(content_type="application/gzip")
-        response["Content-Disposition"] = (
-            'attachment; filename="libravatar-export_%s.xml.gz"' % user.username
-        )
+        response[
+            "Content-Disposition"
+        ] = f'attachment; filename="libravatar-export_{user.username}.xml.gz"'
         response.write(bytesobj.read())
         return response

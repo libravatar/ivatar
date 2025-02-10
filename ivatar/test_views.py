@@ -100,6 +100,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         """
         Bluesky client needs credentials, so it's limited with testing here now
         """
+
         if BLUESKY_APP_PASSWORD and BLUESKY_IDENTIFIER:
             b = Bluesky()
             profile = b.get_profile("ofalk.bsky.social")

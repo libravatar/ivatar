@@ -32,8 +32,6 @@ def read_gzdata(gzdata=None):
     """
     Read gzipped data file
     """
-    emails = []  # pylint: disable=invalid-name
-    openids = []  # pylint: disable=invalid-name
     photos = []  # pylint: disable=invalid-name
     username = None  # pylint: disable=invalid-name
     password = None  # pylint: disable=invalid-name
@@ -45,8 +43,8 @@ def read_gzdata(gzdata=None):
     content = fh.read()
     fh.close()
     root = xml.etree.ElementTree.fromstring(content)
-    if not root.tag == "{%s}user" % SCHEMAROOT:
-        print("Unknown export format: %s" % root.tag)
+    if root.tag != "{%s}user" % SCHEMAROOT:
+        print(f"Unknown export format: {root.tag}")
         exit(-1)
 
     # Username
@@ -56,23 +54,21 @@ def read_gzdata(gzdata=None):
         if item[0] == "password":
             password = item[1]
 
-    # Emails
-    for email in root.findall("{%s}emails" % SCHEMAROOT)[0]:
-        if email.tag == "{%s}email" % SCHEMAROOT:
-            emails.append({"email": email.text, "photo_id": email.attrib["photo_id"]})
-
-    # OpenIDs
-    for openid in root.findall("{%s}openids" % SCHEMAROOT)[0]:
-        if openid.tag == "{%s}openid" % SCHEMAROOT:
-            openids.append(
-                {"openid": openid.text, "photo_id": openid.attrib["photo_id"]}
-            )
-
+    emails = [
+        {"email": email.text, "photo_id": email.attrib["photo_id"]}
+        for email in root.findall("{%s}emails" % SCHEMAROOT)[0]
+        if email.tag == "{%s}email" % SCHEMAROOT
+    ]
+    openids = [
+        {"openid": openid.text, "photo_id": openid.attrib["photo_id"]}
+        for openid in root.findall("{%s}openids" % SCHEMAROOT)[0]
+        if openid.tag == "{%s}openid" % SCHEMAROOT
+    ]
     # Photos
     for photo in root.findall("{%s}photos" % SCHEMAROOT)[0]:
         if photo.tag == "{%s}photo" % SCHEMAROOT:
             try:
-                # Safty measures to make sure we do not try to parse
+                # Safety measures to make sure we do not try to parse
                 # a binary encoded string
                 photo.text = photo.text.strip("'")
                 photo.text = photo.text.strip("\\n")
@@ -80,26 +76,14 @@ def read_gzdata(gzdata=None):
                 data = base64.decodebytes(bytes(photo.text, "utf-8"))
             except binascii.Error as exc:
                 print(
-                    "Cannot decode photo; Encoding: %s, Format: %s, Id: %s: %s"
-                    % (
-                        photo.attrib["encoding"],
-                        photo.attrib["format"],
-                        photo.attrib["id"],
-                        exc,
-                    )
+                    f'Cannot decode photo; Encoding: {photo.attrib["encoding"]}, Format: {photo.attrib["format"]}, Id: {photo.attrib["id"]}: {exc}'
                 )
                 continue
             try:
                 Image.open(BytesIO(data))
             except Exception as exc:  # pylint: disable=broad-except
                 print(
-                    "Cannot decode photo; Encoding: %s, Format: %s, Id: %s: %s"
-                    % (
-                        photo.attrib["encoding"],
-                        photo.attrib["format"],
-                        photo.attrib["id"],
-                        exc,
-                    )
+                    f'Cannot decode photo; Encoding: {photo.attrib["encoding"]}, Format: {photo.attrib["format"]}, Id: {photo.attrib["id"]}: {exc}'
                 )
                 continue
             else:

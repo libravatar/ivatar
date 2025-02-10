@@ -179,23 +179,10 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         """
         self.login()
         confirmed = self.create_confirmed_openid()
-        url = reverse("assign_bluesky_handle_to_openid", args=[confirmed.id])
-        response = self.client.post(
-            url,
-            {
-                "bluesky_handle": self.bsky_test_account,
-            },
-            follow=True,
-        )
-        self.assertEqual(
-            response.status_code, 200, "Adding Bluesky handle to OpenID fails?"
-        )
-        # Fetch object again, as it has changed because of the request
-        confirmed.refresh_from_db(fields=["bluesky_handle"])
-        self.assertEqual(
-            confirmed.bluesky_handle,
-            self.bsky_test_account,
-            "Setting Bluesky handle doesn't work?",
+        self._assign_handle_to(
+            "assign_bluesky_handle_to_openid",
+            confirmed,
+            "Adding Bluesky handle to OpenID fails?",
         )
 
     def test_assign_bluesky_handle_to_email(self):
@@ -205,18 +192,22 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         """
         self.login()
         confirmed = self.create_confirmed_email()
-        url = reverse("assign_bluesky_handle_to_email", args=[confirmed.id])
+        self._assign_handle_to(
+            "assign_bluesky_handle_to_email",
+            confirmed,
+            "Adding Bluesky handle to Email fails?",
+        )
+
+    def _assign_handle_to(self, endpoint, confirmed, message):
+        """
+        Helper method to assign a handle to reduce code duplication
+        Since the endpoints are similar, we can reuse the code
+        """
+        url = reverse(endpoint, args=[confirmed.id])
         response = self.client.post(
-            url,
-            {
-                "bluesky_handle": self.bsky_test_account,
-            },
-            follow=True,
+            url, {"bluesky_handle": self.bsky_test_account}, follow=True
         )
-        self.assertEqual(
-            response.status_code, 200, "Adding Bluesky handle to Email fails?"
-        )
-        # Fetch object again, as it has changed because of the request
+        self.assertEqual(response.status_code, 200, message)
         confirmed.refresh_from_db(fields=["bluesky_handle"])
         self.assertEqual(
             confirmed.bluesky_handle,
@@ -230,26 +221,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         """
         self.login()
         confirmed = self.create_confirmed_email()
-        confirmed.bluesky_handle = self.bsky_test_account
-        confirmed.save()
-
-        url = reverse("assign_photo_email", args=[confirmed.id])
-        response = self.client.post(
-            url,
-            {
-                "photoNone": True,
-            },
-            follow=True,
-        )
-
-        self.assertEqual(response.status_code, 200, "Unassigning Photo doesn't work?")
-        # Fetch object again, as it has changed because of the request
-        confirmed.refresh_from_db(fields=["bluesky_handle"])
-        self.assertEqual(
-            confirmed.bluesky_handle,
-            None,
-            "Removing Bluesky handle doesn't work?",
-        )
+        self._assign_bluesky_handle(confirmed, "assign_photo_email")
 
     def test_assign_photo_to_openid_removes_bluesky_handle(self):
         """
@@ -257,23 +229,19 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         """
         self.login()
         confirmed = self.create_confirmed_openid()
+        self._assign_bluesky_handle(confirmed, "assign_photo_openid")
+
+    def _assign_bluesky_handle(self, confirmed, endpoint):
+        """
+        Helper method to assign a Bluesky handle
+        Since the endpoints are similar, we can reuse the code
+        """
         confirmed.bluesky_handle = self.bsky_test_account
         confirmed.save()
-
-        url = reverse("assign_photo_openid", args=[confirmed.id])
-        response = self.client.post(
-            url,
-            {
-                "photoNone": True,
-            },
-            follow=True,
-        )
-
+        url = reverse(endpoint, args=[confirmed.id])
+        response = self.client.post(url, {"photoNone": True}, follow=True)
         self.assertEqual(response.status_code, 200, "Unassigning Photo doesn't work?")
-        # Fetch object again, as it has changed because of the request
         confirmed.refresh_from_db(fields=["bluesky_handle"])
         self.assertEqual(
-            confirmed.bluesky_handle,
-            None,
-            "Removing Bluesky handle doesn't work?",
+            confirmed.bluesky_handle, None, "Removing Bluesky handle doesn't work?"
         )

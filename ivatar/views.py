@@ -2,6 +2,8 @@
 """
 views under /
 """
+
+import contextlib
 from io import BytesIO
 from os import path
 import hashlib
@@ -47,17 +49,11 @@ def get_size(request, size=DEFAULT_AVATAR_SIZE):
     if "size" in request.GET:
         sizetemp = request.GET["size"]
     if sizetemp:
-        if sizetemp != "" and sizetemp is not None and sizetemp != "0":
-            try:
+        if sizetemp not in ["", "0"]:
+            with contextlib.suppress(ValueError):
                 if int(sizetemp) > 0:
                     size = int(sizetemp)
-            # Should we receive something we cannot convert to int, leave
-            # the user with the default value of 80
-            except ValueError:
-                pass
-
-    if size > int(AVATAR_MAX_SIZE):
-        size = int(AVATAR_MAX_SIZE)
+    size = min(size, int(AVATAR_MAX_SIZE))
     return size
 
 
@@ -119,8 +115,7 @@ class AvatarImageView(TemplateView):
 
         # Check the cache first
         if CACHE_RESPONSE:
-            centry = caches["filesystem"].get(uri)
-            if centry:
+            if centry := caches["filesystem"].get(uri):
                 # For DEBUG purpose only
                 # print('Cached entry for %s' % uri)
                 return HttpResponse(
@@ -150,8 +145,7 @@ class AvatarImageView(TemplateView):
 
                 if not trusted_url:
                     print(
-                        "Default URL is not in trusted URLs: '%s' ; Kicking it!"
-                        % default
+                        f"Default URL is not in trusted URLs: '{default}'; Kicking it!"
                     )
                     default = None
 
@@ -177,20 +171,17 @@ class AvatarImageView(TemplateView):
                 obj = model.objects.get(digest_sha256=kwargs["digest"])
             except ObjectDoesNotExist:
                 model = ConfirmedOpenId
-                try:
+                with contextlib.suppress(Exception):
                     d = kwargs["digest"]  # pylint: disable=invalid-name
                     # OpenID is tricky. http vs. https, versus trailing slash or not
                     # However, some users eventually have added their variations already
-                    # and therfore we need to use filter() and first()
+                    # and therefore we need to use filter() and first()
                     obj = model.objects.filter(
                         Q(digest=d)
                         | Q(alt_digest1=d)
                         | Q(alt_digest2=d)
                         | Q(alt_digest3=d)
                     ).first()
-                except Exception:  # pylint: disable=bare-except
-                    pass
-
         # Handle the special case of Bluesky
         if obj:
             if obj.bluesky_handle:
@@ -218,7 +209,7 @@ class AvatarImageView(TemplateView):
                 )
                 # Ensure we do not convert None to string 'None'
                 if default:
-                    url += "&default=%s" % default
+                    url += f"&default={default}"
                 return HttpResponseRedirect(url)
 
             # Return the default URL, as specified, or 404 Not Found, if default=404
@@ -228,7 +219,7 @@ class AvatarImageView(TemplateView):
                     url = (
                         reverse_lazy("gravatarproxy", args=[kwargs["digest"]])
                         + "?s=%i" % size
-                        + "&default=%s&f=y" % default
+                        + f"&default={default}&f=y"
                     )
                     return HttpResponseRedirect(url)
 
@@ -238,46 +229,25 @@ class AvatarImageView(TemplateView):
                 if str(default) == "monsterid":
                     monsterdata = BuildMonster(seed=kwargs["digest"], size=(size, size))
                     data = BytesIO()
-                    monsterdata.save(data, "PNG", quality=JPEG_QUALITY)
-                    data.seek(0)
-                    response = CachingHttpResponse(uri, data, content_type="image/png")
-                    response["Cache-Control"] = "max-age=%i" % CACHE_IMAGES_MAX_AGE
-                    return response
-
+                    return self._return_cached_png(monsterdata, data, uri)
                 if str(default) == "robohash":
-                    roboset = "any"
-                    if request.GET.get("robohash"):
-                        roboset = request.GET.get("robohash")
+                    roboset = request.GET.get("robohash") or "any"
                     robohash = Robohash(kwargs["digest"])
                     robohash.assemble(roboset=roboset, sizex=size, sizey=size)
                     data = BytesIO()
                     robohash.img.save(data, format="png")
-                    data.seek(0)
-                    response = CachingHttpResponse(uri, data, content_type="image/png")
-                    response["Cache-Control"] = "max-age=%i" % CACHE_IMAGES_MAX_AGE
-                    return response
-
+                    return self._return_cached_response(data, uri)
                 if str(default) == "retro":
                     identicon = Identicon.render(kwargs["digest"])
                     data = BytesIO()
                     img = Image.open(BytesIO(identicon))
                     img = img.resize((size, size), Image.LANCZOS)
-                    img.save(data, "PNG", quality=JPEG_QUALITY)
-                    data.seek(0)
-                    response = CachingHttpResponse(uri, data, content_type="image/png")
-                    response["Cache-Control"] = "max-age=%i" % CACHE_IMAGES_MAX_AGE
-                    return response
-
+                    return self._return_cached_png(img, data, uri)
                 if str(default) == "pagan":
                     paganobj = pagan.Avatar(kwargs["digest"])
                     data = BytesIO()
                     img = paganobj.img.resize((size, size), Image.LANCZOS)
-                    img.save(data, "PNG", quality=JPEG_QUALITY)
-                    data.seek(0)
-                    response = CachingHttpResponse(uri, data, content_type="image/png")
-                    response["Cache-Control"] = "max-age=%i" % CACHE_IMAGES_MAX_AGE
-                    return response
-
+                    return self._return_cached_png(img, data, uri)
                 if str(default) == "identicon":
                     p = Pydenticon5()  # pylint: disable=invalid-name
                     # In order to make use of the whole 32 bytes digest, we need to redigest them.
@@ -286,42 +256,16 @@ class AvatarImageView(TemplateView):
                     ).hexdigest()
                     img = p.draw(newdigest, size, 0)
                     data = BytesIO()
-                    img.save(data, "PNG", quality=JPEG_QUALITY)
-                    data.seek(0)
-                    response = CachingHttpResponse(uri, data, content_type="image/png")
-                    response["Cache-Control"] = "max-age=%i" % CACHE_IMAGES_MAX_AGE
-                    return response
-
+                    return self._return_cached_png(img, data, uri)
                 if str(default) == "mmng":
                     mmngimg = mm_ng(idhash=kwargs["digest"], size=size)
                     data = BytesIO()
-                    mmngimg.save(data, "PNG", quality=JPEG_QUALITY)
-                    data.seek(0)
-                    response = CachingHttpResponse(uri, data, content_type="image/png")
-                    response["Cache-Control"] = "max-age=%i" % CACHE_IMAGES_MAX_AGE
-                    return response
-
-                if str(default) == "mm" or str(default) == "mp":
-                    # If mm is explicitly given, we need to catch that
-                    static_img = path.join(
-                        "static", "img", "mm", "%s%s" % (str(size), ".png")
-                    )
-                    if not path.isfile(static_img):
-                        # We trust this exists!!!
-                        static_img = path.join("static", "img", "mm", "512.png")
-                    # We trust static/ is mapped to /static/
-                    return HttpResponseRedirect("/" + static_img)
+                    return self._return_cached_png(mmngimg, data, uri)
+                if str(default) in {"mm", "mp"}:
+                    return self._redirect_static_w_size("mm", size)
                 return HttpResponseRedirect(default)
 
-            static_img = path.join(
-                "static", "img", "nobody", "%s%s" % (str(size), ".png")
-            )
-            if not path.isfile(static_img):
-                # We trust this exists!!!
-                static_img = path.join("static", "img", "nobody", "512.png")
-            # We trust static/ is mapped to /static/
-            return HttpResponseRedirect("/" + static_img)
-
+            return self._redirect_static_w_size("nobody", size)
         imgformat = obj.photo.format
         photodata = Image.open(BytesIO(obj.photo.data))
 
@@ -348,9 +292,31 @@ class AvatarImageView(TemplateView):
         obj.save()
         if imgformat == "jpg":
             imgformat = "jpeg"
-        response = CachingHttpResponse(uri, data, content_type="image/%s" % imgformat)
+        response = CachingHttpResponse(uri, data, content_type=f"image/{imgformat}")
         response["Cache-Control"] = "max-age=%i" % CACHE_IMAGES_MAX_AGE
         return response
+
+    def _redirect_static_w_size(self, arg0, size):
+        """
+        Helper method to redirect to static image with size i/a
+        """
+        # If mm is explicitly given, we need to catch that
+        static_img = path.join("static", "img", arg0, f"{str(size)}.png")
+        if not path.isfile(static_img):
+            # We trust this exists!!!
+            static_img = path.join("static", "img", arg0, "512.png")
+        # We trust static/ is mapped to /static/
+        return HttpResponseRedirect(f"/{static_img}")
+
+    def _return_cached_response(self, data, uri):
+        data.seek(0)
+        response = CachingHttpResponse(uri, data, content_type="image/png")
+        response["Cache-Control"] = "max-age=%i" % CACHE_IMAGES_MAX_AGE
+        return response
+
+    def _return_cached_png(self, arg0, data, uri):
+        arg0.save(data, "PNG", quality=JPEG_QUALITY)
+        return self._return_cached_response(data, uri)
 
 
 class GravatarProxyView(View):
@@ -374,19 +340,16 @@ class GravatarProxyView(View):
                 + "&forcedefault=y"
             )
             if default is not None:
-                url += "&default=%s" % default
+                url += f"&default={default}"
             return HttpResponseRedirect(url)
 
         size = get_size(request)
         gravatarimagedata = None
         default = None
 
-        try:
+        with contextlib.suppress(Exception):
             if str(request.GET["default"]) != "None":
                 default = request.GET["default"]
-        except Exception:  # pylint: disable=bare-except
-            pass
-
         if str(default) != "wavatar":
             # This part is special/hackish
             # Check if the image returned by Gravatar is their default image, if so,
@@ -406,35 +369,34 @@ class GravatarProxyView(View):
                 if exc.code == 404:
                     cache.set(gravatar_test_url, "default", 60)
                 else:
-                    print("Gravatar test url fetch failed: %s" % exc)
+                    print(f"Gravatar test url fetch failed: {exc}")
                 return redir_default(default)
 
         gravatar_url = (
             "https://secure.gravatar.com/avatar/" + kwargs["digest"] + "?s=%i" % size
         )
         if default:
-            gravatar_url += "&d=%s" % default
+            gravatar_url += f"&d={default}"
 
         try:
             if cache.get(gravatar_url) == "err":
-                print("Cached Gravatar fetch failed with URL error: %s" % gravatar_url)
+                print(f"Cached Gravatar fetch failed with URL error: {gravatar_url}")
                 return redir_default(default)
 
             gravatarimagedata = urlopen(gravatar_url)
         except HTTPError as exc:
-            if exc.code != 404 and exc.code != 503:
+            if exc.code not in [404, 503]:
                 print(
-                    "Gravatar fetch failed with an unexpected %s HTTP error: %s"
-                    % (exc.code, gravatar_url)
+                    f"Gravatar fetch failed with an unexpected {exc.code} HTTP error: {gravatar_url}"
                 )
             cache.set(gravatar_url, "err", 30)
             return redir_default(default)
         except URLError as exc:
-            print("Gravatar fetch failed with URL error: %s" % exc.reason)
+            print(f"Gravatar fetch failed with URL error: {exc.reason}")
             cache.set(gravatar_url, "err", 30)
             return redir_default(default)
         except SSLError as exc:
-            print("Gravatar fetch failed with SSL error: %s" % exc.reason)
+            print(f"Gravatar fetch failed with SSL error: {exc.reason}")
             cache.set(gravatar_url, "err", 30)
             return redir_default(default)
         try:
@@ -442,13 +404,13 @@ class GravatarProxyView(View):
             img = Image.open(data)
             data.seek(0)
             response = HttpResponse(
-                data.read(), content_type="image/%s" % file_format(img.format)
+                data.read(), content_type=f"image/{file_format(img.format)}"
             )
             response["Cache-Control"] = "max-age=%i" % CACHE_IMAGES_MAX_AGE
             return response
 
         except ValueError as exc:
-            print("Value error: %s" % exc)
+            print(f"Value error: {exc}")
             return redir_default(default)
 
         # We shouldn't reach this point... But make sure we do something
@@ -474,7 +436,7 @@ class BlueskyProxyView(View):
                 + "&forcedefault=y"
             )
             if default is not None:
-                url += "&default=%s" % default
+                url += f"&default={default}"
             return HttpResponseRedirect(url)
 
         size = get_size(request)
@@ -482,12 +444,9 @@ class BlueskyProxyView(View):
         blueskyimagedata = None
         default = None
 
-        try:
+        with contextlib.suppress(Exception):
             if str(request.GET["default"]) != "None":
                 default = request.GET["default"]
-        except Exception:  # pylint: disable=bare-except
-            pass
-
         identity = None
 
         # First check for email, as this is the most common
@@ -517,12 +476,9 @@ class BlueskyProxyView(View):
         bs = Bluesky()
         bluesky_url = None
         # Try with the cache first
-        try:
+        with contextlib.suppress(Exception):
             if cache.get(identity.bluesky_handle):
                 bluesky_url = cache.get(identity.bluesky_handle)
-        except Exception:  # pylint: disable=bare-except
-            pass
-
         if not bluesky_url:
             try:
                 bluesky_url = bs.get_avatar(identity.bluesky_handle)
@@ -532,30 +488,29 @@ class BlueskyProxyView(View):
 
         try:
             if cache.get(bluesky_url) == "err":
-                print("Cached Bluesky fetch failed with URL error: %s" % bluesky_url)
+                print(f"Cached Bluesky fetch failed with URL error: {bluesky_url}")
                 return redir_default(default)
 
             blueskyimagedata = urlopen(bluesky_url)
         except HTTPError as exc:
-            if exc.code != 404 and exc.code != 503:
+            if exc.code not in [404, 503]:
                 print(
-                    "Bluesky fetch failed with an unexpected %s HTTP error: %s"
-                    % (exc.code, bluesky_url)
+                    f"Bluesky fetch failed with an unexpected {exc.code} HTTP error: {bluesky_url}"
                 )
             cache.set(bluesky_url, "err", 30)
             return redir_default(default)
         except URLError as exc:
-            print("Bluesky fetch failed with URL error: %s" % exc.reason)
+            print(f"Bluesky fetch failed with URL error: {exc.reason}")
             cache.set(bluesky_url, "err", 30)
             return redir_default(default)
         except SSLError as exc:
-            print("Bluesky fetch failed with SSL error: %s" % exc.reason)
+            print(f"Bluesky fetch failed with SSL error: {exc.reason}")
             cache.set(bluesky_url, "err", 30)
             return redir_default(default)
         try:
             data = BytesIO(blueskyimagedata.read())
             img = Image.open(data)
-            format = img.format
+            img_format = img.format
             if max(img.size) > size:
                 aspect = img.size[0] / float(img.size[1])
                 if aspect > 1:
@@ -564,16 +519,16 @@ class BlueskyProxyView(View):
                     new_size = (int(size * aspect), size)
                 img = img.resize(new_size)
             data = BytesIO()
-            img.save(data, format=format)
+            img.save(data, format=img_format)
 
             data.seek(0)
             response = HttpResponse(
-                data.read(), content_type="image/%s" % file_format(format)
+                data.read(), content_type=f"image/{file_format(format)}"
             )
             response["Cache-Control"] = "max-age=%i" % CACHE_IMAGES_MAX_AGE
             return response
         except ValueError as exc:
-            print("Value error: %s" % exc)
+            print(f"Value error: {exc}")
             return redir_default(default)
 
         # We shouldn't reach this point... But make sure we do something

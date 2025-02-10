@@ -346,7 +346,7 @@ class ConfirmedEmail(BaseAccountModel):
         handle = bs.normalize_handle(handle)
         avatar = bs.get_profile(handle)
         if not avatar:
-            raise Exception("Invalid Bluesky handle")
+            raise ValueError("Invalid Bluesky handle")
         self.bluesky_handle = handle
         self.save()
 
@@ -499,7 +499,7 @@ class ConfirmedOpenId(BaseAccountModel):
         handle = bs.normalize_handle(handle)
         avatar = bs.get_profile(handle)
         if not avatar:
-            raise Exception("Invalid Bluesky handle")
+            raise ValueError("Invalid Bluesky handle")
         self.bluesky_handle = handle
         self.save()
 

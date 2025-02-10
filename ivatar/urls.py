@@ -2,6 +2,8 @@
 """
 ivatar URL configuration
 """
+
+import contextlib
 from django.contrib import admin
 from django.urls import path, include, re_path
 from django.conf.urls.static import static
@@ -69,12 +71,9 @@ urlpatterns = [  # pylint: disable=invalid-name
 ]
 
 MAINTENANCE = False
-try:
+with contextlib.suppress(Exception):
     if settings.MAINTENANCE:
         MAINTENANCE = True
-except Exception:  # pylint: disable=bare-except
-    pass
-
 if MAINTENANCE:
     urlpatterns.append(
         path("", TemplateView.as_view(template_name="maintenance.html"), name="home")

@@ -2,6 +2,8 @@
 """
 Simple module providing reusable random_string function
 """
+
+import contextlib
 import random
 import string
 from io import BytesIO
@@ -13,10 +15,8 @@ from urllib.request import urlopen as urlopen_orig
 
 BLUESKY_IDENTIFIER = None
 BLUESKY_APP_PASSWORD = None
-try:
+with contextlib.suppress(Exception):
     from ivatar.settings import BLUESKY_IDENTIFIER, BLUESKY_APP_PASSWORD
-except Exception:  # pylint: disable=broad-except
-    pass
 
 
 def urlopen(url, timeout=URL_TIMEOUT):
@@ -66,8 +66,7 @@ class Bluesky:
         Return the normalized handle for given handle
         """
         # Normalize Bluesky handle in case someone enters an '@' at the beginning
-        if handle.startswith("@"):
-            handle = handle[1:]
+        handle = handle.removeprefix("@")
         # Remove trailing spaces or spaces at the beginning
         while handle.startswith(" "):
             handle = handle[1:]
@@ -88,9 +87,7 @@ class Bluesky:
             )
             profile_response.raise_for_status()
         except Exception as exc:
-            print(
-                "Bluesky profile fetch failed with HTTP error: %s" % exc
-            )  # pragma: no cover
+            print(f"Bluesky profile fetch failed with HTTP error: {exc}")
             return None
 
         return profile_response.json()
@@ -126,12 +123,12 @@ def openid_variations(openid):
     if openid.startswith("https://"):
         openid = openid.replace("https://", "http://")
     if openid[-1] != "/":
-        openid = openid + "/"
+        openid = f"{openid}/"
 
     # http w/o trailing slash
-    var1 = openid[0:-1]
+    var1 = openid[:-1]
     var2 = openid.replace("http://", "https://")
-    var3 = var2[0:-1]
+    var3 = var2[:-1]
     return (openid, var1, var2, var3)
 
 
@@ -149,43 +146,43 @@ def mm_ng(
         idhash = "e0"
 
     # How large is the circle?
-    circlesize = size * 0.6
+    circle_size = size * 0.6
 
     # Coordinates for the circle
     start_x = int(size * 0.2)
-    end_x = start_x + circlesize
+    end_x = start_x + circle_size
     start_y = int(size * 0.05)
-    end_y = start_y + circlesize
+    end_y = start_y + circle_size
 
     # All are the same, based on the input hash
     # this should always result in a "gray-ish" background
-    red = idhash[0:2]
-    green = idhash[0:2]
-    blue = idhash[0:2]
+    red = idhash[:2]
+    green = idhash[:2]
+    blue = idhash[:2]
 
     # Add some red (i/a) and make sure it's not over 255
     red = hex(int(red, 16) + add_red).replace("0x", "")
     if int(red, 16) > 255:
         red = "ff"
     if len(red) == 1:
-        red = "0%s" % red
+        red = f"0{red}"
 
     # Add some green (i/a) and make sure it's not over 255
     green = hex(int(green, 16) + add_green).replace("0x", "")
     if int(green, 16) > 255:
         green = "ff"
     if len(green) == 1:
-        green = "0%s" % green
+        green = f"0{green}"
 
     # Add some blue (i/a) and make sure it's not over 255
     blue = hex(int(blue, 16) + add_blue).replace("0x", "")
     if int(blue, 16) > 255:
         blue = "ff"
     if len(blue) == 1:
-        blue = "0%s" % blue
+        blue = f"0{blue}"
 
-    # Assemable the bg color "string" in webnotation. Eg. '#d3d3d3'
-    bg_color = "#" + red + green + blue
+    # Assemble the bg color "string" in web notation. Eg. '#d3d3d3'
+    bg_color = f"#{red}{green}{blue}"
 
     # Image
     image = Image.new("RGB", (size, size))
@@ -200,7 +197,7 @@ def mm_ng(
     # Draw MMs 'body'
     draw.polygon(
         (
-            (start_x + circlesize / 2, size / 2.5),
+            (start_x + circle_size / 2, size / 2.5),
             (size * 0.15, size),
             (size - size * 0.15, size),
         ),

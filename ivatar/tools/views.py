@@ -33,10 +33,9 @@ class CheckDomainView(FormView):
     success_url = reverse("tools_check_domain")
 
     def form_valid(self, form):
-        result = {}
         super().form_valid(form)
         domain = form.cleaned_data["domain"]
-        result["avatar_server_http"] = lookup_avatar_server(domain, False)
+        result = {"avatar_server_http": lookup_avatar_server(domain, False)}
         if result["avatar_server_http"]:
             result["avatar_server_http_ipv4"] = lookup_ip_address(
                 result["avatar_server_http"], False
@@ -80,8 +79,6 @@ class CheckView(FormView):
         mail_hash = None
         mail_hash256 = None
         openid_hash = None
-        size = 80
-
         super().form_valid(form)
 
         if form.cleaned_data["default_url"]:
@@ -94,8 +91,7 @@ class CheckView(FormView):
         else:
             default_url = None
 
-        if "size" in form.cleaned_data:
-            size = form.cleaned_data["size"]
+        size = form.cleaned_data["size"] if "size" in form.cleaned_data else 80
         if form.cleaned_data["mail"]:
             mailurl = libravatar_url(
                 email=form.cleaned_data["mail"], size=size, default=default_url
@@ -121,7 +117,7 @@ class CheckView(FormView):
             if not form.cleaned_data["openid"].startswith(
                 "http://"
             ) and not form.cleaned_data["openid"].startswith("https://"):
-                form.cleaned_data["openid"] = "http://%s" % form.cleaned_data["openid"]
+                form.cleaned_data["openid"] = f'http://{form.cleaned_data["openid"]}'
             openidurl = libravatar_url(
                 openid=form.cleaned_data["openid"], size=size, default=default_url
             )
@@ -139,34 +135,33 @@ class CheckView(FormView):
                 openid=form.cleaned_data["openid"], email=None
             )[0]
 
-        if "DEVELOPMENT" in SITE_NAME:
-            if DEBUG:
-                if mailurl:
-                    mailurl = mailurl.replace(
-                        "https://avatars.linux-kernel.at",
-                        "http://" + self.request.get_host(),
-                    )
-                if mailurl_secure:
-                    mailurl_secure = mailurl_secure.replace(
-                        "https://avatars.linux-kernel.at",
-                        "http://" + self.request.get_host(),
-                    )
-                if mailurl_secure_256:
-                    mailurl_secure_256 = mailurl_secure_256.replace(
-                        "https://avatars.linux-kernel.at",
-                        "http://" + self.request.get_host(),
-                    )
+        if "DEVELOPMENT" in SITE_NAME and DEBUG:
+            if mailurl:
+                mailurl = mailurl.replace(
+                    "https://avatars.linux-kernel.at",
+                    f"http://{self.request.get_host()}",
+                )
+            if mailurl_secure:
+                mailurl_secure = mailurl_secure.replace(
+                    "https://avatars.linux-kernel.at",
+                    f"http://{self.request.get_host()}",
+                )
+            if mailurl_secure_256:
+                mailurl_secure_256 = mailurl_secure_256.replace(
+                    "https://avatars.linux-kernel.at",
+                    f"http://{self.request.get_host()}",
+                )
 
-                if openidurl:
-                    openidurl = openidurl.replace(
-                        "https://avatars.linux-kernel.at",
-                        "http://" + self.request.get_host(),
-                    )
-                if openidurl_secure:
-                    openidurl_secure = openidurl_secure.replace(
-                        "https://avatars.linux-kernel.at",
-                        "http://" + self.request.get_host(),
-                    )
+            if openidurl:
+                openidurl = openidurl.replace(
+                    "https://avatars.linux-kernel.at",
+                    f"http://{self.request.get_host()}",
+                )
+            if openidurl_secure:
+                openidurl_secure = openidurl_secure.replace(
+                    "https://avatars.linux-kernel.at",
+                    f"http://{self.request.get_host()}",
+                )
         print(mailurl, openidurl, mailurl_secure, mailurl_secure_256, openidurl_secure)
 
         return render(
@@ -202,15 +197,15 @@ def lookup_avatar_server(domain, https):
 
     service_name = None
     if https:
-        service_name = "_avatars-sec._tcp.%s" % domain
+        service_name = f"_avatars-sec._tcp.{domain}"
     else:
-        service_name = "_avatars._tcp.%s" % domain
+        service_name = f"_avatars._tcp.{domain}"
 
     DNS.DiscoverNameServers()
     try:
         dns_request = DNS.Request(name=service_name, qtype="SRV").req()
     except DNS.DNSError as message:
-        print("DNS Error: %s (%s)" % (message, domain))
+        print(f"DNS Error: {message} ({domain})")
         return None
 
     if dns_request.header["status"] == "NXDOMAIN":
@@ -218,7 +213,7 @@ def lookup_avatar_server(domain, https):
         return None
 
     if dns_request.header["status"] != "NOERROR":
-        print("DNS Error: status=%s (%s)" % (dns_request.header["status"], domain))
+        print(f'DNS Error: status={dns_request.header["status"]} ({domain})')
         return None
 
     records = []
@@ -243,7 +238,7 @@ def lookup_avatar_server(domain, https):
     target, port = srv_hostname(records)
 
     if target and ((https and port != 443) or (not https and port != 80)):
-        return "%s:%s" % (target, port)
+        return f"{target}:{port}"
 
     return target
 
@@ -273,7 +268,7 @@ def srv_hostname(records):
         # Take care - this if is only a if, if the above if
         # uses continue at the end. else it should be an elsif
         if ret["priority"] < top_priority:
-            # reset the aretay (ret has higher priority)
+            # reset the priority (ret has higher priority)
             top_priority = ret["priority"]
             total_weight = 0
             priority_records = []
@@ -283,7 +278,7 @@ def srv_hostname(records):
         if ret["weight"] > 0:
             priority_records.append((total_weight, ret))
         else:
-            # zero-weigth elements must come first
+            # zero-weight elements must come first
             priority_records.insert(0, (0, ret))
 
     if len(priority_records) == 1:
@@ -315,11 +310,11 @@ def lookup_ip_address(hostname, ipv6):
         else:
             dns_request = DNS.Request(name=hostname, qtype=DNS.Type.A).req()
     except DNS.DNSError as message:
-        print("DNS Error: %s (%s)" % (message, hostname))
+        print(f"DNS Error: {message} ({hostname})")
         return None
 
     if dns_request.header["status"] != "NOERROR":
-        print("DNS Error: status=%s (%s)" % (dns_request.header["status"], hostname))
+        print(f'DNS Error: status={dns_request.header["status"]} ({hostname})')
         return None
 
     for answer in dns_request.answers:
@@ -330,9 +325,5 @@ def lookup_ip_address(hostname, ipv6):
         ):
             continue  # skip CNAME records
 
-        if ipv6:
-            return inet_ntop(AF_INET6, answer["data"])
-
-        return answer["data"]
-
+        return inet_ntop(AF_INET6, answer["data"]) if ipv6 else answer["data"]
     return None

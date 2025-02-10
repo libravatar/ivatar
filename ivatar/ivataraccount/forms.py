@@ -118,9 +118,7 @@ class UploadPhotoForm(forms.Form):
         photo.ip_address = get_client_ip(request)[0]
         photo.data = data.read()
         photo.save()
-        if not photo.pk:
-            return None
-        return photo
+        return None if not photo.pk else photo
 
 
 class AddOpenIDForm(forms.Form):
@@ -141,12 +139,15 @@ class AddOpenIDForm(forms.Form):
         """
         # Lowercase hostname port of the URL
         url = urlsplit(self.cleaned_data["openid"])
-        data = urlunsplit(
-            (url.scheme.lower(), url.netloc.lower(), url.path, url.query, url.fragment)
+        return urlunsplit(
+            (
+                url.scheme.lower(),
+                url.netloc.lower(),
+                url.path,
+                url.query,
+                url.fragment,
+            )
         )
-
-        # TODO: Domain restriction as in libravatar?
-        return data
 
     def save(self, user):
         """
