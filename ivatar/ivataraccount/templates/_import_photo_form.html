@@ -12,23 +12,24 @@
     {% endif %}
       <div class="row">
       {% for photo in photos %}
-<div class="panel panel-tortin" style="width:182px;float:left;margin-left:20px">
-  <div class="panel-heading">
-    <h3 class="panel-title">
-<input type="checkbox" name="photo_{{photo.service_name}}" id="photo_{{photo.service_name}}" checked="checked">
-<label for="photo_{{photo.service_name}}" style="width:100%">
-{{ photo.service_name }}
-{% if photo.service_url %}
-        <a href="{{ photo.service_url }}" style="float:right;color:#FFFFFF"><i class="fa fa-external-link"></i></a>
-        {% endif %}
-</label>
-</h3></div>
-  <div class="panel-body">
-        <center>
-          <img src="{{ photo.thumbnail_url }}" style="max-width: 80px; max-height: 80px;" alt="{{ photo.service_name }} image">
-        </center>
-</div>
-</div>
+        <div class="panel panel-tortin" style="width:182px;float:left;margin-left:20px">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <input type="checkbox" name="photo_{{photo.service_name}}" id="photo_{{photo.service_name}}" checked="checked">
+              <label for="photo_{{photo.service_name}}" style="width:100%">
+                {{ photo.service_name }}
+                {% if photo.service_url %}
+                  <a href="{{ photo.service_url }}" style="float:right;color:#FFFFFF"><i class="fa fa-external-link"></i></a>
+                {% endif %}
+              </label>
+            </h3>
+          </div>
+          <div class="panel-body">
+            <center>
+              <img src="{{ photo.thumbnail_url }}" style="max-width: 80px; max-height: 80px;" alt="{{ photo.service_name }} image">
+            </center>
+          </div>
+        </div>
       {% endfor %}
       </div>
       <p>
