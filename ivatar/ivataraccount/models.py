@@ -142,8 +142,7 @@ class Photo(BaseAccountModel):
         image_url = False
 
         if service_name == "Gravatar":
-            gravatar = get_gravatar_photo(email_address)
-            if gravatar:
+            if gravatar := get_gravatar_photo(email_address):
                 image_url = gravatar["image_url"]
 
         if service_name == "Libravatar":
@@ -153,15 +152,11 @@ class Photo(BaseAccountModel):
             return False  # pragma: no cover
         try:
             image = urlopen(image_url)
-        # No idea how to test this
-        # pragma: no cover
         except HTTPError as exc:
-            print("%s import failed with an HTTP error: %s" % (service_name, exc.code))
+            print(f"{service_name} import failed with an HTTP error: {exc.code}")
             return False
-        # No idea how to test this
-        # pragma: no cover
         except URLError as exc:
-            print("%s import failed: %s" % (service_name, exc.reason))
+            print(f"{service_name} import failed: {exc.reason}")
             return False
         data = image.read()
 
@@ -173,7 +168,7 @@ class Photo(BaseAccountModel):
 
         self.format = file_format(img.format)
         if not self.format:
-            print("Unable to determine format: %s" % img)  # pragma: no cover
+            print(f"Unable to determine format: {img}")
             return False  # pragma: no cover
         self.data = data
         super().save()
@@ -188,10 +183,9 @@ class Photo(BaseAccountModel):
         # Use PIL to read the file format
         try:
             img = Image.open(BytesIO(self.data))
-        # Testing? Ideas anyone?
         except Exception as exc:  # pylint: disable=broad-except
             # For debugging only
-            print("Exception caught in Photo.save(): %s" % exc)
+            print(f"Exception caught in Photo.save(): {exc}")
             return False
         self.format = file_format(img.format)
         if not self.format:
@@ -301,8 +295,7 @@ class ConfirmedEmailManager(models.Manager):
 
         external_photos = []
         if is_logged_in:
-            gravatar = get_gravatar_photo(confirmed.email)
-            if gravatar:
+            if gravatar := get_gravatar_photo(confirmed.email):
                 external_photos.append(gravatar)
 
         return (confirmed.pk, external_photos)
@@ -354,7 +347,6 @@ class ConfirmedEmail(BaseAccountModel):
         avatar = bs.get_profile(handle)
         if not avatar:
             raise Exception("Invalid Bluesky handle")
-            return
         self.bluesky_handle = handle
         self.save()
 
@@ -430,7 +422,7 @@ class UnconfirmedEmail(BaseAccountModel):
         try:
             send_mail(email_subject, email_body, DEFAULT_FROM_EMAIL, [self.email])
         except Exception as e:
-            self.last_status = "%s" % e
+            self.last_status = f"{e}"
         self.save()
         return True
 
@@ -508,7 +500,6 @@ class ConfirmedOpenId(BaseAccountModel):
         avatar = bs.get_profile(handle)
         if not avatar:
             raise Exception("Invalid Bluesky handle")
-            return
         self.bluesky_handle = handle
         self.save()
 
@@ -518,7 +509,7 @@ class ConfirmedOpenId(BaseAccountModel):
         url = urlsplit(self.openid)
         if url.username:  # pragma: no cover
             password = url.password or ""
-            netloc = url.username + ":" + password + "@" + url.hostname
+            netloc = f"{url.username}:{password}@{url.hostname}"
         else:
             netloc = url.hostname
         lowercase_url = urlunsplit(
@@ -638,9 +629,7 @@ class DjangoOpenIDStore(OpenIDStore):
                 self.removeAssociation(server_url, assoc.handle)
             else:
                 associations.append((association.issued, association))
-        if not associations:
-            return None
-        return associations[-1][1]
+        return associations[-1][1] if associations else None
 
     @staticmethod
     def removeAssociation(server_url, handle):  # pragma: no cover
@@ -693,6 +682,6 @@ class DjangoOpenIDStore(OpenIDStore):
         """
         Helper method to cleanup associations
         """
-        OpenIDAssociation.objects.extra(  # pylint: disable=no-member
-            where=["issued + lifetimeint < (%s)" % time.time()]
+        OpenIDAssociation.objects.extra(
+            where=[f"issued + lifetimeint < ({time.time()})"]
         ).delete()

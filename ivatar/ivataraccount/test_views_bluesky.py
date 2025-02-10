@@ -2,6 +2,9 @@
 """
 Test our views in ivatar.ivataraccount.views and ivatar.views
 """
+
+import contextlib
+
 # pylint: disable=too-many-lines
 import os
 import django
@@ -63,28 +66,24 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         """
         Create a confirmed openid
         """
-        confirmed = ConfirmedOpenId.objects.create(
+        return ConfirmedOpenId.objects.create(
             user=self.user,
             ip_address="127.0.0.1",
             openid=self.openid,
         )
 
-        return confirmed
-
     def create_confirmed_email(self):
         """
         Create a confirmed email
         """
-        confirmed = ConfirmedEmail.objects.create(
+        return ConfirmedEmail.objects.create(
             email=self.email,
             user=self.user,
         )
 
-        return confirmed
-
     # The following tests need to be moved over to the model tests
     # and real web UI tests added
-    def test_bluesky_handle_for_mail_via_model_handle_doesnt_exist(self):
+    def test_bluesky_handle_for_mail_via_model_handle_does_not_exist(self):
         """
         Add Bluesky handle to a confirmed mail address
         """
@@ -92,14 +91,12 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         confirmed = self.create_confirmed_email()
         confirmed.set_bluesky_handle(self.bsky_test_account)
 
-        try:
-            confirmed.set_bluesky_handle(self.bsky_test_account + "1")
-        except Exception:
-            pass
+        with contextlib.suppress(Exception):
+            confirmed.set_bluesky_handle(f"{self.bsky_test_account}1")
         self.assertNotEqual(
             confirmed.bluesky_handle,
-            self.bsky_test_account + "1",
-            "Setting Bluesky handle that doesn exist works?",
+            f"{self.bsky_test_account}1",
+            "Setting Bluesky handle that doesn't exist works?",
         )
 
     def test_bluesky_handle_for_mail_via_model_handle_exists(self):
@@ -116,7 +113,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
             "Setting Bluesky handle doesn't work?",
         )
 
-    def test_bluesky_handle_for_openid_via_model_handle_doesnt_exist(self):
+    def test_bluesky_handle_for_openid_via_model_handle_does_not_exist(self):
         """
         Add Bluesky handle to a confirmed openid address
         """
@@ -124,14 +121,12 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         confirmed = self.create_confirmed_openid()
         confirmed.set_bluesky_handle(self.bsky_test_account)
 
-        try:
-            confirmed.set_bluesky_handle(self.bsky_test_account + "1")
-        except Exception:
-            pass
+        with contextlib.suppress(Exception):
+            confirmed.set_bluesky_handle(f"{self.bsky_test_account}1")
         self.assertNotEqual(
             confirmed.bluesky_handle,
-            self.bsky_test_account + "1",
-            "Setting Bluesky handle that doesn exist works?",
+            f"{self.bsky_test_account}1",
+            "Setting Bluesky handle that doesn't exist works?",
         )
 
     def test_bluesky_handle_for_openid_via_model_handle_exists(self):
@@ -161,7 +156,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         response = self.client.get(lu)
         # This is supposed to redirect to the Bluesky proxy
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response["Location"], "/blueskyproxy/%s" % confirmed.digest)
+        self.assertEqual(response["Location"], f"/blueskyproxy/{confirmed.digest}")
 
     def test_bluesky_fetch_openid(self):
         """
@@ -176,7 +171,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         response = self.client.get(lu)
         # This is supposed to redirect to the Bluesky proxy
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response["Location"], "/blueskyproxy/%s" % confirmed.digest)
+        self.assertEqual(response["Location"], f"/blueskyproxy/{confirmed.digest}")
 
     def test_assign_bluesky_handle_to_openid(self):
         """

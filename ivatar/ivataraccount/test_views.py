@@ -2,6 +2,9 @@
 """
 Test our views in ivatar.ivataraccount.views and ivatar.views
 """
+
+import contextlib
+
 # pylint: disable=too-many-lines
 from urllib.parse import urlsplit
 from io import BytesIO
@@ -240,9 +243,11 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
             "Confirm w/o verification key does not produce error message?",
         )
 
-    def test_confirm_email_w_inexisting_auth_key(self):  # pylint: disable=invalid-name
+    def test_confirm_email_w_non_existing_auth_key(
+        self,
+    ):  # pylint: disable=invalid-name
         """
-        Test confirmation with inexisting auth key
+        Test confirmation with non existing auth key
         """
         self.login()
         # Avoid sending out mails
@@ -264,7 +269,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         self.assertEqual(
             str(list(response.context[0]["messages"])[-1]),
             "Verification key does not exist",
-            "Confirm w/o inexisting key does not produce error message?",
+            "Confirm w/o non existing key does not produce error message?",
         )
 
     def test_remove_confirmed_email(self):
@@ -352,7 +357,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         response = self.client.post(
             reverse("add_email"),
             {
-                "email": "oliver@linux-kernel.at",  # Whohu, static :-[
+                "email": "oliver@linux-kernel.at",  # Wow, static :-[
             },
         )  # Create test address
         unconfirmed = self.user.unconfirmedemail_set.first()
@@ -418,7 +423,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
             "Photo deletion did not work?",
         )
 
-    def test_delete_inexisting_photo(self):
+    def test_delete_non_existing_photo(self):
         """
         test deleting the photo
         """
@@ -602,22 +607,21 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
                 },
                 follow=True,
             )
-        if test_only_one:
-            self.assertEqual(
-                self.user.photo_set.count(), 1, "there must be exactly one photo now!"
-            )
-            self.assertEqual(
-                str(list(response.context[0]["messages"])[-1]),
-                "Successfully uploaded",
-                "A valid image should return a success message!",
-            )
-            self.assertEqual(
-                self.user.photo_set.first().format,
-                "png",
-                "Format must be png, since we uploaded a png!",
-            )
-        else:
+        if not test_only_one:
             return response
+        self.assertEqual(
+            self.user.photo_set.count(), 1, "there must be exactly one photo now!"
+        )
+        self.assertEqual(
+            str(list(response.context[0]["messages"])[-1]),
+            "Successfully uploaded",
+            "A valid image should return a success message!",
+        )
+        self.assertEqual(
+            self.user.photo_set.first().format,
+            "png",
+            "Format must be png, since we uploaded a png!",
+        )
 
     def test_upload_too_many_images(self):
         """
@@ -741,7 +745,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
                 email=self.user.confirmedemail_set.first().email,
             )
         )
-        url = "%s?%s" % (urlobj.path, urlobj.query)
+        url = f"{urlobj.path}?{urlobj.query}"
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200, "unable to fetch avatar?")
 
@@ -782,7 +786,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
                 email=self.user.confirmedemail_set.first().email,
             )
         )
-        url = "%s?%s" % (urlobj.path, urlobj.query)
+        url = f"{urlobj.path}?{urlobj.query}"
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200, "unable to fetch avatar?")
 
@@ -823,7 +827,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
                 email=self.user.confirmedemail_set.first().email,
             )
         )
-        url = "%s?%s" % (urlobj.path, urlobj.query)
+        url = f"{urlobj.path}?{urlobj.query}"
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200, "unable to fetch avatar?")
 
@@ -969,7 +973,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
             "Assign non existing photo, does not return error message?",
         )
 
-    def test_assign_photo_to_inexisting_mail(self):  # pylint: disable=invalid-name
+    def test_assign_photo_to_non_existing_mail(self):  # pylint: disable=invalid-name
         """
         Test if assigning photo to mail address that doesn't exist returns
         the correct error message
@@ -990,9 +994,9 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
             "Assign non existing photo, does not return error message?",
         )
 
-    def test_import_photo_with_inexisting_email(self):  # pylint: disable=invalid-name
+    def test_import_photo_with_non_existing_email(self):  # pylint: disable=invalid-name
         """
-        Test if import with inexisting mail address returns
+        Test if import with non existing mail address returns
         the correct error message
         """
         self.login()
@@ -1002,7 +1006,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         self.assertEqual(
             str(list(response.context[0]["messages"])[0]),
             "Address does not exist",
-            "Import photo with inexisting mail id,\
+            "Import photo with non existing mail id,\
             does not return error message?",
         )
 
@@ -1022,10 +1026,24 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
             should return an error message!",
         )
 
+    def _manual_confirm(self):
+        """
+        Helper method to confirm manually, because testing is really hard
+        """
+        # Manual confirm, since testing is _really_ hard!
+        unconfirmed = self.user.unconfirmedopenid_set.first()
+        confirmed = ConfirmedOpenId()
+        confirmed.user = unconfirmed.user
+        confirmed.ip_address = "127.0.0.1"
+        confirmed.openid = unconfirmed.openid
+        confirmed.save()
+        unconfirmed.delete()
+
     def test_add_openid(self, confirm=True):
         """
         Test if adding an OpenID works
         """
+
         self.login()
         # Get page
         response = self.client.get(reverse("add_openid"))
@@ -1042,14 +1060,9 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         self.assertEqual(response.status_code, 302, "OpenID must redirect")
 
         if confirm:
-            # Manual confirm, since testing is _really_ hard!
-            unconfirmed = self.user.unconfirmedopenid_set.first()
-            confirmed = ConfirmedOpenId()
-            confirmed.user = unconfirmed.user
-            confirmed.ip_address = "127.0.0.1"
-            confirmed.openid = unconfirmed.openid
-            confirmed.save()
-            unconfirmed.delete()
+            self._manual_confirm()
+
+    # TODO Rename this here and in `test_add_openid`
 
     def test_add_openid_twice(self):
         """
@@ -1215,7 +1228,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
             "Assign non existing photo, does not return error message?",
         )
 
-    def test_assign_photo_to_openid_inexisting_openid(
+    def test_assign_photo_to_openid_non_existing_openid(
         self,
     ):  # pylint: disable=invalid-name
         """
@@ -1292,7 +1305,9 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
             "Removing unconfirmed mail does not work?",
         )
 
-    def test_remove_unconfirmed_inexisting_openid(self):  # pylint: disable=invalid-name
+    def test_remove_unconfirmed_non_existing_openid(
+        self,
+    ):  # pylint: disable=invalid-name
         """
         Remove unconfirmed openid that doesn't exist
         """
@@ -1305,7 +1320,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         self.assertEqual(
             str(list(response.context[0]["messages"])[0]),
             "ID does not exist",
-            "Removing an inexisting openid should return an error message",
+            "Removing an non existing openid should return an error message",
         )
 
     def test_openid_redirect_view(self):
@@ -1353,7 +1368,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
                 size=size[0],
             )
         )
-        url = "%s?%s" % (urlobj.path, urlobj.query)
+        url = f"{urlobj.path}?{urlobj.query}"
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200, "unable to fetch avatar?")
         photodata = Image.open(BytesIO(response.content))
@@ -1370,15 +1385,15 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
                 size=80,
             )
         )
-        url = "%s?%s" % (urlobj.path, urlobj.query)
+        url = f"{urlobj.path}?{urlobj.query}"
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200, "unable to fetch avatar?")
         photodata = Image.open(BytesIO(response.content))
         self.assertEqual(photodata.size, (80, 80), "Why is this not the correct size?")
 
-    def test_avatar_url_inexisting_mail_digest(self):  # pylint: disable=invalid-name
+    def test_avatar_url_non_existing_mail_digest(self):  # pylint: disable=invalid-name
         """
-        Test fetching avatar via inexisting mail digest
+        Test fetching avatar via non existing mail digest
         """
         self.test_upload_image()
         self.test_confirm_email()
@@ -1394,11 +1409,11 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         digest = hashlib.md5(addr.strip().lower().encode("utf-8")).hexdigest()
 
         self.user.confirmedemail_set.first().delete()
-        url = "%s?%s" % (urlobj.path, urlobj.query)
+        url = f"{urlobj.path}?{urlobj.query}"
         response = self.client.get(url, follow=True)
         self.assertEqual(
             response.redirect_chain[0][0],
-            "/gravatarproxy/%s?s=80" % digest,
+            f"/gravatarproxy/{digest}?s=80",
             "Doesn't redirect to Gravatar?",
         )
         self.assertEqual(
@@ -1406,7 +1421,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         )
         self.assertEqual(
             response.redirect_chain[1][0],
-            "/avatar/%s?s=80&forcedefault=y" % digest,
+            f"/avatar/{digest}?s=80&forcedefault=y",
             "Doesn't redirect with default forced on?",
         )
         self.assertEqual(
@@ -1424,11 +1439,11 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         # )
         # Eventually one should check if the data is the same
 
-    def test_avatar_url_inexisting_mail_digest_gravatarproxy_disabled(
+    def test_avatar_url_non_existing_mail_digest_gravatarproxy_disabled(
         self,
     ):  # pylint: disable=invalid-name
         """
-        Test fetching avatar via inexisting mail digest
+        Test fetching avatar via non existing mail digest
         """
         self.test_upload_image()
         self.test_confirm_email()
@@ -1441,7 +1456,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         # Simply delete it, then it digest is 'correct', but
         # the hash is no longer there
         self.user.confirmedemail_set.first().delete()
-        url = "%s?%s&gravatarproxy=n" % (urlobj.path, urlobj.query)
+        url = f"{urlobj.path}?{urlobj.query}&gravatarproxy=n"
         response = self.client.get(url, follow=True)
         self.assertEqual(
             response.redirect_chain[0][0],
@@ -1456,11 +1471,11 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         # )
         # Eventually one should check if the data is the same
 
-    def test_avatar_url_inexisting_mail_digest_w_default_mm(
+    def test_avatar_url_non_existing_mail_digest_w_default_mm(
         self,
     ):  # pylint: disable=invalid-name
         """
-        Test fetching avatar via inexisting mail digest and default 'mm'
+        Test fetching avatar via non existing mail digest and default 'mm'
         """
         urlobj = urlsplit(
             libravatar_url(
@@ -1469,14 +1484,14 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
                 default="mm",
             )
         )
-        url = "%s?%s" % (urlobj.path, urlobj.query)
+        url = f"{urlobj.path}?{urlobj.query}"
         self.client.get(url, follow=False)
 
-    def test_avatar_url_inexisting_mail_digest_w_default_mm_gravatarproxy_disabled(
+    def test_avatar_url_non_existing_mail_digest_w_default_mm_gravatarproxy_disabled(
         self,
     ):  # pylint: disable=invalid-name
         """
-        Test fetching avatar via inexisting mail digest and default 'mm'
+        Test fetching avatar via non existing mail digest and default 'mm'
         """
         urlobj = urlsplit(
             libravatar_url(
@@ -1485,7 +1500,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
                 default="mm",
             )
         )
-        url = "%s?%s&gravatarproxy=n" % (urlobj.path, urlobj.query)
+        url = f"{urlobj.path}?{urlobj.query}&gravatarproxy=n"
         response = self.client.get(url, follow=True)
         self.assertEqual(
             response.redirect_chain[0][0],
@@ -1500,11 +1515,11 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         # )
         # Eventually one should check if the data is the same
 
-    def test_avatar_url_inexisting_mail_digest_wo_default(
+    def test_avatar_url_non_existing_mail_digest_wo_default(
         self,
     ):  # pylint: disable=invalid-name
         """
-        Test fetching avatar via inexisting mail digest and default 'mm'
+        Test fetching avatar via non existing mail digest and default 'mm'
         """
         urlobj = urlsplit(
             libravatar_url(
@@ -1513,11 +1528,11 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
             )
         )
         digest = hashlib.md5("asdf@company.local".lower().encode("utf-8")).hexdigest()
-        url = "%s?%s" % (urlobj.path, urlobj.query)
+        url = f"{urlobj.path}?{urlobj.query}"
         response = self.client.get(url, follow=True)
         self.assertEqual(
             response.redirect_chain[0][0],
-            "/gravatarproxy/%s?s=80" % digest,
+            f"/gravatarproxy/{digest}?s=80",
             "Doesn't redirect to Gravatar?",
         )
         self.assertEqual(
@@ -1525,7 +1540,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         )
         self.assertEqual(
             response.redirect_chain[1][0],
-            "/avatar/%s?s=80&forcedefault=y" % digest,
+            f"/avatar/{digest}?s=80&forcedefault=y",
             "Doesn't redirect with default forced on?",
         )
         self.assertEqual(
@@ -1544,11 +1559,11 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         # )
         # Eventually one should check if the data is the same
 
-    def test_avatar_url_inexisting_mail_digest_wo_default_gravatarproxy_disabled(
+    def test_avatar_url_non_existing_mail_digest_wo_default_gravatarproxy_disabled(
         self,
     ):  # pylint: disable=invalid-name
         """
-        Test fetching avatar via inexisting mail digest and default 'mm'
+        Test fetching avatar via non existing mail digest and default 'mm'
         """
         urlobj = urlsplit(
             libravatar_url(
@@ -1556,7 +1571,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
                 size=80,
             )
         )
-        url = "%s?%s&gravatarproxy=n" % (urlobj.path, urlobj.query)
+        url = f"{urlobj.path}?{urlobj.query}&gravatarproxy=n"
         response = self.client.get(url, follow=True)
         self.assertEqual(
             response.redirect_chain[0][0],
@@ -1582,7 +1597,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
                 default="/static/img/nobody.png",
             )
         )
-        url = "%s?%s" % (urlobj.path, urlobj.query)
+        url = f"{urlobj.path}?{urlobj.query}"
         url += "&gravatarproxy=n"
         response = self.client.get(url, follow=False)
         self.assertEqual(response.status_code, 302, "Doesn't redirect with 302?")
@@ -1605,7 +1620,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
                 default="/static/img/nobody.png",
             )
         )
-        url = "%s?%s&gravatarproxy=n" % (urlobj.path, urlobj.query)
+        url = f"{urlobj.path}?{urlobj.query}&gravatarproxy=n"
         response = self.client.get(url, follow=True)
         self.assertEqual(
             response.redirect_chain[0][0],
@@ -1627,11 +1642,11 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
                 default=default,
             )
         )
-        url = "%s?%s" % (urlobj.path, urlobj.query)
+        url = f"{urlobj.path}?{urlobj.query}"
         response = self.client.get(url, follow=False)
         self.assertRedirects(
             response=response,
-            expected_url="/gravatarproxy/fb7a6d7f11365642d44ba66dc57df56f?s=%s" % size,
+            expected_url=f"/gravatarproxy/fb7a6d7f11365642d44ba66dc57df56f?s={size}",
             fetch_redirect_response=False,
             msg_prefix="Why does this not redirect to the default img?",
         )
@@ -1648,7 +1663,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
                 default=default,
             )
         )
-        url = "%s?%s" % (urlobj.path, urlobj.query)
+        url = f"{urlobj.path}?{urlobj.query}"
         response = self.client.get(url, follow=False)
         self.assertRedirects(
             response=response,
@@ -1672,7 +1687,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
                 default=default,
             )
         )
-        url = "%s?%s&gravatarproxy=n" % (urlobj.path, urlobj.query)
+        url = f"{urlobj.path}?{urlobj.query}&gravatarproxy=n"
         response = self.client.get(url, follow=False)
         self.assertRedirects(
             response=response,
@@ -1748,14 +1763,14 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
             reverse("password_change"),
             {
                 "old_password": self.password,
-                "new_password1": self.password + ".",
+                "new_password1": f"{self.password}.",
                 "new_password2": self.password,
             },
             follow=True,
         )
         self.assertContains(
             response,
-            "The two password fields didn",
+            "The two password fields did",
             1,
             200,
             "Old password was entered incorrectly, site should raise an error",
@@ -1771,14 +1786,14 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
             {
                 "old_password": self.password,
                 "new_password1": self.password,
-                "new_password2": self.password + ".",
+                "new_password2": f"{self.password}.",
             },
             follow=True,
         )
 
         self.assertContains(
             response,
-            "The two password fields didn",
+            "The two password fields did",
             1,
             200,
             "Old password as entered incorrectly, site should raise an error",
@@ -1829,7 +1844,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         )
         self.assertContains(
             response,
-            self.first_name + " " + self.last_name,
+            f"{self.first_name} {self.last_name}",
             1,
             200,
             "First and last name not correctly listed in profile page",
@@ -2047,7 +2062,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
             "Upload didn't work?",
         )
 
-    def test_prefs_page(self):
+    def test_preferences_page(self):
         """
         Test if preferences page works
         """
@@ -2080,7 +2095,7 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
 
         # Create a second user that will conflict
         user2 = User.objects.create_user(
-            username=self.username + "1",
+            username=f"{self.username}1",
             password=self.password,
             first_name=self.first_name,
             last_name=self.last_name,
@@ -2097,12 +2112,9 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
             "Mail not the same?",
         )
 
-        # This needs to be cought
-        try:
+        # This needs to be caught
+        with contextlib.suppress(AssertionError):
             self.test_confirm_email()
-        except AssertionError:
-            pass
-
         # Request a random page, so we can access the messages
         response = self.client.get(reverse("profile"))
         self.assertEqual(

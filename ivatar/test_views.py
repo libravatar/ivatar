@@ -2,6 +2,9 @@
 """
 Test our views in ivatar.ivataraccount.views and ivatar.views
 """
+
+import contextlib
+
 # pylint: disable=too-many-lines
 import os
 import json
@@ -14,11 +17,8 @@ from ivatar.utils import random_string, Bluesky
 
 BLUESKY_APP_PASSWORD = None
 BLUESKY_IDENTIFIER = None
-try:
+with contextlib.suppress(Exception):
     from settings import BLUESKY_APP_PASSWORD, BLUESKY_IDENTIFIER
-except Exception:  # pylint: disable=broad-except
-    pass
-
 os.environ["DJANGO_SETTINGS_MODULE"] = "ivatar.settings"
 django.setup()
 
@@ -56,16 +56,16 @@ class Tester(TestCase):  # pylint: disable=too-many-public-methods
         """
         Test incorrect digest
         """
-        response = self.client.get("/avatar/%s" % "x" * 65, follow=True)
+        response = self.client.get("/avatar/" + "x" * 65, follow=True)
         self.assertEqual(
-            response.redirect_chain[0][0],
-            "/static/img/deadbeef.png",
+            response.redirect_chain[2][0],
+            "/static/img/nobody/80.png",
             "Doesn't redirect to static?",
         )
         # self.assertRedirects(
-        #    response=response,
-        #    expected_url="/static/img/deadbeef.png",
-        #    msg_prefix="Why does an invalid hash not redirect to deadbeef?",
+        #   response=response,
+        #   expected_url="/static/img/nobody/80.png",
+        #   msg_prefix="Why does an invalid hash not redirect to deadbeef?",
         # )
 
     def test_stats(self):

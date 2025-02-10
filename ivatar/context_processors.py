@@ -3,7 +3,7 @@
 Default: useful variables for the base page templates.
 """
 
-from ipware import get_client_ip
+from ipware import get_client_ip  # type: ignore
 from ivatar.settings import IVATAR_VERSION, SITE_NAME, MAX_PHOTO_SIZE
 from ivatar.settings import BASE_URL, SECURE_BASE_URL
 from ivatar.settings import MAX_NUM_UNCONFIRMED_EMAILS
@@ -28,6 +28,7 @@ def basepage(request):
     context["BASE_URL"] = BASE_URL
     context["SECURE_BASE_URL"] = SECURE_BASE_URL
     context["max_emails"] = False
+
     if request.user:
         if not request.user.is_anonymous:
             unconfirmed = request.user.unconfirmedemail_set.count()
