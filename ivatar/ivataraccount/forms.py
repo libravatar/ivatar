@@ -118,7 +118,7 @@ class UploadPhotoForm(forms.Form):
         photo.ip_address = get_client_ip(request)[0]
         photo.data = data.read()
         photo.save()
-        return None if not photo.pk else photo
+        return photo if photo.pk else None
 
 
 class AddOpenIDForm(forms.Form):
